@@ -180,69 +180,38 @@ def show_prediction():
         return
     
     st.subheader("🌿 Enter Your Farm Conditions")
-    with st.form("prediction_form"):
-        col1, col2 = st.columns(2)
-        with col1:
-            N = st.slider("Nitrogen (N)", 0, 150, 50)
-            P = st.slider("Phosphorus (P)", 0, 150, 50)
-            K = st.slider("Potassium (K)", 0, 150, 50)
-            ph = st.number_input("Soil pH (0-14)", 0.0, 14.0, 6.5)
-        with col2:
-            temp = st.number_input("Temperature (°C)", 0.0, 50.0, 25.0)
-            hum = st.slider("Humidity (%)", 0, 100, 50)
-            rain = st.number_input("Rainfall (mm)", 0.0, 500.0, 100.0)
         
-        submit = st.form_submit_button("✨ Predict Best Crop")
-
-    if submit:
-        # Match order: N, P, K, temperature, humidity, ph, rainfall
-        input_data = np.array([[N, P, K, temp, hum, ph, rain]])
-        prediction = model.predict(input_data)
-        crop = le.inverse_transform(prediction)[0]
-        
-        crop_emojis = {"rice":"🌾","wheat":"🌾","maize":"🌽","coffee":"☕","cotton":"☁️"} # truncated for brevity
-        emoji = crop_emojis.get(crop.lower(), "🌱")
-
-        # --- PREDICTION CARD ---
-        st.markdown(f"""
-            <div class="prediction-card">
-                <h3>Recommended Crop: <strong>{crop.upper()} {emoji}</strong></h3>
-                <p>Based on your soil's NPK levels and local climate, <b>{crop}</b> is the most viable option for a high-yield harvest.</p>
-            </div>
-            """, unsafe_allow_html=True)
-        st.balloons()
-        
-    # col1, col2 = st.columns(2)
-    # with col1:
-    #     N = st.number_input("Nitrogen (N)", 0, 200, 90)
-    #     P = st.number_input("Phosphorus (P)", 0, 200, 40)
-    #     K = st.number_input("Potassium (K)", 0, 200, 45)
-    #     temperature = st.number_input("Temperature (°C)", 0.0, 50.0, 25.0)
-    # with col2:
-    #     humidity = st.number_input("Humidity (%)", 0.0, 100.0, 60.0)
-    #     ph = st.number_input("Soil pH", 3.5, 10.0, 6.5)
-    #     rainfall = st.number_input("Rainfall (mm)", 0.0, 500.0, 100.0)
+    col1, col2 = st.columns(2)
+    with col1:
+        N = st.number_input("Nitrogen (N)", 0, 200, 90)
+        P = st.number_input("Phosphorus (P)", 0, 200, 40)
+        K = st.number_input("Potassium (K)", 0, 200, 45)
+        temperature = st.number_input("Temperature (°C)", 0.0, 50.0, 25.0)
+    with col2:
+        humidity = st.number_input("Humidity (%)", 0.0, 100.0, 60.0)
+        ph = st.number_input("Soil pH", 3.5, 10.0, 6.5)
+        rainfall = st.number_input("Rainfall (mm)", 0.0, 500.0, 100.0)
     
-    # if st.button("✨ Predict Best Crop", use_container_width=True):
-    #     input_data = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
-    #     try:
-    #         prediction = model.predict(input_data)
-    #         crop = le.inverse_transform(prediction)[0]
-    #         crop_emojis = {
-    #             "rice":"🌾","wheat":"🌾","maize":"🌽","chickpea":"🫘",
-    #             "kidneybeans":"🫘","pigeonpeas":"🌱","mothbeans":"🌿",
-    #             "mungbean":"🌱","blackgram":"🫘","lentil":"🌿",
-    #             "pomegranate":"🍇","banana":"🍌","mango":"🥭",
-    #             "grapes":"🍇","watermelon":"🍉","muskmelon":"🍈",
-    #             "apple":"🍎","orange":"🍊","papaya":"🍈","coconut":"🥥",
-    #             "cotton":"☁️","jute":"🌿","coffee":"☕"
-    #         }
-    #         emoji = crop_emojis.get(crop.lower(), "🌱")
-    #         st.success(f"✅ **Recommended Crop:** {crop} {emoji}")
-    #         st.balloons()  # 🎉 optional fun!
-    #         st.markdown(f"### {emoji} Happy Farming! 🌻")
-    #     except Exception as e:
-    #         st.error(f"Prediction error: {e}")
+    if st.button("✨ Predict Best Crop", use_container_width=True):
+        input_data = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
+        try:
+            prediction = model.predict(input_data)
+            crop = le.inverse_transform(prediction)[0]
+            crop_emojis = {
+                "rice":"🌾","wheat":"🌾","maize":"🌽","chickpea":"🫘",
+                "kidneybeans":"🫘","pigeonpeas":"🌱","mothbeans":"🌿",
+                "mungbean":"🌱","blackgram":"🫘","lentil":"🌿",
+                "pomegranate":"🍇","banana":"🍌","mango":"🥭",
+                "grapes":"🍇","watermelon":"🍉","muskmelon":"🍈",
+                "apple":"🍎","orange":"🍊","papaya":"🍈","coconut":"🥥",
+                "cotton":"☁️","jute":"🌿","coffee":"☕"
+            }
+            emoji = crop_emojis.get(crop.lower(), "🌱")
+            st.success(f"✅ **Recommended Crop:** {crop} {emoji}")
+            st.balloons()  # 🎉 optional fun!
+            st.markdown(f"### {emoji} Happy Farming! 🌻")
+        except Exception as e:
+            st.error(f"Prediction error: {e}")
 
 
 # =============================
