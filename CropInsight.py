@@ -1,23 +1,24 @@
 import streamlit as st
-import joblib
-import numpy as np
 
-st.title("🌱 Crop Recommendation System")
+st.set_page_config(page_title="Crop Recommendation System", layout="wide")
 
-model = joblib.load("crop_recommendation_rf.pkl")
-le = joblib.load("label_encoder.pkl")
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
-# User inputs
-N = st.number_input("Nitrogen (N)", 0, 200)
-P = st.number_input("Phosphorus (P)", 0, 200)
-K = st.number_input("Potassium (K)", 0, 200)
-temperature = st.number_input("Temperature (°C)", 0.0, 50.0)
-humidity = st.number_input("Humidity (%)", 0.0, 100.0)
-ph = st.number_input("Soil pH", 0.0, 14.0)
-rainfall = st.number_input("Rainfall (mm)", 0.0, 500.0)
+st.title("🔐 Login")
 
-if st.button("Predict Crop"):
-    input_data = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
-    prediction = model.predict(input_data)
-    crop = le.inverse_transform(prediction)
-    st.success(f"🌾 Recommended Crop: {crop[0]}")
+if not st.session_state.logged_in:
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+        if username == "admin" and password == "admin123":
+            st.session_state.logged_in = True
+            st.success("Login successful!")
+            st.rerun()
+        else:
+            st.error("Invalid credentials")
+else:
+    st.success("You are logged in!")
+    st.write("Use the sidebar to navigate the system.")
+
