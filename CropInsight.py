@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 # =============================
-# PAGE CONFIG & STYLING (ENHANCED + PREDICTION CARD)
+# PAGE CONFIG & STYLING (ENHANCED)
 # =============================
 st.set_page_config(
     page_title="🌱 Crop Insight",
@@ -12,7 +12,7 @@ st.set_page_config(
     layout="wide"
 )
 
-# ✅ Enhanced Styling + Prediction Card CSS
+# ✅ Streamlit-Safe Enhanced Styling (Works in all modern Streamlit versions)
 st.markdown("""
 <style>
 /* Main content background — soft earthy gradient */
@@ -26,7 +26,7 @@ st.markdown("""
     border-right: 1px solid #d4edda;
 }
 
-/* Titles & headers */
+/* Titles & headers — rich green */
 h1, h2, h3 {
     color: #1b5e20 !important;
     font-weight: 700 !important;
@@ -66,37 +66,9 @@ div[data-testid="stDataFrame"] {
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-/* Divider */
+/* Divider & HR */
 hr {
     border-color: #a5d6a7 !important;
-}
-
-/* ✅ Prediction Card */
-.prediction-card {
-    background: white;
-    border-radius: 16px;
-    padding: 24px;
-    box-shadow: 0 6px 20px rgba(0, 100, 0, 0.12);
-    border-left: 5px solid #43a047;
-    margin: 20px 0;
-    animation: fadeIn 0.6s ease-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.prediction-card h3 {
-    color: #1b5e20 !important;
-    margin-bottom: 12px;
-    font-size: 24px;
-}
-
-.prediction-card p {
-    color: #424242;
-    line-height: 1.6;
-    margin: 0;
 }
 </style>
 """, unsafe_allow_html=True)
@@ -108,8 +80,9 @@ if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
 
 if "page" not in st.session_state:
-    st.session_state.page = "login"
+    st.session_state.page = "login"  # can be: login, trend, prediction
 
+    
 # =============================
 # LOAD MODEL & DATA
 # =============================
@@ -130,7 +103,7 @@ def load_data():
         return df
     except FileNotFoundError:
         return None
-
+        
 # =============================
 # LOGIN LOGIC
 # =============================
@@ -148,7 +121,6 @@ def show_login():
         if username == "admin" and password == "admin123":
             st.session_state.logged_in = True
             st.session_state.page = "trend"
-            st.success("✅ Login successful! Redirecting...")
             st.experimental_rerun()
         else:
             st.error("❌ Invalid credentials")
@@ -159,6 +131,7 @@ def show_login():
 def show_trend():
     st.title("📊 Trend Visualization")
     
+    # ✅ Header banner
     st.markdown("""
     <div style='background: linear-gradient(to right, #43a047, #2e7d32); padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
         <h4 style='margin:0; font-weight:600;'>🌾 Smart Crop Insights for Sustainable Farming</h4>
@@ -187,6 +160,7 @@ def show_trend():
 def show_prediction():
     st.title("🌱 Crop Recommendation System")
     
+    # ✅ Header banner
     st.markdown("""
     <div style='background: linear-gradient(to right, #43a047, #2e7d32); padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
         <h4 style='margin:0; font-weight:600;'>🌾 Smart Crop Recommendation for Sustainable Farming</h4>
@@ -228,47 +202,21 @@ def show_prediction():
                 "cotton":"☁️","jute":"🌿","coffee":"☕"
             }
             emoji = crop_emojis.get(crop.lower(), "🌱")
-            
-            # ✅ NEW: Beautiful prediction card
-            st.markdown(f"""
-            <div class="prediction-card">
-                <h3>Recommended Crop: <strong>{crop.upper()} {emoji}</strong></h3>
-                <p>Based on your soil's NPK levels and local climate, <b>{crop}</b> is the most viable option for a high-yield, sustainable harvest.</p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            st.balloons()
+            st.success(f"✅ **Recommended Crop:** {crop} {emoji}")
+            st.balloons()  # 🎉 optional fun!
             st.markdown(f"### {emoji} Happy Farming! 🌻")
-            
         except Exception as e:
             st.error(f"Prediction error: {e}")
 
 # =============================
-# SIDEBAR NAVIGATION (AFTER LOGIN) — FIXED LABEL MATCH
+# SIDEBAR NAVIGATION (AFTER LOGIN)
 # =============================
 if st.session_state.logged_in:
     st.sidebar.title("🧭 Navigation")
-    
-    # ✅ Fixed: Labels now EXACTLY match page logic
-    choice = st.sidebar.radio(
-        "Go to:",
-        ["📊 Trend Visualization", "🌱 Crop Prediction"],
-        index=0 if st.session_state.page == "trend" else 1
-    )
-    
-    # Map choice to page
-    if choice == "📊 Trend Visualization":
-        st.session_state.page = "trend"
-    elif choice == "🌱 Crop Prediction":
-        st.session_state.page = "prediction"
-    
-    # ✅ Logout button
-    st.sidebar.markdown("---")
-    if st.sidebar.button("🚪 Logout", use_container_width=True):
-        st.session_state.logged_in = False
-        st.session_state.page = "login"
-        st.experimental_rerun()
+    choice = st.sidebar.radio("Go to:", ["📊Trend Visualization", "🌱Crop Prediction"])
+    st.session_state.page = "trend" if choice == "Trend Visualization" else "prediction"
 
+        
 # =============================
 # PAGE DISPLAY LOGIC
 # =============================
