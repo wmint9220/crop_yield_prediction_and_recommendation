@@ -4,61 +4,63 @@ import numpy as np
 import pandas as pd
 
 # =============================
-# PAGE CONFIG & STYLING (ENHANCED + PREDICTION CARD)
+# PAGE CONFIG
 # =============================
 st.set_page_config(
-    page_title="🌱 Crop Insight",
+    page_title="🌱 Crop Insight | Smart Agriculture",
     page_icon="🌾",
     layout="wide"
 )
 
-# ✅ Enhanced Styling + Prediction Card CSS
+# =============================
+# CUSTOM STYLING (DARK BROWN THEME)
+# =============================
 st.markdown("""
 <style>
-/* Main content background — soft earthy gradient */
+/* Main background gradient - earthy dark brown */
 [data-testid="stAppViewContainer"] {
-    background: linear-gradient(135deg, #f8f9f4 0%, #eef7e8 40%, #e0f2e5 100%);
+    background: linear-gradient(135deg, #f4ece3 0%, #e5d7c2 50%, #d8c3a5 100%);
 }
 
 /* Sidebar styling */
 [data-testid="stSidebar"] {
-    background-color: #f0f7eb !important;
-    border-right: 1px solid #d4edda;
+    background-color: #f0e6da !important;
+    border-right: 1px solid #c7b198;
 }
 
 /* Titles & headers */
 h1, h2, h3 {
-    color: #1b5e20 !important;
+    color: #4e342e !important;
     font-weight: 700 !important;
 }
 
-/* Button styling */
+/* Buttons */
 .stButton > button {
-    background: linear-gradient(to right, #2e7d32, #1b5e20);
+    background: linear-gradient(to right, #6d4c41, #4e342e);
     color: white;
     border-radius: 14px;
-    height: 54px;
+    height: 50px;
     font-weight: bold;
-    font-size: 18px;
+    font-size: 16px;
     width: 100%;
     border: none;
-    box-shadow: 0 4px 10px rgba(46, 125, 50, 0.2);
+    box-shadow: 0 4px 8px rgba(78, 52, 46, 0.3);
     transition: all 0.3s ease;
 }
 .stButton > button:hover {
-    background: linear-gradient(to right, #1b5e20, #0d4c1a);
+    background: linear-gradient(to right, #4e342e, #3e2723);
     transform: translateY(-2px);
-    box-shadow: 0 6px 14px rgba(27, 94, 32, 0.3);
+    box-shadow: 0 6px 12px rgba(62, 39, 35, 0.4);
 }
 
 /* Input fields */
 input, textarea, select {
     border-radius: 8px !important;
-    border: 1px solid #a5d6a7 !important;
+    border: 1px solid #a1887f !important;
     background-color: white !important;
 }
 
-/* Dataframe container */
+/* Dataframe styling */
 div[data-testid="stDataFrame"] {
     background: white;
     border-radius: 10px;
@@ -68,33 +70,30 @@ div[data-testid="stDataFrame"] {
 
 /* Divider */
 hr {
-    border-color: #a5d6a7 !important;
+    border-color: #a1887f !important;
 }
 
-/* ✅ Prediction Card */
+/* Prediction card */
 .prediction-card {
     background: white;
     border-radius: 16px;
     padding: 24px;
-    box-shadow: 0 6px 20px rgba(0, 100, 0, 0.12);
-    border-left: 5px solid #43a047;
+    border-left: 5px solid #6d4c41;
+    box-shadow: 0 6px 20px rgba(78, 52, 46, 0.12);
     margin: 20px 0;
     animation: fadeIn 0.6s ease-out;
 }
-
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-
 .prediction-card h3 {
-    color: #1b5e20 !important;
+    color: #4e342e !important;
     margin-bottom: 12px;
     font-size: 24px;
 }
-
 .prediction-card p {
-    color: #424242;
+    color: #5d4037;
     line-height: 1.6;
     margin: 0;
 }
@@ -102,13 +101,17 @@ hr {
 """, unsafe_allow_html=True)
 
 # =============================
-# SESSION STATE INITIALIZATION
+# SESSION STATE
 # =============================
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
-
 if "page" not in st.session_state:
     st.session_state.page = "login"
+
+def logout():
+    st.session_state.logged_in = False
+    st.session_state.page = "login"
+    st.experimental_rerun()
 
 # =============================
 # LOAD MODEL & DATA
@@ -120,7 +123,7 @@ def load_model():
         le = joblib.load("label_encoder.pkl")
         return model, le
     except Exception as e:
-        st.error(f"ModelError: {e}")
+        st.error(f"Model load error: {e}")
         return None, None
 
 @st.cache_data
@@ -132,76 +135,61 @@ def load_data():
         return None
 
 # =============================
-# LOGIN LOGIC
+# LOGIN PAGE
 # =============================
 def show_login():
-    st.title("🔐 Crop Insight Login")
-    st.markdown("""
-    <div style='background: linear-gradient(to right, #43a047, #2e7d32); padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
-        <h4 style='margin:0; font-weight:600;'>🌱 Empowering Farmers with AI-Data Driven Crop Insights</h4>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        if username == "admin" and password == "admin123":
-            st.session_state.logged_in = True
-            st.session_state.page = "trend"
-            st.success("✅ Login successful! Redirecting...")
-            st.experimental_rerun()
-        else:
-            st.error("❌ Invalid credentials")
+    _, col, _ = st.columns([1,2,1])
+    with col:
+        st.markdown("<h1 style='text-align:center;color:#4e342e;'>🌱 Crop Insight Portal</h1>", unsafe_allow_html=True)
+        st.success("""
+        ### **Smart Agriculture AI**
+        Log in to access predictive crop recommendations and analyze soil & climate trends.
+        """)
+
+        username = st.text_input("Username")
+        password = st.text_input("Password", type="password")
+        if st.button("Login"):
+            if username == "admin" and password == "admin123":
+                st.session_state.logged_in = True
+                st.session_state.page = "trend"
+                st.experimental_rerun()
+            else:
+                st.error("❌ Invalid credentials")
 
 # =============================
-# TREND VISUALIZATION SECTION
+# TREND VISUALIZATION
 # =============================
 def show_trend():
-    st.title("📊 Trend Visualization")
-    
-    st.markdown("""
-    <div style='background: linear-gradient(to right, #43a047, #2e7d32); padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
-        <h4 style='margin:0; font-weight:600;'>🌾 Smart Crop Insights for Sustainable Farming</h4>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("Explore patterns in crop cultivation based on soil and weather data.")
-    
+    st.title("📊 Agricultural Trend Insights")
+    st.info("Explore soil and climate patterns to optimize crop selection.")
+
     df = load_data()
     if df is not None:
-        st.subheader("Dataset Overview")
+        st.subheader("Dataset Sample")
         st.dataframe(df.head(10))
-        
-        st.subheader("🌡️ Average Temperature by Crop")
+
+        st.subheader("🌡️ Avg Temperature per Crop")
         temp_by_crop = df.groupby('label')['temperature'].mean().sort_values(ascending=False)
         st.bar_chart(temp_by_crop)
-        
-        st.subheader("💧 Rainfall Distribution (Sample)")
+
+        st.subheader("💧 Rainfall Distribution")
         st.line_chart(df[['rainfall']].sample(min(100, len(df)), random_state=42))
     else:
-        st.warning("📁 Dataset `Crop_recommendation.csv` not found. Place it in the same directory to enable visualizations!")
+        st.warning("⚠️ Dataset not found. Place 'Crop_recommendation.csv' in the app directory.")
 
 # =============================
-# PREDICTION SECTION
+# CROP PREDICTION
 # =============================
 def show_prediction():
     st.title("🌱 Crop Recommendation System")
-    
-    st.markdown("""
-    <div style='background: linear-gradient(to right, #43a047, #2e7d32); padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
-        <h4 style='margin:0; font-weight:600;'>🌾 Smart Crop Recommendation for Sustainable Farming</h4>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    st.markdown("Discover the **best crop** to grow based on your soil and climate conditions! 🌾💧")
-    st.divider()
-    
+    st.success("Input your soil & climate parameters to get AI-based crop suggestions.")
+
     model, le = load_model()
-    if model is None or le is None:
-        st.error("❌ Model files missing. Please ensure `crop_recommendation_rf.pkl` and `label_encoder.pkl` exist.")
+    if model is None:
+        st.error("🚨 Model files missing!")
         return
-    
-    st.subheader("🌿 Enter Your Farm Conditions")
+
+    st.subheader("Enter Farm Conditions")
     col1, col2 = st.columns(2)
     with col1:
         N = st.number_input("Nitrogen (N)", 0, 200, 90)
@@ -212,12 +200,13 @@ def show_prediction():
         humidity = st.number_input("Humidity (%)", 0.0, 100.0, 60.0)
         ph = st.number_input("Soil pH", 3.5, 10.0, 6.5)
         rainfall = st.number_input("Rainfall (mm)", 0.0, 500.0, 100.0)
-    
-    if st.button("✨ Predict Best Crop", use_container_width=True):
+
+    if st.button("✨ Predict Crop", use_container_width=True):
         input_data = np.array([[N, P, K, temperature, humidity, ph, rainfall]])
         try:
             prediction = model.predict(input_data)
             crop = le.inverse_transform(prediction)[0]
+
             crop_emojis = {
                 "rice":"🌾","wheat":"🌾","maize":"🌽","chickpea":"🫘",
                 "kidneybeans":"🫘","pigeonpeas":"🌱","mothbeans":"🌿",
@@ -228,53 +217,37 @@ def show_prediction():
                 "cotton":"☁️","jute":"🌿","coffee":"☕"
             }
             emoji = crop_emojis.get(crop.lower(), "🌱")
-            
-            # ✅ NEW: Beautiful prediction card
+
             st.markdown(f"""
             <div class="prediction-card">
                 <h3>Recommended Crop: <strong>{crop.upper()} {emoji}</strong></h3>
-                <p>Based on your soil's NPK levels and local climate, <b>{crop}</b> is the most viable option for a high-yield, sustainable harvest.</p>
+                <p>Based on your soil's NPK and climate, <b>{crop}</b> is the most suitable crop for a high-yield harvest.</p>
             </div>
             """, unsafe_allow_html=True)
-            
             st.balloons()
-            st.markdown(f"### {emoji} Happy Farming! 🌻")
-            
         except Exception as e:
-            st.error(f"Prediction error: {e}")
+            st.error(f"Prediction Error: {e}")
 
 # =============================
-# SIDEBAR NAVIGATION (AFTER LOGIN) — FIXED LABEL MATCH
+# MAIN NAVIGATION
 # =============================
 if st.session_state.logged_in:
     st.sidebar.title("🧭 Navigation")
-    
-    # ✅ Fixed: Labels now EXACTLY match page logic
-    choice = st.sidebar.radio(
-        "Go to:",
-        ["📊 Trend Visualization", "🌱 Crop Prediction"],
-        index=0 if st.session_state.page == "trend" else 1
-    )
-    
-    # Map choice to page
-    if choice == "📊 Trend Visualization":
-        st.session_state.page = "trend"
-    elif choice == "🌱 Crop Prediction":
-        st.session_state.page = "prediction"
-    
-    # ✅ Logout button
+    st.sidebar.write("Logged in as: **Admin**")
+    choice = st.sidebar.radio("Go to:", ["📊 Trend Visualization", "🌱 Crop Prediction"])
     st.sidebar.markdown("---")
     if st.sidebar.button("🚪 Logout", use_container_width=True):
-        st.session_state.logged_in = False
-        st.session_state.page = "login"
-        st.experimental_rerun()
+        logout()
+
+    if choice == "📊 Trend Visualization":
+        show_trend()
+    else:
+        show_prediction()
+else:
+    show_login()
 
 # =============================
-# PAGE DISPLAY LOGIC
+# FOOTER
 # =============================
-if not st.session_state.logged_in:
-    show_login()
-elif st.session_state.page == "trend":
-    show_trend()
-elif st.session_state.page == "prediction":
-    show_prediction()
+st.markdown("---")
+st.caption("© 2026 Crop Insight AI | Sustainable Agriculture with Machine Learning")
