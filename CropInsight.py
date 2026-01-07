@@ -13,11 +13,11 @@ st.set_page_config(
 )
 
 # =============================
-# CUSTOM STYLING (DARK BROWN THEME)
+# CUSTOM STYLING - DARK BROWN
 # =============================
 st.markdown("""
 <style>
-/* Main background gradient - earthy dark brown */
+/* Main background gradient */
 [data-testid="stAppViewContainer"] {
     background: linear-gradient(135deg, #f4ece3 0%, #e5d7c2 50%, #d8c3a5 100%);
 }
@@ -143,7 +143,7 @@ def show_login():
         st.markdown("<h1 style='text-align:center;color:#4e342e;'>🌱 Crop Insight Portal</h1>", unsafe_allow_html=True)
         st.success("""
         ### **Smart Agriculture AI**
-        Log in to access predictive crop recommendations and analyze soil & climate trends.
+        Log in to access predictive crop recommendations and explore soil & climate trends.
         """)
 
         username = st.text_input("Username")
@@ -157,25 +157,76 @@ def show_login():
                 st.error("❌ Invalid credentials")
 
 # =============================
-# TREND VISUALIZATION
+# TREND VISUALIZATION WITH SLICERS
 # =============================
 def show_trend():
-    st.title("📊 Agricultural Trend Insights")
-    st.info("Explore soil and climate patterns to optimize crop selection.")
+    st.title("📊 Agricultural Trend Dashboard")
+    st.info("Filter and explore soil & climate data for smarter crop decisions.")
 
     df = load_data()
-    if df is not None:
-        st.subheader("Dataset Sample")
-        st.dataframe(df.head(10))
+    if df is None:
+        st.warning("⚠️ Dataset not found. Place 'Crop_recommendation.csv' in the app directory.")
+        return
 
-        st.subheader("🌡️ Avg Temperature per Crop")
-        temp_by_crop = df.groupby('label')['temperature'].mean().sort_values(ascending=False)
+    # ----------------------
+    # Filters / Slicers
+    # ----------------------
+    st.subheader("🔎 Filters / Slicers")
+    
+    # Crop filter
+    crops = df['label'].unique().tolist()
+    selected_crops = st.multiselect("Select Crop(s):", options=crops, default=crops)
+
+    # Sliders
+    col1, col2, col3 = st.columns(3)
+    with col1:
+        temp_min, temp_max = st.slider("Temperature (°C)", float(df['temperature'].min()), float(df['temperature'].max()), (float(df['temperature'].min()), float(df['temperature'].max())))
+        hum_min, hum_max = st.slider("Humidity (%)", float(df['humidity'].min()), float(df['humidity'].max()), (float(df['humidity'].min()), float(df['humidity'].max())))
+    with col2:
+        rainfall_min, rainfall_max = st.slider("Rainfall (mm)", float(df['rainfall'].min()), float(df['rainfall'].max()), (float(df['rainfall'].min()), float(df['rainfall'].max())))
+        ph_min, ph_max = st.slider("Soil pH", float(df['ph'].min()), float(df['ph'].max()), (float(df['ph'].min()), float(df['ph'].max())))
+    with col3:
+        N_min, N_max = st.slider("Nitrogen (N)", float(df['N'].min()), float(df['N'].max()), (float(df['N'].min()), float(df['N'].max())))
+        P_min, P_max = st.slider("Phosphorus (P)", float(df['P'].min()), float(df['P'].max()), (float(df['P'].min()), float(df['P'].max())))
+        K_min, K_max = st.slider("Potassium (K)", float(df['K'].min()), float(df['K'].max()), (float(df['K'].min()), float(df['K'].max())))
+
+    # Apply filters
+    filtered_df = df[
+        (df['label'].isin(selected_crops)) &
+        (df['temperature'] >= temp_min) & (df['temperature'] <= temp_max) &
+        (df['humidity'] >= hum_min) & (df['humidity'] <= hum_max) &
+        (df['rainfall'] >= rainfall_min) & (df['rainfall'] <= rainfall_max) &
+        (df['ph'] >= ph_min) & (df['ph'] <= ph_max) &
+        (df['N'] >= N_min) & (df['N'] <= N_max) &
+        (df['P'] >= P_min) & (df['P'] <= P_max) &
+        (df['K'] >= K_min) & (df['K'] <= K_max)
+    ]
+
+    # ----------------------
+    # Summary Cards
+    # ----------------------
+    st.subheader("📌 Quick Summary")
+    col1, col2, col3, col4 = st.columns(4)
+    col1.metric("Filtered Rows", len(filtered_df))
+    col2.metric("Avg Temp (°C)", round(filtered_df['temperature'].mean(),2) if not filtered_df.empty else 0)
+    col3.metric("Avg Rainfall (mm)", round(filtered_df['rainfall'].mean(),2) if not filtered_df.empty else 0)
+    col4.metric("Avg Humidity (%)", round(filtered_df['humidity'].mean(),2) if not filtered_df.empty else 0)
+
+    # ----------------------
+    # Data & Charts
+    # ----------------------
+    st.subheader("Filtered Dataset Sample")
+    st.dataframe(filtered_df.head(10))
+
+    st.subheader("🌡️ Avg Temperature per Crop")
+    if not filtered_df.empty:
+        temp_by_crop = filtered_df.groupby('label')['temperature'].mean().sort_values(ascending=False)
         st.bar_chart(temp_by_crop)
 
         st.subheader("💧 Rainfall Distribution")
-        st.line_chart(df[['rainfall']].sample(min(100, len(df)), random_state=42))
+        st.line_chart(filtered_df[['rainfall']].sample(min(100,len(filtered_df)), random_state=42))
     else:
-        st.warning("⚠️ Dataset not found. Place 'Crop_recommendation.csv' in the app directory.")
+        st.info("No data available for selected filters. Adjust slicers above.")
 
 # =============================
 # CROP PREDICTION
@@ -207,15 +258,7 @@ def show_prediction():
             prediction = model.predict(input_data)
             crop = le.inverse_transform(prediction)[0]
 
-            crop_emojis = {
-                "rice":"🌾","wheat":"🌾","maize":"🌽","chickpea":"🫘",
-                "kidneybeans":"🫘","pigeonpeas":"🌱","mothbeans":"🌿",
-                "mungbean":"🌱","blackgram":"🫘","lentil":"🌿",
-                "pomegranate":"🍇","banana":"🍌","mango":"🥭",
-                "grapes":"🍇","watermelon":"🍉","muskmelon":"🍈",
-                "apple":"🍎","orange":"🍊","papaya":"🍈","coconut":"🥥",
-                "cotton":"☁️","jute":"🌿","coffee":"☕"
-            }
+            crop_emojis = {"rice":"🌾","wheat":"🌾","maize":"🌽","chickpea":"🫘","banana":"🍌","mango":"🥭","coffee":"☕","cotton":"☁️"}
             emoji = crop_emojis.get(crop.lower(), "🌱")
 
             st.markdown(f"""
