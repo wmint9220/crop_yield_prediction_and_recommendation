@@ -82,10 +82,6 @@ if "logged_in" not in st.session_state:
 if "page" not in st.session_state:
     st.session_state.page = "login"  # can be: login, trend, prediction
 
-def logout():
-    st.session_state.logged_in = False
-    st.session_state.page = "login"
-    st.rerun()
     
 # =============================
 # LOAD MODEL & DATA
@@ -167,7 +163,7 @@ def show_prediction():
     # ✅ Header banner
     st.markdown("""
     <div style='background: linear-gradient(to right, #43a047, #2e7d32); padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
-        <h4 style='margin:0; font-weight:600;'>🌾 Smart Crop Insights for Sustainable Farming</h4>
+        <h4 style='margin:0; font-weight:600;'>🌾 Smart Crop Recommendation for Sustainable Farming</h4>
     </div>
     """, unsafe_allow_html=True)
     
@@ -231,5 +227,3 @@ elif st.session_state.page == "trend":
 elif st.session_state.page == "prediction":
     show_prediction()
     
-elif st.sidebar.button("🔓 Logout"):
-        logout()
