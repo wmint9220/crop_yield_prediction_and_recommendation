@@ -114,6 +114,7 @@ def show_trend():
     else:
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is currently missing.")
 
+
 def show_prediction():
     st.title("🌱 Intelligent Crop Recommendation")
     
