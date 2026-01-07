@@ -82,27 +82,11 @@ if "logged_in" not in st.session_state:
 if "page" not in st.session_state:
     st.session_state.page = "login"  # can be: login, trend, prediction
 
-# =============================
-# LOGIN LOGIC
-# =============================
-def show_login():
-    st.title("🔐 Crop Insight Login")
-    st.markdown("""
-    <div style='background: linear-gradient(to right, #43a047, #2e7d32); padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
-        <h4 style='margin:0; font-weight:600;'>🌱 Empowering Farmers with AI-Driven Crop Insights</h4>
-    </div>
-    """, unsafe_allow_html=True)
+def logout():
+    st.session_state.logged_in = False
+    st.session_state.page = "login"
+    st.rerun()
     
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        if username == "admin" and password == "admin123":
-            st.session_state.logged_in = True
-            st.session_state.page = "trend"
-            st.experimental_rerun()
-        else:
-            st.error("❌ Invalid credentials")
-
 # =============================
 # LOAD MODEL & DATA
 # =============================
@@ -123,6 +107,27 @@ def load_data():
         return df
     except FileNotFoundError:
         return None
+        
+# =============================
+# LOGIN LOGIC
+# =============================
+def show_login():
+    st.title("🔐 Crop Insight Login")
+    st.markdown("""
+    <div style='background: linear-gradient(to right, #43a047, #2e7d32); padding: 12px 20px; border-radius: 12px; margin-bottom: 20px; color: white; box-shadow: 0 4px 12px rgba(0,0,0,0.1);'>
+        <h4 style='margin:0; font-weight:600;'>🌱 Empowering Farmers with AI-Data Driven Crop Insights</h4>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        if username == "admin" and password == "admin123":
+            st.session_state.logged_in = True
+            st.session_state.page = "trend"
+            st.experimental_rerun()
+        else:
+            st.error("❌ Invalid credentials")
 
 # =============================
 # TREND VISUALIZATION SECTION
@@ -212,9 +217,13 @@ def show_prediction():
 # =============================
 if st.session_state.logged_in:
     st.sidebar.title("🧭 Navigation")
-    choice = st.sidebar.radio("Go to:", ["Trend Visualization", "Crop Prediction"])
+    choice = st.sidebar.radio("Go to:", ["📊Trend Visualization", "🌱Crop Prediction"])
     st.session_state.page = "trend" if choice == "Trend Visualization" else "prediction"
-
+    
+st.sidebar.divider()
+    if st.sidebar.button("🔓 Logout"):
+        logout()
+        
 # =============================
 # PAGE DISPLAY LOGIC
 # =============================
