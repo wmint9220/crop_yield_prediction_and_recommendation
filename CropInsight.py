@@ -219,10 +219,7 @@ if st.session_state.logged_in:
     st.sidebar.title("🧭 Navigation")
     choice = st.sidebar.radio("Go to:", ["📊Trend Visualization", "🌱Crop Prediction"])
     st.session_state.page = "trend" if choice == "Trend Visualization" else "prediction"
-    
-st.sidebar.divider()
-    if st.sidebar.button("🔓 Logout"):
-        logout()
+
         
 # =============================
 # PAGE DISPLAY LOGIC
@@ -233,3 +230,6 @@ elif st.session_state.page == "trend":
     show_trend()
 elif st.session_state.page == "prediction":
     show_prediction()
+    
+elif st.sidebar.button("🔓 Logout"):
+        logout()
