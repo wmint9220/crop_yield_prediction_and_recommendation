@@ -74,7 +74,8 @@ def load_stage1():
 @st.cache_resource
 def load_stage2():
     try:
-        return joblib.load("xgboost_yield_model.pkl")  
+        model_2 = joblib.load("xgboost_yield_model.pkl") 
+        return model_2
     except:
         return None
 
