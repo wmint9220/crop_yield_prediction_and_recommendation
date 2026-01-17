@@ -74,10 +74,11 @@ def load_stage1():
 @st.cache_resource
 def load_stage2():
     try:
-        model_2 = joblib.load("xgboost_yield_model.pkl") 
-        return model_2
-    except:
+        return joblib.load("xgboost_yield_model.pkl")  
+    except Exception as e:
+        st.error(f"Stage 2 model load failed: {e}")
         return None
+
 
 @st.cache_data
 def load_data():
