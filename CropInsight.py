@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 
 # =============================
-# PAGE CONFIG & STYLING
+# PAGE CONFIG
 # =============================
 st.set_page_config(
     page_title="🌱 Crop Insight | Smart Agriculture",
@@ -12,14 +12,14 @@ st.set_page_config(
     layout="wide"
 )
 
+# =============================
+# STYLING
+# =============================
 st.markdown("""
 <style>
-/* Main content background - Earthy Gradient */
 [data-testid="stAppViewContainer"] {
     background: linear-gradient(135deg, #f8f9f4 0%, #eef7e8 40%, #e0f2e5 100%);
 }
-
-/* Custom Card for Login and Results */
 .prediction-card {
     background-color: white;
     padding: 30px;
@@ -31,13 +31,9 @@ st.markdown("""
 .prediction-card h2 {
     color: #1b5e20 !important;
 }
-
-/* Sidebar Styling */
-[data-testid="stSidebar"] { 
-    background-color: #f0f7eb !important; 
+[data-testid="stSidebar"] {
+    background-color: #f0f7eb !important;
 }
-
-/* Button Styling */
 .stButton > button {
     border-radius: 12px;
     font-weight: bold;
@@ -47,29 +43,33 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # =============================
-# SESSION STATE & LOGOUT
+# SESSION STATE
 # =============================
 if "logged_in" not in st.session_state:
     st.session_state.logged_in = False
-if "page" not in st.session_state:
-    st.session_state.page = "login"
 
 def logout():
     st.session_state.logged_in = False
-    st.session_state.page = "login"
     st.rerun()
 
 # =============================
-# LOAD MODEL & DATA
+# LOAD MODELS
 # =============================
 @st.cache_resource
-def load_model():
+def load_stage1():
     try:
         model = joblib.load("crop_recommendation_rf.pkl")
         le = joblib.load("label_encoder.pkl")
         return model, le
     except:
         return None, None
+
+@st.cache_resource
+def load_stage2():
+    try:
+        return joblib.load("xgboost_yield_model.pkl")  # full pipeline
+    except:
+        return None
 
 @st.cache_data
 def load_data():
@@ -79,106 +79,135 @@ def load_data():
         return None
 
 # =============================
-# UI SECTIONS
+# AGRONOMIC REMARKS
 # =============================
+def generate_remarks(N, P, K, ph, crop):
+    remarks = []
 
+    if N < 40:
+        remarks.append("Low nitrogen detected. Increase nitrogen to support leafy and vegetative growth.")
+    elif N > 100:
+        remarks.append("High nitrogen availability detected. Suitable for crops with high vegetative demand.")
+
+    if P < 30:
+        remarks.append("Low phosphorus may limit root development and flowering.")
+    if K < 40:
+        remarks.append("Low potassium detected. Potassium improves stress tolerance and yield quality.")
+
+    if ph < 5.5:
+        remarks.append("Soil is acidic. Liming may improve nutrient availability.")
+    elif ph > 7.5:
+        remarks.append("Soil is alkaline. Organic matter can help balance soil pH.")
+
+    remarks.append(f"{crop} is agronomically suitable under the given soil and climate conditions.")
+
+    return remarks
+
+# =============================
+# LOGIN PAGE
+# =============================
 def show_login():
     st.title("🔐 Crop Insight Login")
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
+
     if st.button("Login"):
         if username == "admin" and password == "admin123":
             st.session_state.logged_in = True
-            st.session_state.page = "trend"
             st.rerun()
         else:
             st.error("❌ Invalid credentials")
-            
+
+# =============================
+# TREND PAGE
+# =============================
 def show_trend():
     st.title("📊 Agricultural Data Trends")
-    
-    st.info("""
-    ### 📖 Data Interpretation Guide
-    The following visualizations represent a multi-variate analysis of soil and climate conditions. 
-    Using these tools, you can identify which environmental factors (like temperature or rainfall) 
-    are the most critical drivers for successful crop cultivation in your specific region.
-    """)
-    
     df = load_data()
+
     if df is not None:
-        st.subheader("🌡️ Optimal Temperature Ranges per Crop")
-        st.write("This analysis identifies the thermal limits for various crop species, helping you plan for climate variability.")
-        temp_by_crop = df.groupby('label')['temperature'].mean().sort_values(ascending=False)
+        temp_by_crop = df.groupby("label")["temperature"].mean().sort_values()
+        st.subheader("🌡️ Average Temperature by Crop")
         st.bar_chart(temp_by_crop)
     else:
-        st.warning("⚠️ Data source file ('Crop_recommendation.csv') is currently missing.")
+        st.warning("Dataset not found.")
 
+# =============================
+# PREDICTION PAGE (STAGE 1 + 2)
+# =============================
 def show_prediction():
-    st.title("🌱 Intelligent Crop Recommendation")
-    
-    st.success("""
-    ### 🛠️ Recommendation Methodology
-    Our AI model evaluates **seven distinct data points** to minimize risk and maximize harvest yield. 
-    Please input your soil test results accurately. Nitrogen (N), Phosphorus (P), and Potassium (K) 
-    are measured in kg/ha, while climate factors are based on seasonal averages.
-    """)
-    
-    model, le = load_model()
-    if model is None:
-        st.error("🚨 Critical Error: The Machine Learning model files could not be loaded.")
+    st.title("🌱 Intelligent Crop & Yield Prediction")
+
+    stage1_model, le = load_stage1()
+    stage2_model = load_stage2()
+
+    if stage1_model is None or stage2_model is None:
+        st.error("🚨 Model files not found.")
         return
 
     with st.form("prediction_form"):
-        st.subheader("📝 Farm Environment Profile")
         col1, col2 = st.columns(2)
-        
+
         with col1:
-            st.markdown("##### **Soil Chemical Properties**")
-            N = st.slider("Nitrogen (N) Content", 0, 150, 50)
-            P = st.slider("Phosphorus (P) Content", 0, 150, 50)
-            K = st.slider("Potassium (K) Content", 0, 150, 50)
-            ph = st.number_input("Soil pH Level (0.0 - 14.0)", 0.0, 14.0, 6.5)
-        
+            N = st.slider("Nitrogen (N)", 0, 150, 50)
+            P = st.slider("Phosphorus (P)", 0, 150, 50)
+            K = st.slider("Potassium (K)", 0, 150, 50)
+            ph = st.number_input("Soil pH", 0.0, 14.0, 6.5)
+
         with col2:
-            st.markdown("##### **Atmospheric Parameters**")
-            temp = st.number_input("Ambient Temperature (°C)", 0.0, 50.0, 25.0)
-            hum = st.slider("Relative Humidity (%)", 0, 100, 50)
-            rain = st.number_input("Average Rainfall (mm)", 0.0, 1000.0, 100.0)
-        
-        st.markdown("---")
-        submit = st.form_submit_button("✨ Analyze & Recommend")
+            temp = st.number_input("Temperature (°C)", 0.0, 50.0, 25.0)
+            hum = st.slider("Humidity (%)", 0, 100, 60)
+            rain = st.number_input("Rainfall (mm)", 0.0, 1000.0, 120.0)
+
+        submit = st.form_submit_button("🌾 Predict")
 
     if submit:
-        input_data = np.array([[N, P, K, temp, hum, ph, rain]])
-        prediction = model.predict(input_data)
-        crop = le.inverse_transform(prediction)[0]
-        
-        crop_emojis = {"rice":"🌾","wheat":"🌾","maize":"🌽","coffee":"☕","cotton":"☁️", "banana":"🍌"}
-        emoji = crop_emojis.get(crop.lower(), "🌱")
+        # ---------- Stage 1 ----------
+        stage1_input = np.array([[N, P, K, temp, hum, ph, rain]])
+        crop_encoded = stage1_model.predict(stage1_input)
+        crop = le.inverse_transform(crop_encoded)[0]
+
+        # ---------- Stage 2 ----------
+        stage2_input = pd.DataFrame([{
+            "N": N,
+            "P": P,
+            "K": K,
+            "ph": ph,
+            "temperature": temp,
+            "humidity": hum,
+            "rainfall": rain,
+            "Crop_Type": crop,
+            "Soil_Type": "Loamy",
+            "Irrigation_Type": "Rainfed",
+            "Sunlight_Hours": 6.0,
+            "Soil_Moisture": 45.0,
+            "Fertilizer_Used": 120.0
+        }])
+
+        predicted_yield = stage2_model.predict(stage2_input)[0]
+
+        remarks = generate_remarks(N, P, K, ph, crop)
 
         st.markdown(f"""
-            <div class="prediction-card">
-                <h2>Recommended Crop: <strong>{crop.upper()} {emoji}</strong></h2>
-                <p>
-                    Based on your input, <b>{crop}</b> has been identified as the most suitable crop. 
-                    This recommendation takes into account the specific soil pH and NPK balance required for 
-                    this species to thrive under the current temperature and rainfall projections.
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
+        <div class="prediction-card">
+            <h2>🌱 Recommended Crop: <strong>{crop.upper()}</strong></h2>
+            <h3>📈 Estimated Yield: <strong>{predicted_yield:.2f} ton/ha</strong></h3>
+        </div>
+        """, unsafe_allow_html=True)
+
+        st.subheader("🧾 Agronomic Recommendations")
+        for r in remarks:
+            st.markdown(f"- ✅ {r}")
+
         st.balloons()
 
 # =============================
-# MAIN NAVIGATION
+# MAIN APP
 # =============================
 if st.session_state.logged_in:
     st.sidebar.title("🧭 Navigation")
-    st.sidebar.write(f"Logged in as: **Admin**")
-    
-    choice = st.sidebar.radio("Go to:", ["📊 Trend Visualization", "🌱 Crop Prediction"])
-    
-    st.sidebar.markdown("---")
-    if st.sidebar.button("🚪 Logout", use_container_width=True):
+    choice = st.sidebar.radio("Go to:", ["📊 Trends", "🌱 Prediction"])
+    if st.sidebar.button("🚪 Logout"):
         logout()
 
     if "Trend" in choice:
@@ -192,4 +221,4 @@ else:
 # FOOTER
 # =============================
 st.markdown("---")
-st.caption("© 2026 Crop Insight AI. Integrated Machine Learning for Sustainable Agriculture.")
+st.caption("© 2026 Crop Insight AI | Two-Stage Machine Learning for Smart Agriculture")
