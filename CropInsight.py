@@ -141,9 +141,9 @@ def show_prediction():
     }
 
     # -------- Stage 2 Conditions --------
-    allowed_crops = ["Rice", "Maize", "Cotton"]
+    allowed_crops = ["rice", "maize", "cotton"]
 
-    if crop not in allowed_crops:
+    if crop.lower() not in allowed_crops:
         st.warning(
             f"⚠️ Yield prediction is available only for **Rice, Maize, and Cotton**.\n\n"
             f"Selected crop **{crop}** is not supported."
