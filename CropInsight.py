@@ -118,14 +118,6 @@ def show_trend():
 def show_prediction():
     st.title("🌱 Intelligent Crop Recommendation")
     
-    st.success("""
-    ### 🛠️ Recommendation Methodology
-    Our AI model evaluates **seven distinct data points** to minimize risk and maximize harvest yield. 
-    Please input your soil test results accurately. Nitrogen (N), Phosphorus (P), and Potassium (K) 
-    are measured in kg/ha, while climate factors are based on seasonal averages.
-    """)
-
-    # Load models
     stage1_model, le = load_stage1()
     stage2_model = load_stage2()
     
@@ -133,15 +125,9 @@ def show_prediction():
         st.error("🚨 Stage 1 model files missing.")
         return
     if stage2_model is None:
-        st.error("🚨 Stage 2 model files missing.")
-        return
+        st.warning("⚠️ Stage 2 model not loaded. You can still get crop recommendation.")
 
-    # Initialize session state for Stage 2
-    if "stage2_continue" not in st.session_state:
-        st.session_state.stage2_continue = False
-
-    # -------------------- Stage 1 Input Form --------------------
-    with st.form("stage1_form"):
+    with st.form("prediction_form"):
         st.subheader("📝 Farm Environment Profile")
         col1, col2 = st.columns(2)
         
@@ -159,92 +145,63 @@ def show_prediction():
             rain = st.number_input("Average Rainfall (mm)", 0.0, 1000.0, 100.0)
         
         st.markdown("---")
-        stage1_submit = st.form_submit_button("✨ Stage 1: Recommend Crop")
+        submit = st.form_submit_button("✨ Analyze & Recommend")
 
-    if stage1_submit:
+    if submit:
+        # ------------------------
+        # Stage 1: Crop Recommendation
+        # ------------------------
         input_stage1 = np.array([[N, P, K, temp, hum, ph, rain]])
         crop_encoded = stage1_model.predict(input_stage1)[0]
         crop_name = le.inverse_transform([crop_encoded])[0]
+        
+        # Save Stage 1 results in session
+        st.session_state.stage1_crop = crop_name
+        st.session_state.stage1_input = {"N": N, "P": P, "K": K, "temperature": temp, "humidity": hum, "ph": ph, "rainfall": rain}
 
-        crop_emojis = {"rice":"🌾","wheat":"🌾","maize":"🌽","coffee":"☕","cotton":"☁️", "banana":"🍌"}
+        crop_emojis = {"rice":"🌾","wheat":"🌾","maize":"🌽","coffee":"☕","cotton":"☁️","banana":"🍌"}
         emoji = crop_emojis.get(crop_name.lower(), "🌱")
 
         st.markdown(f"""
             <div class="prediction-card">
                 <h2>Recommended Crop: <strong>{crop_name.upper()} {emoji}</strong></h2>
-                <p>
-                    Based on your input, <b>{crop_name}</b> is identified as the most suitable crop.
-                </p>
+                <p>Based on your input, <b>{crop_name}</b> is identified as the most suitable crop.</p>
             </div>
         """, unsafe_allow_html=True)
 
-        # Only offer Stage 2 if crop is rice, maize, or cotton
-        if crop_name.lower() in ["rice", "maize", "cotton"]:
-            st.info("Do you want to continue to yield prediction?")
-            col1, col2 = st.columns(2)
-            if col1.button("Yes"):
-                st.session_state.stage2_continue = True
-            if col2.button("No"):
-                st.session_state.stage2_continue = False
-        else:
-            st.info("Stage 2 yield prediction is only available for Rice, Maize, and Cotton.")
+        # ------------------------
+        # Stage 2: Yield Prediction Prompt
+        # ------------------------
+        allowed_crops = ["rice", "maize", "cotton"]
+        if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
+            continue_stage2 = st.radio(
+                "Do you want to predict yield for this crop?",
+                ("No", "Yes")
+            )
 
-    # -------------------- Stage 2 Prediction --------------------
-    if st.session_state.stage2_continue:
-        with st.form("stage2_form"):
-            st.subheader("🌱 Stage 2: Yield Prediction Additional Inputs")
+            if continue_stage2 == "Yes":
+                # Use session state input
+                stage2_input = st.session_state.stage1_input.copy()
+                stage2_input["crop"] = crop_name
 
-            col1, col2 = st.columns(2)
-            with col1:
-                sunlight = st.number_input("Sunlight Hours (hours/day)", 0.0, 24.0, 6.0)
-                soil_moisture = st.slider("Soil Moisture (%)", 0, 100, 30)
-                fertilizer = st.number_input("Fertilizer Used (kg/ha)", 0, 500, 50)
-            with col2:
-                irrigation = st.selectbox("Irrigation Type", ["Drip", "Sprinkler", "Flood", "Rainfed"])
-                soil_type = st.selectbox("Soil Type", ["Sandy", "Loamy", "Clay", "Silty"])
-                pesticide = st.number_input("Pesticide Used (kg/ha)", 0, 200, 0)
+                stage2_input_df = pd.DataFrame([stage2_input])
+                yield_pred = stage2_model.predict(stage2_input_df)[0]
 
-            st.markdown("---")
-            stage2_submit = st.form_submit_button("🌾 Predict Yield")
+                crop_remarks = {
+                    "Rice": "Provides high nitrogen, ideal for rapid leafy growth. Prefer this for nitrogen-deficient soils as it supports vegetative growth.",
+                    "Maize": "Requires balanced nutrients, thrives in moderate rainfall. Good choice for high sunlight areas.",
+                    "Cotton": "Needs adequate potassium for fiber development. Suitable for warmer regions."
+                }
+                remark = crop_remarks.get(crop_name, "Ensure proper soil fertility and climate management for best yield.")
 
-        if stage2_submit:
-            # Prepare Stage 2 input DataFrame (match training features)
-            stage2_input = pd.DataFrame([{
-                "N": N,
-                "P": P,
-                "K": K,
-                "temperature": temp,
-                "humidity": hum,
-                "ph": ph,
-                "rainfall": rain,
-                "Sunlight_Hours": sunlight,
-                "Soil_Moisture": soil_moisture,
-                "Fertilizer_Used": fertilizer,
-                "Pesticide_Used": pesticide,
-                "Crop_Type": crop_name,
-                "Irrigation_Type": irrigation,
-                "Soil_Type": soil_type
-            }])
-
-            # Predict yield
-            yield_pred = stage2_model.predict(stage2_input)[0]
-
-            # Add remark for crop
-            crop_remarks = {
-                "Rice": "Provides high nitrogen, ideal for rapid leafy growth. Prefer this for nitrogen-deficient soils as it supports vegetative growth.",
-                "Maize": "Requires balanced nutrients, thrives in moderate rainfall. Good choice for high sunlight areas.",
-                "Cotton": "Needs adequate potassium for fiber development. Suitable for warmer regions."
-            }
-            remark = crop_remarks.get(crop_name, "Ensure proper soil fertility and climate management for best yield.")
-
-            st.markdown(f"""
+                st.markdown(f"""
                 <div class="prediction-card">
                     <h2>Predicted Yield: <strong>{yield_pred:.2f} tons/hectare</strong></h2>
                     <p>{remark}</p>
                 </div>
-            """, unsafe_allow_html=True)
-            st.balloons()
+                """, unsafe_allow_html=True)
 
+                st.balloons()
 
 # =============================
 # MAIN NAVIGATION
