@@ -104,17 +104,7 @@ def show_login():
         else:
             st.error("❌ Invalid credentials")
  
-
-def show_trend():
-    st.title("📊 Agricultural Data Trends")
-    st.info("Select a crop to view its average soil nutrients and climate conditions.")
-
-    df = load_data()
-    if df is None:
-        st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
-        return
-        
-    def half_circle_gauge(value, max_value, feature, color, unit=""):
+def half_circle_gauge(value, max_value, feature, color, unit=""):
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=value,
@@ -123,40 +113,55 @@ def show_trend():
         gauge={
             'axis': {'range': [0, max_value], 'visible': True, 'tickcolor': 'white'},
             'bar': {'color': color, 'thickness': 0.3},
-            'bgcolor': "#93C572",  # pistachio green background
+            'bgcolor': "#93C572",  # pistachio green
             'borderwidth': 0,
-            'shape': "angular",
-            'startangle': -90,
-            'endangle': 90
         },
-        domain={'x': [0, 1], 'y': [0, 1]}
+        domain={'x': [0, 1], 'y': [0, 0.5]}  # half-circle
     ))
     fig.update_layout(
-        paper_bgcolor="#93C572",  # pistachio green
+        paper_bgcolor="#93C572",
         plot_bgcolor="#93C572",
         margin=dict(t=10, b=10, l=10, r=10),
-        height=220
+        height=200
     )
     return fig
 
+# ----------------------------
+# Trend Page
+# ----------------------------
+def show_trend():
+    st.title("📊 Agricultural Data Trends")
+    st.info("Select a crop to view its average soil nutrients and climate conditions.")
 
-    # Features, max, units, colors
+    df = load_data()
+    if df is None:
+        st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
+        return
+
+    # ----------------------------
+    # Features, max values, units, colors
+    # ----------------------------
     features_row1 = ["N", "P", "K"]
     features_row2 = ["ph", "temperature", "humidity", "rainfall"]
 
     feature_max = {"N":150,"P":150,"K":150,"ph":14,"temperature":50,"humidity":100,"rainfall":300}
     feature_units = {"N":"","P":"","K":"","ph":"","temperature":"°C","humidity":"%","rainfall":"mm"}
+
     colors_row1 = ["#2ca02c","#ff7f0e","#1f77b4"]
     colors_row2 = ["#9467bd","#d62728","#8c564b","#e377c2"]
 
+    # ----------------------------
     # Crop filter
+    # ----------------------------
     selected_crop = st.selectbox("Select Crop", sorted(df["label"].unique()))
     crop_df = df[df["label"] == selected_crop]
     mean_values = crop_df[features_row1 + features_row2].mean().round(1)
     sample_count = crop_df.shape[0]
     st.caption(f"Based on {sample_count} samples")
 
+    # ----------------------------
     # Row 1: N, P, K
+    # ----------------------------
     st.subheader("🌱 Soil Nutrients")
     cols1 = st.columns(len(features_row1))
     for i, f in enumerate(features_row1):
@@ -168,7 +173,9 @@ def show_trend():
                 unsafe_allow_html=True
             )
 
-    # Row 2: pH, Temperature, Humidity, Rainfall
+    # ----------------------------
+    # Row 2: pH, Temp, Humidity, Rainfall
+    # ----------------------------
     st.subheader("🌤️ Climate & Soil pH")
     cols2 = st.columns(len(features_row2))
     for i, f in enumerate(features_row2):
