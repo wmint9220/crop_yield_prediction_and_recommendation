@@ -108,23 +108,24 @@ def half_circle_gauge(value, max_value, feature, color, unit=""):
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=value,
-        number={'suffix': unit, 'font': {'size': 20, 'color': 'white'}},
-        title={'text': feature, 'font': {'size': 22, 'color': 'white'}, 'align': 'center'},
+        number={'suffix': unit, 'font': {'size': 22, 'color': 'black'}},
+        title={'text': feature, 'font': {'size': 24, 'color': 'black'}, 'align': 'center'},
         gauge={
-            'axis': {'range': [0, max_value], 'visible': True, 'tickcolor': 'white'},
-            'bar': {'color': color, 'thickness': 0.3},
-            'bgcolor': "#93C572",  # pistachio green
-            'borderwidth': 0,
+            'axis': {'range': [0, max_value], 'visible': True, 'tickcolor': 'black'},
+            'bar': {'color': color, 'thickness': 0.35},
+            'bgcolor': "#CFE8C1",  # lighter pistachio
+            'borderwidth': 1,
         },
         domain={'x': [0, 1], 'y': [0, 0.5]}  # half-circle
     ))
     fig.update_layout(
-        paper_bgcolor="#93C572",
-        plot_bgcolor="#93C572",
-        margin=dict(t=10, b=10, l=10, r=10),
-        height=200
+        paper_bgcolor="#CFE8C1",
+        plot_bgcolor="#CFE8C1",
+        margin=dict(t=0, b=0, l=0, r=0),
+        height=280
     )
     return fig
+
 
 # ----------------------------
 # Trend Page
