@@ -125,11 +125,7 @@ def half_circle_gauge_card(value, max_value, feature, color, unit=""):
         height=250
     )
     return fig
-    st.markdown(
-        f"<div style='background-color:#CFE8C1; padding:10px; border-radius:25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);'>",
-        unsafe_allow_html=True
-    )
-    st.markdown("</div>", unsafe_allow_html=True)
+
 
 
 def show_trend():
@@ -172,6 +168,19 @@ def show_trend():
                 unsafe_allow_html=True
             )
             st.markdown("</div>", unsafe_allow_html=True)
+            st.markdown(
+                f"""
+                <div style='
+                    background-color:#CFE8C1; 
+                    padding:10px; 
+                    border-radius:18px;   /* moderate roundness */
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* subtle shadow */
+                '>
+                """, unsafe_allow_html=True
+            )
+            # ... put your half-circle gauge here ...
+            st.markdown("</div>", unsafe_allow_html=True)
+
 
     # Row 2: pH, Temperature, Humidity, Rainfall
     st.subheader("🌤️ Climate & Soil pH")
