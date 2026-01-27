@@ -104,7 +104,7 @@ def show_login():
         else:
             st.error("❌ Invalid credentials")
  
-def half_circle_gauge(value, max_value, feature, color, unit=""):
+def half_circle_gauge_card(value, max_value, feature, color, unit=""):
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
         value=value,
@@ -113,19 +113,18 @@ def half_circle_gauge(value, max_value, feature, color, unit=""):
         gauge={
             'axis': {'range': [0, max_value], 'visible': True, 'tickcolor': 'black'},
             'bar': {'color': color, 'thickness': 0.35},
-            'bgcolor': "#CFE8C1",  # lighter pistachio
+            'bgcolor': "#CFE8C1",  # light pistachio
             'borderwidth': 1,
         },
-        domain={'x': [0, 1], 'y': [0, 0.5]}  # half-circle
+        domain={'x': [0, 1], 'y': [0, 1]}  # full square to center
     ))
     fig.update_layout(
         paper_bgcolor="#CFE8C1",
         plot_bgcolor="#CFE8C1",
-        margin=dict(t=0, b=0, l=0, r=0),
-        height=280
+        margin=dict(t=10, b=10, l=10, r=10),
+        height=250
     )
     return fig
-
 
 # ----------------------------
 # Trend Page
