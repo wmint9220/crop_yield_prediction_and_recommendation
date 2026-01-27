@@ -126,9 +126,6 @@ def half_circle_gauge_card(value, max_value, feature, color, unit=""):
     )
     return fig
 
-# ----------------------------
-# Trend Page
-# ----------------------------
 def show_trend():
     st.title("📊 Agricultural Data Trends")
     st.info("Select a crop to view its average soil nutrients and climate conditions.")
@@ -138,9 +135,7 @@ def show_trend():
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
         return
 
-    # ----------------------------
     # Features, max values, units, colors
-    # ----------------------------
     features_row1 = ["N", "P", "K"]
     features_row2 = ["ph", "temperature", "humidity", "rainfall"]
 
@@ -150,42 +145,42 @@ def show_trend():
     colors_row1 = ["#2ca02c","#ff7f0e","#1f77b4"]
     colors_row2 = ["#9467bd","#d62728","#8c564b","#e377c2"]
 
-    # ----------------------------
     # Crop filter
-    # ----------------------------
     selected_crop = st.selectbox("Select Crop", sorted(df["label"].unique()))
     crop_df = df[df["label"] == selected_crop]
     mean_values = crop_df[features_row1 + features_row2].mean().round(1)
     sample_count = crop_df.shape[0]
     st.caption(f"Based on {sample_count} samples")
 
-    # ----------------------------
     # Row 1: N, P, K
-    # ----------------------------
     st.subheader("🌱 Soil Nutrients")
-    cols1 = st.columns(len(features_row1))
+    cols1 = st.columns(len(features_row1), gap="medium")
     for i, f in enumerate(features_row1):
         with cols1[i]:
-            fig = half_circle_gauge(mean_values[f], feature_max[f], f, colors_row1[i], feature_units[f])
+            st.markdown(
+                f"<div style='background-color:#CFE8C1;padding:10px;border-radius:15px;'>", unsafe_allow_html=True)
+            fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row1[i], feature_units[f])
             st.plotly_chart(fig, use_container_width=True)
             st.markdown(
-                f"<p style='text-align:center;font-weight:bold;color:#ffffff;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+                f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
                 unsafe_allow_html=True
             )
+            st.markdown("</div>", unsafe_allow_html=True)
 
-    # ----------------------------
-    # Row 2: pH, Temp, Humidity, Rainfall
-    # ----------------------------
+    # Row 2: pH, Temperature, Humidity, Rainfall
     st.subheader("🌤️ Climate & Soil pH")
-    cols2 = st.columns(len(features_row2))
+    cols2 = st.columns(len(features_row2), gap="medium")
     for i, f in enumerate(features_row2):
         with cols2[i]:
-            fig = half_circle_gauge(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
+            st.markdown(
+                f"<div style='background-color:#CFE8C1;padding:10px;border-radius:15px;'>", unsafe_allow_html=True)
+            fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
             st.plotly_chart(fig, use_container_width=True)
             st.markdown(
-                f"<p style='text-align:center;font-weight:bold;color:#ffffff;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+                f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
                 unsafe_allow_html=True
             )
+            st.markdown("</div>", unsafe_allow_html=True)
 
 def show_prediction():
     st.title("🌱 Intelligent Crop Recommendation")
