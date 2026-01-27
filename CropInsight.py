@@ -175,7 +175,8 @@ def show_trend():
     for i, f in enumerate(features_row2):
         with cols2[i]:
             st.markdown(
-                f"<div style='background-color:#CFE8C1;padding:10px;border-radius:15px;'>", unsafe_allow_html=True)
+                f"<div style='background-color:#CFE8C1; padding:10px; border-radius:25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);'>",
+                unsafe_allow_html=True )
             fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
             st.plotly_chart(fig, use_container_width=True)
             st.markdown(
