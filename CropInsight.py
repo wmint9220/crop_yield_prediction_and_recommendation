@@ -107,8 +107,8 @@ def show_trend():
     st.title("📊 Agricultural Data Trends")
 
     st.info("""
-    This section provides an interactive visual summary of **average soil nutrients
-    and climate conditions** for each crop.
+    Select a crop to view its **average soil nutrients and climate conditions**.
+    Each feature is visualized as a progress bar relative to its maximum.
     """)
 
     df = load_data()
@@ -117,8 +117,6 @@ def show_trend():
         return
 
     features = ["N", "P", "K", "ph", "temperature", "humidity", "rainfall"]
-
-    # Reference max values (dataset-aware)
     feature_max = {
         "N": 150,
         "P": 150,
@@ -130,56 +128,27 @@ def show_trend():
     }
 
     # =========================
-    # TOP-RIGHT CROP FILTER
+    # SIDEBAR FILTER
     # =========================
-    col1, col2, col3 = st.columns([6, 3, 2])
-    with col3:
-        selected_crop = st.selectbox(
-            "Select Crop",
-            sorted(df["label"].unique())
-        )
+    selected_crop = st.sidebar.selectbox(
+        "Select Crop",
+        sorted(df["label"].unique())
+    )
 
     crop_df = df[df["label"] == selected_crop]
-    mean_values = crop_df[features].mean().round(2)
+    mean_values = crop_df[features].mean().round(1)
     sample_count = crop_df.shape[0]
 
     st.caption(f"Based on {sample_count} samples")
 
     # =========================
-    # DONUT CHART ONLY
+    # FEATURE PROGRESS BARS
     # =========================
-    donut_labels = [
-        f"{f.upper()}: {mean_values[f]} / {feature_max[f]}"
-        for f in mean_values.index
-    ]
-
-    fig_donut = px.pie(
-        values=mean_values.values,
-        names=donut_labels,
-        hole=0.55,
-        title=f"{selected_crop.upper()} – Mean Soil & Climate Profile"
-    )
-
-    fig_donut.update_traces(
-        textinfo="label+percent",
-        hovertemplate="<b>%{label}</b><br>Contribution: %{percent}"
-    )
-
-    st.plotly_chart(fig_donut, use_container_width=True)
-
-    st.caption(
-        "⚠️ Values are displayed relative to realistic dataset-specific maxima "
-        "(e.g., rainfall ≤ 300 mm). Features use different units."
-    )
-
-    st.markdown("---")
-
-    # =========================
-    # KEEP ONE GLOBAL TREND
-    # =========================
-    st.subheader("🌡️ Average Temperature Across Crops")
-    temp_by_crop = df.groupby("label")["temperature"].mean().sort_values(ascending=False)
-    st.bar_chart(temp_by_crop)
+    st.subheader(f"🌱 Feature Overview for {selected_crop.upper()}")
+    for f in features:
+        progress_value = mean_values[f] / feature_max[f]  # 0-1
+        st.markdown(f"**{f.upper()}: {mean_values[f]} / {feature_max[f]}**")
+        st.progress(progress_value)
 
 
 def show_prediction():
