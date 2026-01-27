@@ -3,6 +3,7 @@ import joblib
 import numpy as np
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 
 # =============================
@@ -105,11 +106,7 @@ def show_login():
 
 def show_trend():
     st.title("📊 Agricultural Data Trends")
-
-    st.info("""
-    Select a crop to view its **average soil nutrients and climate conditions**.
-    Each feature is visualized as a donut chart with its mean value inside.
-    """)
+    st.info("Select a crop to view its average soil nutrients and climate conditions.")
 
     df = load_data()
     if df is None:
@@ -127,8 +124,16 @@ def show_trend():
         "ph": 14, "temperature": 50, "humidity": 100, "rainfall": 300
     }
 
+    feature_units = {
+        "N": "", "P": "", "K": "",
+        "ph": "", "temperature": "°C", "humidity": "%", "rainfall": "mm"
+    }
+
+    colors_row1 = ["#2ca02c", "#ff7f0e", "#1f77b4"]
+    colors_row2 = ["#9467bd", "#d62728", "#8c564b", "#e377c2"]
+
     # -------------------------
-    # Filter under title
+    # Crop filter under title
     # -------------------------
     selected_crop = st.selectbox(
         "Select Crop",
@@ -138,7 +143,6 @@ def show_trend():
     crop_df = df[df["label"] == selected_crop]
     mean_values = crop_df[features_row1 + features_row2].mean().round(1)
     sample_count = crop_df.shape[0]
-
     st.caption(f"Based on {sample_count} samples")
 
     # -------------------------
@@ -146,47 +150,40 @@ def show_trend():
     # -------------------------
     st.subheader("🌱 Soil Nutrients")
     cols1 = st.columns(len(features_row1))
-    colors_row1 = ["#2ca02c", "#ff7f0e", "#1f77b4"]  # Green, Orange, Blue
     for i, f in enumerate(features_row1):
         with cols1[i]:
-            fig = px.pie(
+            fig = go.Figure(go.Pie(
                 values=[mean_values[f], feature_max[f] - mean_values[f]],
-                names=[f, ""],
-                hole=0.6,
-                color_discrete_sequence=[colors_row1[i], "#e0e0e0"]
-            )
-            fig.update_traces(
-                text=[f"{mean_values[f]} / {feature_max[f]}", ""],
+                hole=0.7,
+                sort=False,
+                marker_colors=[colors_row1[i], "#e0e0e0"],
+                text=[f, ""],
                 textinfo="text",
-                hovertemplate=f"{f}: {mean_values[f]} / {feature_max[f]} <extra></extra>"
-            )
+                hoverinfo="none"
+            ))
+            fig.update_layout(showlegend=False, margin=dict(t=0,b=0,l=0,r=0))
             st.plotly_chart(fig, use_container_width=True)
+            st.markdown(f"<p style='text-align:center;font-weight:bold;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>", unsafe_allow_html=True)
 
     # -------------------------
-    # Row 2: pH, Temp, Humidity, Rainfall
+    # Row 2: pH, Temperature, Humidity, Rainfall
     # -------------------------
     st.subheader("🌤️ Climate & Soil pH")
     cols2 = st.columns(len(features_row2))
-    colors_row2 = ["#9467bd", "#d62728", "#8c564b", "#e377c2"]  # Purple, Red, Brown, Pink
     for i, f in enumerate(features_row2):
         with cols2[i]:
-            fig = px.pie(
+            fig = go.Figure(go.Pie(
                 values=[mean_values[f], feature_max[f] - mean_values[f]],
-                names=[f, ""],
-                hole=0.6,
-                color_discrete_sequence=[colors_row2[i], "#e0e0e0"]
-            )
-            fig.update_traces(
-                text=[f"{mean_values[f]} / {feature_max[f]}", ""],
+                hole=0.7,
+                sort=False,
+                marker_colors=[colors_row2[i], "#e0e0e0"],
+                text=[f, ""],
                 textinfo="text",
-                hovertemplate=f"{f}: {mean_values[f]} / {feature_max[f]} <extra></extra>"
-            )
+                hoverinfo="none"
+            ))
+            fig.update_layout(showlegend=False, margin=dict(t=0,b=0,l=0,r=0))
             st.plotly_chart(fig, use_container_width=True)
-
-    st.caption(
-        "⚠️ Each donut chart shows the mean value relative to its realistic maximum. "
-        "Features have different units."
-    )
+            st.markdown(f"<p style='text-align:center;font-weight:bold;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>", unsafe_allow_html=True)
 
 
 
