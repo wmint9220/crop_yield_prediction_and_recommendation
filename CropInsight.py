@@ -109,18 +109,18 @@ def half_circle_gauge_card(value, max_value, feature, color, unit=""):
         mode="gauge+number",
         value=value,
         number={'suffix': unit, 'font': {'size': 22, 'color': 'black'}},
-        title={'text': feature, 'font': {'size': 22, 'color': 'black'}, 'align': 'center'},
+        title={'text': feature, 'font': {'size': 24, 'color': 'black'}, 'align': 'center'},
         gauge={
             'axis': {'range': [0, max_value], 'visible': True, 'tickcolor': 'black'},
             'bar': {'color': color, 'thickness': 0.35},
-            'bgcolor': "rgba(0,0,0,0)",  # transparent background
-            'borderwidth': 0,
+            'bgcolor': "#CFE8C1",  # light pistachio
+            'borderwidth': 1,
         },
-        domain={'x': [0, 1], 'y': [0, 0.5]}  # half-circle
+        domain={'x': [0, 1], 'y': [0, 1]}  # full square to center
     ))
     fig.update_layout(
-        paper_bgcolor='rgba(0,0,0,0)',  # transparent to show card edges
-        plot_bgcolor='rgba(0,0,0,0)',
+        paper_bgcolor="#CFE8C1",
+        plot_bgcolor="#CFE8C1",
         margin=dict(t=10, b=10, l=10, r=10),
         height=250
     )
