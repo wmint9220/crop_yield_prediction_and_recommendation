@@ -178,7 +178,7 @@ def show_trend():
                 f"<div style='background-color:#CFE8C1;padding:10px;border-radius:15px;'>", unsafe_allow_html=True)
             fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
             st.plotly_chart(fig, use_container_width=True)
-           st.markdown(
+            st.markdown(
                 f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
                 unsafe_allow_html=True
             )
