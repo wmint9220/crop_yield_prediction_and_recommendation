@@ -2,6 +2,8 @@ import streamlit as st
 import joblib
 import numpy as np
 import pandas as pd
+import plotly.express as px
+
 
 # =============================
 # PAGE CONFIG & STYLING
@@ -103,17 +105,79 @@ def show_login():
 
 def show_trend():
     st.title("📊 Agricultural Data Trends")
+
     st.info("""
     ### 📖 Data Interpretation Guide
-    The following visualizations represent a multi-variate analysis of soil and climate conditions.
+    The following section allows interactive exploration of soil nutrients
+    and climate characteristics for each crop.
     """)
+
     df = load_data()
-    if df is not None:
-        st.subheader("🌡️ Optimal Temperature Ranges per Crop")
-        temp_by_crop = df.groupby('label')['temperature'].mean().sort_values(ascending=False)
-        st.bar_chart(temp_by_crop)
-    else:
+    if df is None:
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
+        return
+
+    features = ["N", "P", "K", "ph", "temperature", "humidity", "rainfall"]
+
+    # =========================
+    # TOP-RIGHT CROP FILTER
+    # =========================
+    col1, col2, col3 = st.columns([6, 3, 2])
+    with col3:
+        selected_crop = st.selectbox(
+            "Select Crop",
+            sorted(df["label"].unique())
+        )
+
+    crop_df = df[df["label"] == selected_crop]
+    mean_values = crop_df[features].mean().round(2)
+    sample_count = crop_df.shape[0]
+
+    st.markdown("---")
+
+    # =========================
+    # MEAN VALUES TABLE
+    # =========================
+    st.subheader(f"🌱 Mean Soil & Climate Values — **{selected_crop.upper()}**")
+    st.caption(f"Based on {sample_count} samples")
+
+    mean_table = pd.DataFrame({
+        "Feature": mean_values.index.str.upper(),
+        "Mean Value": mean_values.values
+    })
+
+    st.dataframe(mean_table, use_container_width=True)
+
+    # =========================
+    # DONUT CHART
+    # =========================
+    st.subheader("🍩 Feature Distribution (Mean Values)")
+
+    fig_donut = px.pie(
+        values=mean_values.values,
+        names=mean_values.index.str.upper(),
+        hole=0.5,
+        title=f"{selected_crop.upper()} – Environmental Profile"
+    )
+
+    fig_donut.update_traces(textinfo="percent+label")
+    fig_donut.update_layout(showlegend=True)
+
+    st.plotly_chart(fig_donut, use_container_width=True)
+
+    st.caption(
+        "⚠️ The donut chart provides a high-level visual summary. "
+        "Features use different units and are not directly comparable."
+    )
+
+    st.markdown("---")
+
+    # =========================
+    # EXISTING TREND (KEEP THIS)
+    # =========================
+    st.subheader("🌡️ Average Temperature Across Crops")
+    temp_by_crop = df.groupby('label')['temperature'].mean().sort_values(ascending=False)
+    st.bar_chart(temp_by_crop)
 
 
 
