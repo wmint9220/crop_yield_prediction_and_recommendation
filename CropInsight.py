@@ -125,6 +125,12 @@ def half_circle_gauge_card(value, max_value, feature, color, unit=""):
         height=250
     )
     return fig
+    st.markdown(
+        f"<div style='background-color:#CFE8C1; padding:10px; border-radius:25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);'>",
+        unsafe_allow_html=True
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
+
 
 def show_trend():
     st.title("📊 Agricultural Data Trends")
@@ -162,7 +168,7 @@ def show_trend():
             fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row1[i], feature_units[f])
             st.plotly_chart(fig, use_container_width=True)
             st.markdown(
-                f"<div style='background-color:#CFE8C1; padding:10px; border-radius:25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);'>",
+                f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
                 unsafe_allow_html=True
             )
             st.markdown("</div>", unsafe_allow_html=True)
@@ -177,7 +183,7 @@ def show_trend():
             fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
             st.plotly_chart(fig, use_container_width=True)
            st.markdown(
-                f"<div style='background-color:#CFE8C1; padding:10px; border-radius:25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);'>",
+                f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
                 unsafe_allow_html=True
             )
             st.markdown("</div>", unsafe_allow_html=True)
