@@ -179,17 +179,23 @@ def show_trend():
                 <div style='
                     background-color:#CFE8C1; 
                     padding:10px; 
-                    border-radius:18px;   /* moderate roundness */
-                    box-shadow: 0 4px 10px rgba(0,0,0,0.08); /* subtle shadow */
+                    border-radius:18px; 
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+                    text-align:center;
                 '>
                 """, unsafe_allow_html=True)
-            fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
+            
+            fig.update_layout(
+                paper_bgcolor='rgba(0,0,0,0)',  # transparent
+                plot_bgcolor='rgba(0,0,0,0)',
+                margin=dict(t=10, b=10, l=10, r=10),
+                height=250 )
             st.plotly_chart(fig, use_container_width=True)
             st.markdown(
-                f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
-                unsafe_allow_html=True
-            )
+                f"<p style='text-align:center;font-weight:bold;color:black;'>{value}{unit} / {max_value}{unit}</p>",
+                unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
+
 
 def show_prediction():
     st.title("🌱 Intelligent Crop Recommendation")
