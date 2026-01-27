@@ -107,14 +107,18 @@ def show_trend():
     st.title("📊 Agricultural Data Trends")
 
     st.info("""
-    This section allows interactive exploration of **average soil nutrients
+    This section provides an interactive visual summary of **average soil nutrients
     and climate conditions** for each crop.
     """)
 
     df = load_data()
+    if df is None:
+        st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
+        return
+
     features = ["N", "P", "K", "ph", "temperature", "humidity", "rainfall"]
 
-    # Feature reference max (dataset-aware)
+    # Reference max values (dataset-aware)
     feature_max = {
         "N": 150,
         "P": 150,
@@ -125,7 +129,9 @@ def show_trend():
         "rainfall": 300
     }
 
-    # Top-right filter
+    # =========================
+    # TOP-RIGHT CROP FILTER
+    # =========================
     col1, col2, col3 = st.columns([6, 3, 2])
     with col3:
         selected_crop = st.selectbox(
@@ -137,46 +143,40 @@ def show_trend():
     mean_values = crop_df[features].mean().round(2)
     sample_count = crop_df.shape[0]
 
-    st.markdown("---")
-
-    # Mean table
-    st.subheader(f"🌱 Mean Soil & Climate Values — {selected_crop.upper()}")
     st.caption(f"Based on {sample_count} samples")
 
-    mean_table = pd.DataFrame({
-        "Feature": mean_values.index.str.upper(),
-        "Mean Value": mean_values.values
-    })
-
-    st.dataframe(mean_table, use_container_width=True)
-
-    # Donut labels like "N: 73 / 150"
+    # =========================
+    # DONUT CHART ONLY
+    # =========================
     donut_labels = [
         f"{f.upper()}: {mean_values[f]} / {feature_max[f]}"
         for f in mean_values.index
     ]
 
-    # Donut chart
-    st.subheader("🍩 Feature Distribution (Mean Values)")
-
     fig_donut = px.pie(
         values=mean_values.values,
         names=donut_labels,
-        hole=0.5,
-        title=f"{selected_crop.upper()} – Environmental Profile"
+        hole=0.55,
+        title=f"{selected_crop.upper()} – Mean Soil & Climate Profile"
     )
 
-    fig_donut.update_traces(textinfo="label+percent")
+    fig_donut.update_traces(
+        textinfo="label+percent",
+        hovertemplate="<b>%{label}</b><br>Contribution: %{percent}"
+    )
+
     st.plotly_chart(fig_donut, use_container_width=True)
 
     st.caption(
-        "⚠️ Values are shown relative to realistic feature maxima "
-        "(e.g., rainfall ≤ 300 mm). Features have different units."
+        "⚠️ Values are displayed relative to realistic dataset-specific maxima "
+        "(e.g., rainfall ≤ 300 mm). Features use different units."
     )
 
     st.markdown("---")
 
-    # Existing global trend
+    # =========================
+    # KEEP ONE GLOBAL TREND
+    # =========================
     st.subheader("🌡️ Average Temperature Across Crops")
     temp_by_crop = df.groupby("label")["temperature"].mean().sort_values(ascending=False)
     st.bar_chart(temp_by_crop)
