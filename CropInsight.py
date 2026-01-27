@@ -115,68 +115,59 @@ def show_trend():
     else:
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
 
-    import streamlit as st
-import pandas as pd
-
-st.title("🌱 Crop-wise Soil & Climate Analysis")
-
-df = pd.read_csv("Crop_recommendation.csv")
-
-# Sidebar filter
-selected_crops = st.sidebar.multiselect(
-    "Select Crop(s)",
-    options=df["label"].unique(),
-    default=[df["label"].unique()[0]]
-)
-
-filtered_df = df[df["label"].isin(selected_crops)]
-
-# Mean calculation
-mean_values = filtered_df.groupby("label").mean().round(2)
-
-st.subheader("📊 Mean Soil & Climate Values")
-st.dataframe(mean_values)
-
-st.write(f"Total samples: {filtered_df.shape[0]}")
-
-import plotly.express as px
+ df = pd.read_csv("Crop_recommendation.csv")
 
 features = ["N", "P", "K", "ph", "temperature", "humidity", "rainfall"]
-mean_vals = filtered_df[features].mean()
 
-norm_vals = mean_vals / mean_vals.sum()
+# =========================
+# TOP-RIGHT FILTER BAR
+# =========================
+col1, col2, col3 = st.columns([6, 3, 2])
+
+with col3:
+    selected_crop = st.selectbox(
+        "Select Crop",
+        sorted(df["label"].unique())
+    )
+
+# =========================
+# FILTER DATA
+# =========================
+crop_df = df[df["label"] == selected_crop]
+
+mean_values = crop_df[features].mean().round(2)
+sample_count = crop_df.shape[0]
+
+# =========================
+# DISPLAY MEAN VALUES
+# =========================
+st.subheader(f"📊 Mean Feature Values for **{selected_crop}**")
+st.caption(f"Based on {sample_count} samples")
+
+mean_table = pd.DataFrame({
+    "Feature": mean_values.index.str.upper(),
+    "Mean Value": mean_values.values
+})
+
+st.dataframe(mean_table, use_container_width=True)
+
+# =========================
+# DONUT CHART
+# =========================
+st.subheader("🍩 Feature Distribution (Mean Values)")
 
 fig_donut = px.pie(
-    values=norm_vals.values,
-    names=features,
-    hole=0.5,
-    title="Feature Contribution (Normalized)"
+    values=mean_values.values,
+    names=mean_values.index.str.upper(),
+    hole=0.5
+)
+
+fig_donut.update_layout(
+    title=f"{selected_crop} – Soil & Climate Profile",
+    legend_title="Features"
 )
 
 st.plotly_chart(fig_donut, use_container_width=True)
-
-from sklearn.preprocessing import MinMaxScaler
-import plotly.graph_objects as go
-import numpy as np
-
-scaler = MinMaxScaler()
-scaled_vals = scaler.fit_transform(mean_vals.values.reshape(-1, 1)).flatten()
-
-fig_radar = go.Figure()
-
-fig_radar.add_trace(go.Scatterpolar(
-    r=scaled_vals,
-    theta=features,
-    fill='toself',
-    name='Crop Profile'
-))
-
-fig_radar.update_layout(
-    polar=dict(radialaxis=dict(visible=True, range=[0,1])),
-    title="Crop Environmental Profile (Radar Chart)"
-)
-
-st.plotly_chart(fig_radar, use_container_width=True)
 
 
 def show_prediction():
