@@ -108,7 +108,7 @@ def show_trend():
 
     st.info("""
     Select a crop to view its **average soil nutrients and climate conditions**.
-    Each feature is visualized as a progress bar relative to its maximum.
+    Each feature is visualized as a donut chart with its mean value inside.
     """)
 
     df = load_data()
@@ -116,44 +116,77 @@ def show_trend():
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
         return
 
-    features = ["N", "P", "K", "ph", "temperature", "humidity", "rainfall"]
+    # -------------------------
+    # Features and max values
+    # -------------------------
+    features_row1 = ["N", "P", "K"]
+    features_row2 = ["ph", "temperature", "humidity", "rainfall"]
+
     feature_max = {
-        "N": 150,
-        "P": 150,
-        "K": 150,
-        "ph": 14,
-        "temperature": 50,
-        "humidity": 100,
-        "rainfall": 300
+        "N": 150, "P": 150, "K": 150,
+        "ph": 14, "temperature": 50, "humidity": 100, "rainfall": 300
     }
 
-    # =========================
-    # SIDEBAR FILTER
-    # =========================
-    selected_crop = st.sidebar.selectbox(
+    # -------------------------
+    # Filter under title
+    # -------------------------
+    selected_crop = st.selectbox(
         "Select Crop",
         sorted(df["label"].unique())
     )
 
     crop_df = df[df["label"] == selected_crop]
-    mean_values = crop_df[features].mean().round(1)
+    mean_values = crop_df[features_row1 + features_row2].mean().round(1)
     sample_count = crop_df.shape[0]
 
     st.caption(f"Based on {sample_count} samples")
 
-    # =========================
-    # FEATURE PROGRESS BARS
-    # =========================
-    st.subheader(f"🌱 Feature Overview for {selected_crop.upper()}")
+    # -------------------------
+    # Row 1: N, P, K
+    # -------------------------
+    st.subheader("🌱 Soil Nutrients")
+    cols1 = st.columns(len(features_row1))
+    colors_row1 = ["#2ca02c", "#ff7f0e", "#1f77b4"]  # Green, Orange, Blue
+    for i, f in enumerate(features_row1):
+        with cols1[i]:
+            fig = px.pie(
+                values=[mean_values[f], feature_max[f] - mean_values[f]],
+                names=[f, ""],
+                hole=0.6,
+                color_discrete_sequence=[colors_row1[i], "#e0e0e0"]
+            )
+            fig.update_traces(
+                text=[f"{mean_values[f]} / {feature_max[f]}", ""],
+                textinfo="text",
+                hovertemplate=f"{f}: {mean_values[f]} / {feature_max[f]} <extra></extra>"
+            )
+            st.plotly_chart(fig, use_container_width=True)
 
-    for f in features:
-        fig = px.pie(
-            values=[mean_values[f], feature_max[f]-mean_values[f]],
-            names=[f"{f.upper()}: {mean_values[f]}/{feature_max[f]}", ""],
-            hole=0.6
-        )
-        fig.update_traces(textinfo="label")
-        st.plotly_chart(fig, use_container_width=True)
+    # -------------------------
+    # Row 2: pH, Temp, Humidity, Rainfall
+    # -------------------------
+    st.subheader("🌤️ Climate & Soil pH")
+    cols2 = st.columns(len(features_row2))
+    colors_row2 = ["#9467bd", "#d62728", "#8c564b", "#e377c2"]  # Purple, Red, Brown, Pink
+    for i, f in enumerate(features_row2):
+        with cols2[i]:
+            fig = px.pie(
+                values=[mean_values[f], feature_max[f] - mean_values[f]],
+                names=[f, ""],
+                hole=0.6,
+                color_discrete_sequence=[colors_row2[i], "#e0e0e0"]
+            )
+            fig.update_traces(
+                text=[f"{mean_values[f]} / {feature_max[f]}", ""],
+                textinfo="text",
+                hovertemplate=f"{f}: {mean_values[f]} / {feature_max[f]} <extra></extra>"
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+    st.caption(
+        "⚠️ Each donut chart shows the mean value relative to its realistic maximum. "
+        "Features have different units."
+    )
 
 
 
