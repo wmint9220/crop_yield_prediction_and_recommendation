@@ -116,58 +116,6 @@ def show_trend():
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
 
 
-features = ["N", "P", "K", "ph", "temperature", "humidity", "rainfall"]
-
-# =========================
-# TOP-RIGHT FILTER BAR
-# =========================
-col1, col2, col3 = st.columns([6, 3, 2])
-
-with col3:
-    selected_crop = st.selectbox(
-        "Select Crop",
-        sorted(df["label"].unique())
-    )
-
-# =========================
-# FILTER DATA
-# =========================
-crop_df = df[df["label"] == selected_crop]
-
-mean_values = crop_df[features].mean().round(2)
-sample_count = crop_df.shape[0]
-
-# =========================
-# DISPLAY MEAN VALUES
-# =========================
-st.subheader(f"📊 Mean Feature Values for **{selected_crop}**")
-st.caption(f"Based on {sample_count} samples")
-
-mean_table = pd.DataFrame({
-    "Feature": mean_values.index.str.upper(),
-    "Mean Value": mean_values.values
-})
-
-st.dataframe(mean_table, use_container_width=True)
-
-# =========================
-# DONUT CHART
-# =========================
-st.subheader("🍩 Feature Distribution (Mean Values)")
-
-fig_donut = px.pie(
-    values=mean_values.values,
-    names=mean_values.index.str.upper(),
-    hole=0.5
-)
-
-fig_donut.update_layout(
-    title=f"{selected_crop} – Soil & Climate Profile",
-    legend_title="Features"
-)
-
-st.plotly_chart(fig_donut, use_container_width=True)
-
 
 def show_prediction():
     st.title("🌱 Intelligent Crop Recommendation")
