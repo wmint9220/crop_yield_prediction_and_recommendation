@@ -103,10 +103,11 @@ def show_login():
             st.rerun()
         else:
             st.error("❌ Invalid credentials")
+ 
 
 def show_trend():
     st.title("📊 Agricultural Data Trends")
-    st.info("Select a crop to view its average soil nutrients and climate conditions.")
+    st.info("Select a crop to view its average soil nutrients and climate conditions in a clean dashboard style.")
 
     df = load_data()
     if df is None:
@@ -146,45 +147,68 @@ def show_trend():
     st.caption(f"Based on {sample_count} samples")
 
     # -------------------------
+    # Function to make half-circle gauge
+    # -------------------------
+    def half_circle_gauge(value, max_value, feature, color, unit=""):
+        fig = go.Figure(go.Indicator(
+            mode="gauge+number",
+            value=value,
+            number={'suffix': unit, 'font': {'size': 20}},
+            title={'text': feature, 'font': {'size': 24}},
+            gauge={
+                'axis': {'range': [0, max_value], 'visible': True},
+                'bar': {'color': color, 'thickness': 0.3},
+                'bgcolor': "#e0e0e0",
+                'borderwidth': 0,
+                'shape': "angular",
+            },
+            domain={'x': [0, 1], 'y': [0, 1]}
+        ))
+        fig.update_layout(
+            margin=dict(t=10, b=10, l=10, r=10),
+            height=200
+        )
+        return fig
+
+    # -------------------------
     # Row 1: N, P, K
     # -------------------------
     st.subheader("🌱 Soil Nutrients")
     cols1 = st.columns(len(features_row1))
     for i, f in enumerate(features_row1):
         with cols1[i]:
-            fig = go.Figure(go.Pie(
-                values=[mean_values[f], feature_max[f] - mean_values[f]],
-                hole=0.7,
-                sort=False,
-                marker_colors=[colors_row1[i], "#e0e0e0"],
-                text=[f, ""],
-                textinfo="text",
-                hoverinfo="none"
-            ))
-            fig.update_layout(showlegend=False, margin=dict(t=0,b=0,l=0,r=0))
+            fig = half_circle_gauge(
+                mean_values[f],
+                feature_max[f],
+                f,
+                colors_row1[i],
+                feature_units[f]
+            )
             st.plotly_chart(fig, use_container_width=True)
-            st.markdown(f"<p style='text-align:center;font-weight:bold;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>", unsafe_allow_html=True)
+            st.markdown(
+                f"<p style='text-align:center;font-weight:bold;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+                unsafe_allow_html=True
+            )
 
     # -------------------------
-    # Row 2: pH, Temperature, Humidity, Rainfall
+    # Row 2: pH, Temp, Humidity, Rainfall
     # -------------------------
     st.subheader("🌤️ Climate & Soil pH")
     cols2 = st.columns(len(features_row2))
     for i, f in enumerate(features_row2):
         with cols2[i]:
-            fig = go.Figure(go.Pie(
-                values=[mean_values[f], feature_max[f] - mean_values[f]],
-                hole=0.7,
-                sort=False,
-                marker_colors=[colors_row2[i], "#e0e0e0"],
-                text=[f, ""],
-                textinfo="text",
-                hoverinfo="none"
-            ))
-            fig.update_layout(showlegend=False, margin=dict(t=0,b=0,l=0,r=0))
+            fig = half_circle_gauge(
+                mean_values[f],
+                feature_max[f],
+                f,
+                colors_row2[i],
+                feature_units[f]
+            )
             st.plotly_chart(fig, use_container_width=True)
-            st.markdown(f"<p style='text-align:center;font-weight:bold;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>", unsafe_allow_html=True)
-
+            st.markdown(
+                f"<p style='text-align:center;font-weight:bold;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+                unsafe_allow_html=True
+            )
 
 
 def show_prediction():
