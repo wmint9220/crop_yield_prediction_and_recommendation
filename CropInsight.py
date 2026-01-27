@@ -61,6 +61,31 @@ def logout():
     st.session_state.stage1_input = None
     st.rerun()
 
+def half_circle_gauge(value, max_value, feature, color, unit=""):
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=value,
+        number={'suffix': unit, 'font': {'size': 20, 'color': 'white'}},
+        title={'text': feature, 'font': {'size': 22, 'color': 'white'}, 'align': 'center'},
+        gauge={
+            'axis': {'range': [0, max_value], 'visible': True, 'tickcolor': 'white'},
+            'bar': {'color': color, 'thickness': 0.3},
+            'bgcolor': "#93C572",  # pistachio green background
+            'borderwidth': 0,
+            'shape': "angular",
+            'startangle': -90,
+            'endangle': 90
+        },
+        domain={'x': [0, 1], 'y': [0, 1]}
+    ))
+    fig.update_layout(
+        paper_bgcolor="#93C572",  # pistachio green
+        plot_bgcolor="#93C572",
+        margin=dict(t=10, b=10, l=10, r=10),
+        height=220
+    )
+    return fig
+
 # =============================
 # LOAD MODELS & DATA
 # =============================
@@ -107,109 +132,52 @@ def show_login():
 
 def show_trend():
     st.title("📊 Agricultural Data Trends")
-    st.info("Select a crop to view its average soil nutrients and climate conditions in a clean dashboard style.")
+    st.info("Select a crop to view its average soil nutrients and climate conditions.")
 
     df = load_data()
     if df is None:
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
         return
 
-    # -------------------------
-    # Features and max values
-    # -------------------------
+    # Features, max, units, colors
     features_row1 = ["N", "P", "K"]
     features_row2 = ["ph", "temperature", "humidity", "rainfall"]
 
-    feature_max = {
-        "N": 150, "P": 150, "K": 150,
-        "ph": 14, "temperature": 50, "humidity": 100, "rainfall": 300
-    }
+    feature_max = {"N":150,"P":150,"K":150,"ph":14,"temperature":50,"humidity":100,"rainfall":300}
+    feature_units = {"N":"","P":"","K":"","ph":"","temperature":"°C","humidity":"%","rainfall":"mm"}
+    colors_row1 = ["#2ca02c","#ff7f0e","#1f77b4"]
+    colors_row2 = ["#9467bd","#d62728","#8c564b","#e377c2"]
 
-    feature_units = {
-        "N": "", "P": "", "K": "",
-        "ph": "", "temperature": "°C", "humidity": "%", "rainfall": "mm"
-    }
-
-    colors_row1 = ["#2ca02c", "#ff7f0e", "#1f77b4"]
-    colors_row2 = ["#9467bd", "#d62728", "#8c564b", "#e377c2"]
-
-    # -------------------------
-    # Crop filter under title
-    # -------------------------
-    selected_crop = st.selectbox(
-        "Select Crop",
-        sorted(df["label"].unique())
-    )
-
+    # Crop filter
+    selected_crop = st.selectbox("Select Crop", sorted(df["label"].unique()))
     crop_df = df[df["label"] == selected_crop]
     mean_values = crop_df[features_row1 + features_row2].mean().round(1)
     sample_count = crop_df.shape[0]
     st.caption(f"Based on {sample_count} samples")
 
-    # -------------------------
-    # Function to make half-circle gauge
-    # -------------------------
-    def half_circle_gauge(value, max_value, feature, color, unit=""):
-        fig = go.Figure(go.Indicator(
-            mode="gauge+number",
-            value=value,
-            number={'suffix': unit, 'font': {'size': 20}},
-            title={'text': feature, 'font': {'size': 24}},
-            gauge={
-                'axis': {'range': [0, max_value], 'visible': True},
-                'bar': {'color': color, 'thickness': 0.3},
-                'bgcolor': "#e0e0e0",
-                'borderwidth': 0,
-                'shape': "angular",
-            },
-            domain={'x': [0, 1], 'y': [0, 1]}
-        ))
-        fig.update_layout(
-            margin=dict(t=10, b=10, l=10, r=10),
-            height=200
-        )
-        return fig
-
-    # -------------------------
     # Row 1: N, P, K
-    # -------------------------
     st.subheader("🌱 Soil Nutrients")
     cols1 = st.columns(len(features_row1))
     for i, f in enumerate(features_row1):
         with cols1[i]:
-            fig = half_circle_gauge(
-                mean_values[f],
-                feature_max[f],
-                f,
-                colors_row1[i],
-                feature_units[f]
-            )
+            fig = half_circle_gauge(mean_values[f], feature_max[f], f, colors_row1[i], feature_units[f])
             st.plotly_chart(fig, use_container_width=True)
             st.markdown(
-                f"<p style='text-align:center;font-weight:bold;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+                f"<p style='text-align:center;font-weight:bold;color:#ffffff;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
                 unsafe_allow_html=True
             )
 
-    # -------------------------
-    # Row 2: pH, Temp, Humidity, Rainfall
-    # -------------------------
+    # Row 2: pH, Temperature, Humidity, Rainfall
     st.subheader("🌤️ Climate & Soil pH")
     cols2 = st.columns(len(features_row2))
     for i, f in enumerate(features_row2):
         with cols2[i]:
-            fig = half_circle_gauge(
-                mean_values[f],
-                feature_max[f],
-                f,
-                colors_row2[i],
-                feature_units[f]
-            )
+            fig = half_circle_gauge(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
             st.plotly_chart(fig, use_container_width=True)
             st.markdown(
-                f"<p style='text-align:center;font-weight:bold;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+                f"<p style='text-align:center;font-weight:bold;color:#ffffff;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
                 unsafe_allow_html=True
             )
-
 
 def show_prediction():
     st.title("🌱 Intelligent Crop Recommendation")
