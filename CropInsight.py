@@ -145,10 +145,16 @@ def show_trend():
     # FEATURE PROGRESS BARS
     # =========================
     st.subheader(f"🌱 Feature Overview for {selected_crop.upper()}")
+
     for f in features:
-        progress_value = mean_values[f] / feature_max[f]  # 0-1
-        st.markdown(f"**{f.upper()}: {mean_values[f]} / {feature_max[f]}**")
-        st.progress(progress_value)
+        fig = px.pie(
+            values=[mean_values[f], feature_max[f]-mean_values[f]],
+            names=[f"{f.upper()}: {mean_values[f]}/{feature_max[f]}", ""],
+            hole=0.6
+        )
+        fig.update_traces(textinfo="label")
+        st.plotly_chart(fig, use_container_width=True)
+
 
 
 def show_prediction():
