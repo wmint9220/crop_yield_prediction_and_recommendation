@@ -162,7 +162,7 @@ def show_trend():
             fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row1[i], feature_units[f])
             st.plotly_chart(fig, use_container_width=True)
             st.markdown(
-                f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+                f"<div style='background-color:#CFE8C1; padding:10px; border-radius:25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);'>",
                 unsafe_allow_html=True
             )
             st.markdown("</div>", unsafe_allow_html=True)
@@ -176,8 +176,8 @@ def show_trend():
                 f"<div style='background-color:#CFE8C1;padding:10px;border-radius:15px;'>", unsafe_allow_html=True)
             fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
             st.plotly_chart(fig, use_container_width=True)
-            st.markdown(
-                f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+           st.markdown(
+                f"<div style='background-color:#CFE8C1; padding:10px; border-radius:25px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);'>",
                 unsafe_allow_html=True
             )
             st.markdown("</div>", unsafe_allow_html=True)
