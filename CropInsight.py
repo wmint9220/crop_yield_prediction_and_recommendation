@@ -61,31 +61,6 @@ def logout():
     st.session_state.stage1_input = None
     st.rerun()
 
-def half_circle_gauge(value, max_value, feature, color, unit=""):
-    fig = go.Figure(go.Indicator(
-        mode="gauge+number",
-        value=value,
-        number={'suffix': unit, 'font': {'size': 20, 'color': 'white'}},
-        title={'text': feature, 'font': {'size': 22, 'color': 'white'}, 'align': 'center'},
-        gauge={
-            'axis': {'range': [0, max_value], 'visible': True, 'tickcolor': 'white'},
-            'bar': {'color': color, 'thickness': 0.3},
-            'bgcolor': "#93C572",  # pistachio green background
-            'borderwidth': 0,
-            'shape': "angular",
-            'startangle': -90,
-            'endangle': 90
-        },
-        domain={'x': [0, 1], 'y': [0, 1]}
-    ))
-    fig.update_layout(
-        paper_bgcolor="#93C572",  # pistachio green
-        plot_bgcolor="#93C572",
-        margin=dict(t=10, b=10, l=10, r=10),
-        height=220
-    )
-    return fig
-
 # =============================
 # LOAD MODELS & DATA
 # =============================
@@ -138,6 +113,32 @@ def show_trend():
     if df is None:
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
         return
+        
+    def half_circle_gauge(value, max_value, feature, color, unit=""):
+    fig = go.Figure(go.Indicator(
+        mode="gauge+number",
+        value=value,
+        number={'suffix': unit, 'font': {'size': 20, 'color': 'white'}},
+        title={'text': feature, 'font': {'size': 22, 'color': 'white'}, 'align': 'center'},
+        gauge={
+            'axis': {'range': [0, max_value], 'visible': True, 'tickcolor': 'white'},
+            'bar': {'color': color, 'thickness': 0.3},
+            'bgcolor': "#93C572",  # pistachio green background
+            'borderwidth': 0,
+            'shape': "angular",
+            'startangle': -90,
+            'endangle': 90
+        },
+        domain={'x': [0, 1], 'y': [0, 1]}
+    ))
+    fig.update_layout(
+        paper_bgcolor="#93C572",  # pistachio green
+        plot_bgcolor="#93C572",
+        margin=dict(t=10, b=10, l=10, r=10),
+        height=220
+    )
+    return fig
+
 
     # Features, max, units, colors
     features_row1 = ["N", "P", "K"]
