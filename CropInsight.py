@@ -115,7 +115,6 @@ def show_trend():
     else:
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
 
- df = pd.read_csv("Crop_recommendation.csv")
 
 features = ["N", "P", "K", "ph", "temperature", "humidity", "rainfall"]
 
