@@ -249,52 +249,52 @@ def show_prediction():
         #     </div>
         # """, unsafe_allow_html=True)
 
-        if submit:
-    # Stage 1: Crop Recommendation
-    input_stage1 = np.array([[N, P, K, temp, hum, ph, rain]])
-    crop_encoded = stage1_model.predict(input_stage1)[0]
-    crop_name = le.inverse_transform([crop_encoded])[0]
+    if submit:
+        # Stage 1: Crop Recommendation
+        input_stage1 = np.array([[N, P, K, temp, hum, ph, rain]])
+        crop_encoded = stage1_model.predict(input_stage1)[0]
+        crop_name = le.inverse_transform([crop_encoded])[0]
+        
+        st.session_state.stage1_crop = crop_name
+        st.session_state.stage1_input = {"N": N, "P": P, "K": K, "temperature": temp, "humidity": hum, "ph": ph, "rainfall": rain}
     
-    st.session_state.stage1_crop = crop_name
-    st.session_state.stage1_input = {"N": N, "P": P, "K": K, "temperature": temp, "humidity": hum, "ph": ph, "rainfall": rain}
-
-    crop_emojis = {"rice":"🌾","wheat":"🌾","maize":"🌽","coffee":"☕","cotton":"☁️","banana":"🍌"}
-    emoji = crop_emojis.get(crop_name.lower(), "🌱")
-
-    st.markdown(f"""
-        <div class="prediction-card">
-            <h2>Recommended Crop: <strong>{crop_name.upper()} {emoji}</strong></h2>
-            <p>Based on your input, <b>{crop_name}</b> is identified as the most suitable crop.</p>
-        </div>
-    """, unsafe_allow_html=True)
+        crop_emojis = {"rice":"🌾","wheat":"🌾","maize":"🌽","coffee":"☕","cotton":"☁️","banana":"🍌"}
+        emoji = crop_emojis.get(crop_name.lower(), "🌱")
     
-    # ✅ NEW: Comparison with Optimal Values
-    st.subheader("📊 Your Input vs. Optimal Conditions")
-    df = load_data()
-    crop_optimal = df[df["label"] == crop_name].mean(numeric_only=True)
-    
-    # Calculate indices
-    thi = temp - (0.55 - 0.0055 * hum) * (temp - 14.4)
-    sfi = (N + P + K) / 3
-    
-    col1, col2 = st.columns(2)
-    with col1:
-        st.metric("🌡️ Temperature-Humidity Index", f"{thi:.1f}")
-    with col2:
-        st.metric("🌱 Soil Fertility Index", f"{sfi:.1f}")
-    
-    # Show parameter comparison
-    comp_df = pd.DataFrame({
-        "Parameter": ["N", "P", "K", "pH", "Temp", "Humidity", "Rainfall"],
-        "Your Input": [N, P, K, ph, temp, hum, rain],
-        "Optimal": [crop_optimal["N"], crop_optimal["P"], crop_optimal["K"], 
-                    crop_optimal["ph"], crop_optimal["temperature"], 
-                    crop_optimal["humidity"], crop_optimal["rainfall"]],
-    })
-    comp_df["Difference (%)"] = ((comp_df["Your Input"] - comp_df["Optimal"]) / comp_df["Optimal"] * 100).round(1)
-    
-    st.dataframe(comp_df, use_container_width=True)
-    
+        st.markdown(f"""
+            <div class="prediction-card">
+                <h2>Recommended Crop: <strong>{crop_name.upper()} {emoji}</strong></h2>
+                <p>Based on your input, <b>{crop_name}</b> is identified as the most suitable crop.</p>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        # ✅ NEW: Comparison with Optimal Values
+        st.subheader("📊 Your Input vs. Optimal Conditions")
+        df = load_data()
+        crop_optimal = df[df["label"] == crop_name].mean(numeric_only=True)
+        
+        # Calculate indices
+        thi = temp - (0.55 - 0.0055 * hum) * (temp - 14.4)
+        sfi = (N + P + K) / 3
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric("🌡️ Temperature-Humidity Index", f"{thi:.1f}")
+        with col2:
+            st.metric("🌱 Soil Fertility Index", f"{sfi:.1f}")
+        
+        # Show parameter comparison
+        comp_df = pd.DataFrame({
+            "Parameter": ["N", "P", "K", "pH", "Temp", "Humidity", "Rainfall"],
+            "Your Input": [N, P, K, ph, temp, hum, rain],
+            "Optimal": [crop_optimal["N"], crop_optimal["P"], crop_optimal["K"], 
+                        crop_optimal["ph"], crop_optimal["temperature"], 
+                        crop_optimal["humidity"], crop_optimal["rainfall"]],
+        })
+        comp_df["Difference (%)"] = ((comp_df["Your Input"] - comp_df["Optimal"]) / comp_df["Optimal"] * 100).round(1)
+        
+        st.dataframe(comp_df, use_container_width=True)
+        
   
                 
         # ------------------------
