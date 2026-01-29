@@ -227,7 +227,7 @@ def show_prediction():
         st.markdown("---")
         submit = st.form_submit_button("✨ Analyze & Recommend")
 
-    if submit:
+    #if submit:
         # ------------------------
         # Stage 1: Crop Recommendation
         # ------------------------
