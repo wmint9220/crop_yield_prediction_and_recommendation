@@ -171,25 +171,17 @@ def show_trend():
     with col_info:
         st.metric("📋 Data Samples", f"{sample_count:,}")
     
-    # ----------------------------
-    # Crop Summary Card
-    # ----------------------------
     crop_emojis = {
         "rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿",
         "cotton":"☁️", "coconut":"🥥", "papaya":"🍈", "orange":"🍊",
         "apple":"🍎", "muskmelon":"🍈", "watermelon":"🍉", "grapes":"🍇",
         "mango":"🥭", "banana":"🍌", "pomegranate":"💎", "lentil":"🫘",
         "blackgram":"⚫", "mungbean":"🟢", "mothbeans":"🫘", "pigeonpeas":"🫘",
-        "kidneybeans":"🫘", "chickpea":"🫘", "coffee":"☕"
-    }
+        "kidneybeans":"🫘", "chickpea":"🫘", "coffee":"☕" }
     emoji = crop_emojis.get(selected_crop.lower(), "🌱")
     
-    # Calculate THI and SFI for the crop
-    thi = mean_values["temperature"] - (0.55 - 0.0055 * mean_values["humidity"]) * (mean_values["temperature"] - 14.4)
-    sfi = (mean_values["N"] + mean_values["P"] + mean_values["K"]) / 3
-    
     st.markdown(f"""
-        <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+        <div style='background: linear-gradient(135deg, #4B371C 0%, #3C238D 100%); 
                     padding: 25px; border-radius: 15px; color: white; margin: 20px 0;
                     box-shadow: 0 8px 16px rgba(0,0,0,0.1);'>
             <h2 style='margin: 0; color: white;'>{emoji} {selected_crop.upper()}</h2>
@@ -197,38 +189,6 @@ def show_trend():
         </div>
     """, unsafe_allow_html=True)
     
-    # ----------------------------
-    # Key Indices Summary
-    # ----------------------------
-    st.markdown("#### 🔬 Environmental Indices")
-    idx_col1, idx_col2, idx_col3 = st.columns(3)
-    
-    with idx_col1:
-        st.metric(
-            "🌡️ THI Score", 
-            f"{thi:.1f}",
-            help="Temperature-Humidity Index - indicates thermal comfort"
-        )
-    
-    with idx_col2:
-        st.metric(
-            "🌱 SFI Score", 
-            f"{sfi:.1f}",
-            help="Soil Fertility Index - average of N, P, K"
-        )
-    
-    with idx_col3:
-        # Calculate nutrient balance (coefficient of variation)
-        npk_values = [mean_values["N"], mean_values["P"], mean_values["K"]]
-        npk_std = np.std(npk_values)
-        npk_mean = np.mean(npk_values)
-        balance_score = 100 - (npk_std / npk_mean * 100) if npk_mean > 0 else 0
-        
-        st.metric(
-            "⚖️ NPK Balance", 
-            f"{balance_score:.0f}%",
-            help="How balanced the N-P-K nutrients are (100% = perfectly balanced)"
-        )
 
     # ----------------------------
     # Row 1: N, P, K
@@ -365,24 +325,7 @@ def show_trend():
             fig.update_layout(showlegend=False, height=400)
             st.plotly_chart(fig, use_container_width=True)
     
-    # ----------------------------
-    # Growing Tips
-    # ----------------------------
-    st.markdown("---")
-    st.subheader("💡 Growing Tips")
-    
-    tips = {
-        "rice": "Requires flooded conditions. Maintain water level 5-10cm during growing season.",
-        "wheat": "Prefers cool weather. Plant in well-drained soil with moderate nitrogen.",
-        "maize": "Needs full sun and consistent moisture. Apply nitrogen in split doses.",
-        "cotton": "Requires warm climate. Ensure adequate potassium for fiber quality.",
-        "coffee": "Grows best in shade with consistent rainfall. Maintain acidic soil pH.",
-        "banana": "Requires high humidity and regular watering. Protect from strong winds."
-    }
-    
-    tip = tips.get(selected_crop.lower(), "Ensure proper soil preparation and follow recommended fertilization schedule.")
-    
-    st.info(f"💡 **Tip for {selected_crop}:** {tip}")
+
 
 
 # def show_trend():
@@ -494,8 +437,15 @@ def show_prediction():
         
         st.session_state.stage1_crop = crop_name
         st.session_state.stage1_input = {"N": N, "P": P, "K": K, "temperature": temp, "humidity": hum, "ph": ph, "rainfall": rain}
-    
-        crop_emojis = {"rice":"🌾","wheat":"🌾","maize":"🌽","coffee":"☕","cotton":"☁️","banana":"🍌"}
+        
+        crop_emojis = {
+        "rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿",
+        "cotton":"☁️", "coconut":"🥥", "papaya":"🍈", "orange":"🍊",
+        "apple":"🍎", "muskmelon":"🍈", "watermelon":"🍉", "grapes":"🍇",
+        "mango":"🥭", "banana":"🍌", "pomegranate":"💎", "lentil":"🫘",
+        "blackgram":"⚫", "mungbean":"🟢", "mothbeans":"🫘", "pigeonpeas":"🫘",
+        "kidneybeans":"🫘", "chickpea":"🫘", "coffee":"☕" }
+        
         emoji = crop_emojis.get(crop_name.lower(), "🌱")
     
         st.markdown(f"""
