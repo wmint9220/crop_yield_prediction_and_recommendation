@@ -348,9 +348,7 @@ def show_prediction():
         #     st.markdown(f"**{color} {param_name}**: Your: {user_val:.1f} | Optimal: {opt_val:.1f}")
         #     st.progress(match_pct / 100)
   
-        st.markdown("#####🎯 Parameter Match Score")
-        st.caption("Compare your inputs with optimal conditions for maximum yield")
-        
+        st.markdown("##### 🎯 Parameter Match Score")
         params = {
             "Nitrogen (N)": (N, crop_optimal["N"], 150),
             "Phosphorus (P)": (P, crop_optimal["P"], 150),
@@ -426,8 +424,7 @@ def show_prediction():
             match_emoji = "❗"
             match_text = "Needs Adjustment"
             match_color = "#e74c3c"
-        
-        st.markdown("---")
+
         st.markdown(f"""
             <div style='background-color:{match_color}22; padding:20px; border-radius:10px; text-align:center; border:2px solid {match_color};'>
                 <h3 style='color:{match_color}; margin:0;'>{match_emoji} Overall Match: {avg_match:.1f}%</h3>
