@@ -228,7 +228,6 @@ def show_trend():
     # ----------------------------
     # Row 2: pH, Temperature, Humidity, Rainfall
     # ----------------------------
-    st.markdown("---")
     st.subheader("🌤️ Climate & Soil Conditions")
     
     cols2 = st.columns(len(features_row2), gap="medium")
@@ -285,7 +284,7 @@ def show_trend():
     # Crop Comparison Feature
     # ----------------------------
     st.markdown("---")
-    st.subheader("📊 Compare with Other Crops")
+    st.subheader(" 🔬  Compare with Other Crops")
     
     with st.expander("🔍 View Crop Comparison"):
         compare_crops = st.multiselect(
