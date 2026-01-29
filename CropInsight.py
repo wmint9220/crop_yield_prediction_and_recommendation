@@ -277,6 +277,70 @@ def show_prediction():
         sfi = (N + P + K) / 3
         
         col1, col2 = st.columns(2)
+        
+        with col1:
+            st.metric("🌡️ Temperature-Humidity Index", f"{thi:.1f}")
+            
+            # THI interpretation
+            if thi < 15:
+                thi_status = "❄️ **Cold Stress** - May slow crop growth"
+                thi_color = "#3498db"
+            elif 15 <= thi < 22:
+                thi_status = "✅ **Optimal** - Ideal growing conditions"
+                thi_color = "#2ecc71"
+            elif 22 <= thi < 28:
+                thi_status = "⚠️ **Warm** - Monitor water needs"
+                thi_color = "#f39c12"
+            else:
+                thi_status = "🔥 **Heat Stress** - Risk to crop health"
+                thi_color = "#e74c3c"
+            
+            st.markdown(f"<p style='color:{thi_color};font-size:14px;'>{thi_status}</p>", unsafe_allow_html=True)
+            
+            with st.expander("ℹ️ What is THI?"):
+                st.write("""
+                **Temperature-Humidity Index** measures environmental stress on crops.
+                
+                - **Below 15**: Cold stress conditions
+                - **15-22**: Optimal comfort zone
+                - **22-28**: Moderate heat stress
+                - **Above 28**: Severe heat stress
+                
+                Higher humidity reduces heat stress effects.
+                """)
+        
+        with col2:
+            st.metric("🌱 Soil Fertility Index", f"{sfi:.1f}")
+            
+            # SFI interpretation
+            if sfi < 30:
+                sfi_status = "📉 **Low** - Needs fertilization"
+                sfi_color = "#e74c3c"
+            elif 30 <= sfi < 60:
+                sfi_status = "📊 **Moderate** - Adequate nutrients"
+                sfi_color = "#f39c12"
+            elif 60 <= sfi < 90:
+                sfi_status = "📈 **Good** - Well-balanced soil"
+                sfi_color = "#2ecc71"
+            else:
+                sfi_status = "⚡ **Excellent** - Nutrient-rich soil"
+                sfi_color = "#27ae60"
+            
+            st.markdown(f"<p style='color:{sfi_color};font-size:14px;'>{sfi_status}</p>", unsafe_allow_html=True)
+            
+            with st.expander("ℹ️ What is SFI?"):
+                st.write("""
+                **Soil Fertility Index** reflects overall nutrient availability (N+P+K average).
+                
+                - **0-30**: Low - Requires fertilizer input
+                - **30-60**: Moderate - Baseline fertility
+                - **60-90**: Good - Supports healthy growth
+                - **90+**: Excellent - Premium soil quality
+                
+                Balance all three nutrients for best results.
+                """)
+        
+        col1, col2 = st.columns(2)
         with col1:
             st.metric("🌡️ Temperature-Humidity Index", f"{thi:.1f}")
         with col2:
@@ -312,7 +376,8 @@ def show_prediction():
             st.markdown(f"**{color} {param_name}**: Your: {user_val:.1f} | Optimal: {opt_val:.1f}")
             st.progress(match_pct / 100)
   
-                
+    
+        
         # ------------------------
         # Stage 2: Yield Prediction Prompt
         # ------------------------
