@@ -627,25 +627,7 @@ def show_trend():
         else:
             st.warning("👆 Select at least one crop to start comparing!")
             
-            # Show suggestions
-            st.markdown("#### 💡 Suggested Comparisons")
-            st.caption("Try comparing crops with similar growing seasons or regional availability:")
-            
-            suggestions = {
-                "rice": ["wheat", "maize"],
-                "wheat": ["rice", "barley"],
-                "maize": ["rice", "wheat"],
-                "cotton": ["jute", "sugarcane"],
-                "coffee": ["tea", "cocoa"],
-                "banana": ["papaya", "mango"],
-                "apple": ["grapes", "orange"]
-            }
-            
-            if selected_crop.lower() in suggestions:
-                suggested = suggestions[selected_crop.lower()]
-                available_suggestions = [s for s in suggested if s in df["label"].unique()]
-                if available_suggestions:
-                    st.info(f"For **{selected_crop}**, try comparing with: {', '.join(available_suggestions)}")
+        
 
 def show_prediction():
     st.title("🌱 Intelligent Crop Recommendation")
