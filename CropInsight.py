@@ -249,6 +249,39 @@ def show_prediction():
             </div>
         """, unsafe_allow_html=True)
 
+        # After crop recommendation, show comparison
+        st.subheader("📊 Input vs. Optimal Comparison")
+        df = load_data()
+        crop_optimal = df[df["label"] == crop_name].mean()
+        
+        comparison_data = {
+            "Parameter": ["N", "P", "K", "pH", "Temperature", "Humidity", "Rainfall"],
+            "Your Input": [N, P, K, ph, temp, hum, rain],
+            "Optimal": [crop_optimal["N"], crop_optimal["P"], crop_optimal["K"], 
+                        crop_optimal["ph"], crop_optimal["temperature"], 
+                        crop_optimal["humidity"], crop_optimal["rainfall"]]
+        }
+        
+        # Calculate THI (Temperature-Humidity Index) and SFI (Soil Fertility Index)
+        thi = temp - (0.55 - 0.0055 * hum) * (temp - 58)  # Livestock comfort, adapt for crops
+        sfi = (N + P + K) / 3  # Simple average, or weighted
+        
+        st.metric("Temperature-Humidity Index (THI)", f"{thi:.1f}")
+        st.metric("Soil Fertility Index (SFI)", f"{sfi:.1f}")
+
+        fig = go.Figure()
+        fig.add_trace(go.Scatterpolar(
+            r=[N/150, P/150, K/150, ph/14, temp/50, hum/100, rain/300],
+            theta=['N', 'P', 'K', 'pH', 'Temp', 'Humidity', 'Rainfall'],
+            name='Your Input'
+        ))
+        fig.add_trace(go.Scatterpolar(
+            r=[crop_optimal["N"]/150, crop_optimal["P"]/150, ...],
+            theta=['N', 'P', 'K', 'pH', 'Temp', 'Humidity', 'Rainfall'],
+            name='Optimal'
+        ))
+        st.plotly_chart(fig)
+                
         # ------------------------
         # Stage 2: Yield Prediction Prompt
         # ------------------------
