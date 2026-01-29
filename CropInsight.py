@@ -239,14 +239,123 @@ def show_prediction():
         crop_emojis = {"rice":"🌾","wheat":"🌾","maize":"🌽","coffee":"☕","cotton":"☁️","banana":"🍌"}
         emoji = crop_emojis.get(crop_name.lower(), "🌱")
     
+        # st.markdown(f"""
+        #     <div class="prediction-card">
+        #         <h2>Recommended Crop: <strong>{crop_name.upper()} {emoji}</strong></h2>
+        #         <p>Based on your input, <b>{crop_name}</b> is identified as the most suitable crop.</p>
+        #     </div>
+        # """, unsafe_allow_html=True)
+        
+        # st.subheader("📊 Suggestion Improvement")
+        # df = load_data()
+        # crop_optimal = df[df["label"] == crop_name].mean(numeric_only=True)
+        
+        # # Calculate indices
+        # thi = temp - (0.55 - 0.0055 * hum) * (temp - 14.4)
+        # sfi = (N + P + K) / 3
+        
+        # col1, col2 = st.columns(2)
+        
+        # with col1:
+        #     st.metric("🌡️ Temperature-Humidity Index", f"{thi:.1f}")
+            
+        #     # THI interpretation
+        #     if thi < 15:
+        #         thi_status = "❄️ **Cold Stress** - May slow crop growth"
+        #         thi_color = "#3498db"
+        #     elif 15 <= thi < 22:
+        #         thi_status = "✅ **Optimal** - Ideal growing conditions"
+        #         thi_color = "#2ecc71"
+        #     elif 22 <= thi < 28:
+        #         thi_status = "⚠️ **Warm** - Monitor water needs"
+        #         thi_color = "#f39c12"
+        #     else:
+        #         thi_status = "🔥 **Heat Stress** - Risk to crop health"
+        #         thi_color = "#e74c3c"
+            
+        #     st.markdown(f"<p style='color:{thi_color};font-size:14px;'>{thi_status}</p>", unsafe_allow_html=True)
+            
+        #     with st.expander("ℹ️ What is THI?"):
+        #         st.write("""
+        #         **Temperature-Humidity Index** measures environmental stress on crops.
+                
+        #         - **Below 15**: Cold stress conditions
+        #         - **15-22**: Optimal comfort zone
+        #         - **22-28**: Moderate heat stress
+        #         - **Above 28**: Severe heat stress
+                
+        #         Higher humidity reduces heat stress effects.
+        #         """)
+        
+        # with col2:
+        #     st.metric("🌱 Soil Fertility Index", f"{sfi:.1f}")
+            
+        #     # SFI interpretation
+        #     if sfi < 30:
+        #         sfi_status = "📉 **Low** - Needs fertilization"
+        #         sfi_color = "#e74c3c"
+        #     elif 30 <= sfi < 60:
+        #         sfi_status = "📊 **Moderate** - Adequate nutrients"
+        #         sfi_color = "#f39c12"
+        #     elif 60 <= sfi < 90:
+        #         sfi_status = "📈 **Good** - Well-balanced soil"
+        #         sfi_color = "#2ecc71"
+        #     else:
+        #         sfi_status = "⚡ **Excellent** - Nutrient-rich soil"
+        #         sfi_color = "#27ae60"
+            
+        #     st.markdown(f"<p style='color:{sfi_color};font-size:14px;'>{sfi_status}</p>", unsafe_allow_html=True)
+            
+        #     with st.expander("ℹ️ What is SFI?"):
+        #         st.write("""
+        #         **Soil Fertility Index** reflects overall nutrient availability (N+P+K average).
+                
+        #         - **0-30**: Low - Requires fertilizer input
+        #         - **30-60**: Moderate - Baseline fertility
+        #         - **60-90**: Good - Supports healthy growth
+        #         - **90+**: Excellent - Premium soil quality
+                
+        #         Balance all three nutrients for best results.
+        #         """)
+        
+        # st.markdown("##### 🎯 Match Score")
+        
+        # params = {
+        #     "Nitrogen (N)": (N, crop_optimal["N"], 150),
+        #     "Phosphorus (P)": (P, crop_optimal["P"], 150),
+        #     "Potassium (K)": (K, crop_optimal["K"], 150),
+        #     "pH Level": (ph, crop_optimal["ph"], 14),
+        #     "Temperature": (temp, crop_optimal["temperature"], 50),
+        #     "Humidity": (hum, crop_optimal["humidity"], 100),
+        #     "Rainfall": (rain, crop_optimal["rainfall"], 300)
+        # }
+        
+        # for param_name, (user_val, opt_val, max_val) in params.items():
+        #     match_pct = 100 - abs((user_val - opt_val) / opt_val * 100)
+        #     match_pct = max(0, min(100, match_pct))  # Clamp between 0-100
+            
+        #     # Color based on match
+        #     if match_pct >= 90:
+        #         color = "🟢"
+        #         bar_color = "#28a745"
+        #     elif match_pct >= 70:
+        #         color = "🟡"
+        #         bar_color = "#ffc107"
+        #     else:
+        #         color = "🔴"
+        #         bar_color = "#dc3545"
+            
+        #     st.markdown(f"**{color} {param_name}**: Your: {user_val:.1f} | Optimal: {opt_val:.1f}")
+        #     st.progress(match_pct / 100)
+  
         st.markdown(f"""
             <div class="prediction-card">
                 <h2>Recommended Crop: <strong>{crop_name.upper()} {emoji}</strong></h2>
                 <p>Based on your input, <b>{crop_name}</b> is identified as the most suitable crop.</p>
             </div>
         """, unsafe_allow_html=True)
-        
-        st.subheader("📊 Suggestion Improvement")
+
+        # Load data for comparison
         df = load_data()
         crop_optimal = df[df["label"] == crop_name].mean(numeric_only=True)
         
@@ -254,6 +363,17 @@ def show_prediction():
         thi = temp - (0.55 - 0.0055 * hum) * (temp - 14.4)
         sfi = (N + P + K) / 3
         
+        # ========================================
+        # IMPROVEMENT SUGGESTIONS CARD
+        # ========================================
+        st.markdown("""
+            <div class="prediction-card" style="margin-top: 20px;">
+                <h3>💡 Improvement Suggestions</h3>
+                <p>Compare your inputs with optimal conditions for <b>{}</b></p>
+            </div>
+        """.format(crop_name), unsafe_allow_html=True)
+        
+        # Indices Section
         col1, col2 = st.columns(2)
         
         with col1:
@@ -273,7 +393,7 @@ def show_prediction():
                 thi_status = "🔥 **Heat Stress** - Risk to crop health"
                 thi_color = "#e74c3c"
             
-            st.markdown(f"<p style='color:{thi_color};font-size:14px;'>{thi_status}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color:{thi_color};font-size:14px;margin-top:-10px;'>{thi_status}</p>", unsafe_allow_html=True)
             
             with st.expander("ℹ️ What is THI?"):
                 st.write("""
@@ -304,7 +424,7 @@ def show_prediction():
                 sfi_status = "⚡ **Excellent** - Nutrient-rich soil"
                 sfi_color = "#27ae60"
             
-            st.markdown(f"<p style='color:{sfi_color};font-size:14px;'>{sfi_status}</p>", unsafe_allow_html=True)
+            st.markdown(f"<p style='color:{sfi_color};font-size:14px;margin-top:-10px;'>{sfi_status}</p>", unsafe_allow_html=True)
             
             with st.expander("ℹ️ What is SFI?"):
                 st.write("""
@@ -318,7 +438,10 @@ def show_prediction():
                 Balance all three nutrients for best results.
                 """)
         
-        st.markdown("##### 🎯 Match Score")
+        # Match Score Section
+        st.markdown("---")
+        st.markdown("##### 🎯 Parameter Match Score")
+        st.caption("Compare your inputs with optimal conditions for maximum yield")
         
         params = {
             "Nitrogen (N)": (N, crop_optimal["N"], 150),
@@ -330,25 +453,85 @@ def show_prediction():
             "Rainfall": (rain, crop_optimal["rainfall"], 300)
         }
         
+        # Create two columns for better layout
+        col_left, col_right = st.columns(2)
+        
+        param_items = list(params.items())
+        mid_point = len(param_items) // 2 + len(param_items) % 2
+        
+        with col_left:
+            for param_name, (user_val, opt_val, max_val) in param_items[:mid_point]:
+                match_pct = 100 - abs((user_val - opt_val) / opt_val * 100) if opt_val != 0 else 100
+                match_pct = max(0, min(100, match_pct))
+                
+                if match_pct >= 90:
+                    color = "🟢"
+                elif match_pct >= 70:
+                    color = "🟡"
+                else:
+                    color = "🔴"
+                
+                st.markdown(f"**{color} {param_name}**")
+                st.progress(match_pct / 100)
+                st.caption(f"Your: {user_val:.1f} | Optimal: {opt_val:.1f} | Match: {match_pct:.0f}%")
+                st.markdown("<br>", unsafe_allow_html=True)
+        
+        with col_right:
+            for param_name, (user_val, opt_val, max_val) in param_items[mid_point:]:
+                match_pct = 100 - abs((user_val - opt_val) / opt_val * 100) if opt_val != 0 else 100
+                match_pct = max(0, min(100, match_pct))
+                
+                if match_pct >= 90:
+                    color = "🟢"
+                elif match_pct >= 70:
+                    color = "🟡"
+                else:
+                    color = "🔴"
+                
+                st.markdown(f"**{color} {param_name}**")
+                st.progress(match_pct / 100)
+                st.caption(f"Your: {user_val:.1f} | Optimal: {opt_val:.1f} | Match: {match_pct:.0f}%")
+                st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Overall Match Summary
+        overall_matches = []
         for param_name, (user_val, opt_val, max_val) in params.items():
-            match_pct = 100 - abs((user_val - opt_val) / opt_val * 100)
-            match_pct = max(0, min(100, match_pct))  # Clamp between 0-100
-            
-            # Color based on match
-            if match_pct >= 90:
-                color = "🟢"
-                bar_color = "#28a745"
-            elif match_pct >= 70:
-                color = "🟡"
-                bar_color = "#ffc107"
-            else:
-                color = "🔴"
-                bar_color = "#dc3545"
-            
-            st.markdown(f"**{color} {param_name}**: Your: {user_val:.1f} | Optimal: {opt_val:.1f}")
-            st.progress(match_pct / 100)
-  
-
+            match_pct = 100 - abs((user_val - opt_val) / opt_val * 100) if opt_val != 0 else 100
+            match_pct = max(0, min(100, match_pct))
+            overall_matches.append(match_pct)
+        
+        avg_match = sum(overall_matches) / len(overall_matches)
+        
+        if avg_match >= 90:
+            match_emoji = "🌟"
+            match_text = "Excellent Match!"
+            match_color = "#2ecc71"
+        elif avg_match >= 75:
+            match_emoji = "👍"
+            match_text = "Good Match"
+            match_color = "#27ae60"
+        elif avg_match >= 60:
+            match_emoji = "⚠️"
+            match_text = "Fair Match"
+            match_color = "#f39c12"
+        else:
+            match_emoji = "❗"
+            match_text = "Needs Adjustment"
+            match_color = "#e74c3c"
+        
+        st.markdown("---")
+        st.markdown(f"""
+            <div style='background-color:{match_color}22; padding:20px; border-radius:10px; text-align:center; border:2px solid {match_color};'>
+                <h3 style='color:{match_color}; margin:0;'>{match_emoji} Overall Match: {avg_match:.1f}%</h3>
+                <p style='margin:5px 0; font-size:16px;'><b>{match_text}</b></p>
+                <p style='margin:0; font-size:14px; color:#666;'>
+                    {'Your conditions are very close to optimal!' if avg_match >= 90 else
+                     'Your conditions are good for this crop.' if avg_match >= 75 else
+                     'Consider adjusting some parameters for better yield.' if avg_match >= 60 else
+                     'Several parameters need adjustment for optimal growth.'}
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
                 
         # ------------------------
         # Stage 2: Yield Prediction Prompt
