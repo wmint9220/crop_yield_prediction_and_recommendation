@@ -392,10 +392,7 @@ def show_trend():
     # TABS: Overview and Comparison
     # ----------------------------
     tab1, tab2 = st.tabs(["📊 Crop Overview", "🔬 Crop Comparison"])
-    
-    # ========================================
-    # TAB 1: CROP OVERVIEW
-    # ========================================
+
     with tab1:
         # ----------------------------
         # Row 1: N, P, K
@@ -487,9 +484,6 @@ def show_trend():
                 )
                 st.markdown("</div>", unsafe_allow_html=True)
     
-    # ========================================
-    # TAB 2: CROP COMPARISON
-    # ========================================
     with tab2:
         st.markdown(f"### Compare **{selected_crop.upper()}** {emoji} with Other Crops")
         st.info("Select up to 3 crops to compare their optimal growing conditions side-by-side.")
@@ -526,7 +520,7 @@ def show_trend():
             
             # Visualization section
             st.markdown("---")
-            st.markdown("#### 📊 Visual Comparison")
+            st.markdown("#### 🌡️ Visual Comparison")
             
             col_viz1, col_viz2 = st.columns([1, 2])
             
@@ -543,9 +537,6 @@ def show_trend():
                     ["Bar Chart", "Radar Chart"],
                     horizontal=True
                 )
-            
-            import plotly.express as px
-            import plotly.graph_objects as go
             
             if chart_type == "Bar Chart":
                 fig = px.bar(
@@ -609,7 +600,6 @@ def show_trend():
             st.markdown("#### 🔍 Key Differences")
             
             diff_cols = st.columns(len(compare_crops))
-            
             for idx, crop in enumerate(compare_crops):
                 with diff_cols[idx]:
                     crop_emoji = crop_emojis.get(crop.lower(), "🌱")
