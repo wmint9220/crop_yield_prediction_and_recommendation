@@ -242,7 +242,8 @@ def show_prediction():
         st.markdown(f"""
             <div class="prediction-card">
                 <h2>Recommended Crop: <strong>{crop_name.upper()} {emoji}</strong></h2>
-                <p>Based on your input, <b>{crop_name}</b> is identified as the most suitable crop.</p>
+                <p>Based on your input, <b>{crop_name}</b> is identified as the most suitable crop. This recommendation takes into account the specific 
+                soil pH and NPK balance required for this species to thrive under the current temperature and rainfall projections.</p>
             </div>
         """, unsafe_allow_html=True)
         
