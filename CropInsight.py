@@ -126,6 +126,204 @@ def show_login():
         else:
             st.error("❌ Invalid credentials")
  
+# def show_trend():
+#     st.title("📊 Agricultural Data Trends")
+#     st.info("Explore optimal growing conditions for different crops based on historical data.")
+    
+#     df = load_data()
+#     if df is None:
+#         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
+#         return
+
+#     # ----------------------------
+#     # Features, max values, units, colors
+#     # ----------------------------
+#     features_row1 = ["N", "P", "K"]
+#     features_row2 = ["ph", "temperature", "humidity", "rainfall"]
+    
+#     feature_max = {"N":150,"P":150,"K":150,"ph":14,"temperature":50,"humidity":100,"rainfall":300}
+#     feature_units = {"N":"","P":"","K":"","ph":"","temperature":"°C","humidity":"%","rainfall":"mm"}
+#     feature_names = {
+#         "N": "Nitrogen", "P": "Phosphorus", "K": "Potassium",
+#         "ph": "pH Level", "temperature": "Temperature", 
+#         "humidity": "Humidity", "rainfall": "Rainfall"
+#     }
+    
+#     colors_row1 = ["#2ca02c","#ff7f0e","#1f77b4"]
+#     colors_row2 = ["#9467bd","#d62728","#8c564b","#e377c2"]
+
+#     # ----------------------------
+#     # Crop Selection with Multi-Column Layout
+#     # ----------------------------
+#     col_select, col_info = st.columns([2, 1])
+    
+#     with col_select:
+#         selected_crop = st.selectbox(
+#             "Select Crop to Analyze", 
+#             sorted(df["label"].unique()),
+#             help="Choose a crop to view its optimal growing conditions"
+#         )
+    
+#     crop_df = df[df["label"] == selected_crop]
+#     mean_values = crop_df[features_row1 + features_row2].mean().round(1)
+#     sample_count = crop_df.shape[0]
+    
+#     with col_info:
+#         st.metric("📋 Data Samples", f"{sample_count:,}")
+    
+#     crop_emojis = {
+#         "rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿",
+#         "cotton":"☁️", "coconut":"🥥", "papaya":"🍈", "orange":"🍊",
+#         "apple":"🍎", "muskmelon":"🍈", "watermelon":"🍉", "grapes":"🍇",
+#         "mango":"🥭", "banana":"🍌", "pomegranate":"💎", "lentil":"🫘",
+#         "blackgram":"⚫", "mungbean":"🟢", "mothbeans":"🫘", "pigeonpeas":"🫘",
+#         "kidneybeans":"🫘", "chickpea":"🫘", "coffee":"☕" }
+#     emoji = crop_emojis.get(selected_crop.lower(), "🌱")
+    
+#     st.markdown(f"""
+#         <div style='background: linear-gradient(135deg, #4B371C 0%, #3C280D 100%); 
+#                     padding: 25px; border-radius: 15px; color: white; margin: 20px 0;
+#                     box-shadow: 0 8px 16px rgba(0,0,0,0.1);'>
+#             <h2 style='margin: 0; color: white;'>{emoji} {selected_crop.upper()}</h2>
+#             <p style='margin: 10px 0 0 0; opacity: 0.9;'>Optimal growing conditions profile</p>
+#         </div>
+#     """, unsafe_allow_html=True)
+    
+    # # ----------------------------
+    # # Row 1: N, P, K
+    # # ----------------------------
+    # st.markdown("---")
+    # st.subheader("🌱 Soil Nutrients (NPK)")
+    
+    # cols1 = st.columns(len(features_row1), gap="medium")
+    # for i, f in enumerate(features_row1):
+    #     with cols1[i]:
+    #         st.markdown(
+    #             f"<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);'>",
+    #             unsafe_allow_html=True
+    #         )
+    #         fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row1[i], feature_units[f])
+    #         st.plotly_chart(fig, use_container_width=True)
+    #         st.markdown(
+    #             f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+    #             unsafe_allow_html=True
+    #         )
+            
+    #         # Add interpretation
+    #         percentage = (mean_values[f] / feature_max[f]) * 100
+    #         if percentage < 30:
+    #             status = "🔵 Low"
+    #         elif percentage < 60:
+    #             status = "🟢 Moderate"
+    #         else:
+    #             status = "🟠 High"
+            
+    #         st.markdown(
+    #             f"<p style='text-align:center;color:#666;font-size:12px;margin-top:-10px;'>{status}</p>",
+    #             unsafe_allow_html=True
+    #         )
+    #         st.markdown("</div>", unsafe_allow_html=True)
+
+    # # ----------------------------
+    # # Row 2: pH, Temperature, Humidity, Rainfall
+    # # ----------------------------
+    # st.subheader("🌤️ Climate & Soil Conditions")
+    
+    # cols2 = st.columns(len(features_row2), gap="medium")
+    # for i, f in enumerate(features_row2):
+    #     with cols2[i]:
+    #         st.markdown(
+    #             f"<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);'>",
+    #             unsafe_allow_html=True
+    #         )
+    #         fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
+    #         st.plotly_chart(fig, use_container_width=True)
+    #         st.markdown(
+    #             f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+    #             unsafe_allow_html=True
+    #         )
+            
+    #         # Add interpretation for each parameter
+    #         if f == "ph":
+    #             if mean_values[f] < 6:
+    #                 status = "🔴 Acidic"
+    #             elif mean_values[f] <= 7.5:
+    #                 status = "🟢 Neutral"
+    #             else:
+    #                 status = "🔵 Alkaline"
+    #         elif f == "temperature":
+    #             if mean_values[f] < 20:
+    #                 status = "❄️ Cool"
+    #             elif mean_values[f] <= 30:
+    #                 status = "🌡️ Moderate"
+    #             else:
+    #                 status = "🔥 Warm"
+    #         elif f == "humidity":
+    #             if mean_values[f] < 40:
+    #                 status = "🏜️ Dry"
+    #             elif mean_values[f] <= 70:
+    #                 status = "💧 Moderate"
+    #             else:
+    #                 status = "💦 Humid"
+    #         else:  # rainfall
+    #             if mean_values[f] < 100:
+    #                 status = "🌵 Low"
+    #             elif mean_values[f] <= 200:
+    #                 status = "🌧️ Moderate"
+    #             else:
+    #                 status = "⛈️ High"
+            
+    #         st.markdown(
+    #             f"<p style='text-align:center;color:#666;font-size:12px;margin-top:-10px;'>{status}</p>",
+    #             unsafe_allow_html=True
+    #         )
+    #         st.markdown("</div>", unsafe_allow_html=True)
+    
+    # # ----------------------------
+    # # Crop Comparison Feature
+    # # ----------------------------
+    # st.markdown("---")
+    # st.subheader(" 🔬  Compare with Other Crops")
+    
+    # with st.expander("🔍 View Crop Comparison"):
+    #     compare_crops = st.multiselect(
+    #         "Select crops to compare",
+    #         [c for c in sorted(df["label"].unique()) if c != selected_crop],
+    #         max_selections=3
+    #     )
+        
+    #     if compare_crops:
+    #         comparison_data = {"Crop": [selected_crop] + compare_crops}
+            
+    #         for feature in features_row1 + features_row2:
+    #             comparison_data[feature_names[feature]] = [mean_values[feature]]
+    #             for crop in compare_crops:
+    #                 crop_mean = df[df["label"] == crop][feature].mean()
+    #                 comparison_data[feature_names[feature]].append(round(crop_mean, 1))
+            
+    #         comp_df = pd.DataFrame(comparison_data)
+    #         st.dataframe(comp_df, use_container_width=True, hide_index=True)
+            
+    #         # Visualization
+    #         selected_feature = st.selectbox(
+    #             "Select parameter to visualize",
+    #             [feature_names[f] for f in features_row1 + features_row2]
+    #         )
+            
+    #         import plotly.express as px
+    #         fig = px.bar(
+    #             comp_df, 
+    #             x="Crop", 
+    #             y=selected_feature,
+    #             title=f"{selected_feature} Comparison",
+    #             color="Crop",
+    #             text=selected_feature
+    #         )
+    #         fig.update_traces(texttemplate='%{text}', textposition='outside')
+    #         fig.update_layout(showlegend=False, height=400)
+    #         st.plotly_chart(fig, use_container_width=True)
+    
+
 def show_trend():
     st.title("📊 Agricultural Data Trends")
     st.info("Explore optimal growing conditions for different crops based on historical data.")
@@ -177,7 +375,8 @@ def show_trend():
         "apple":"🍎", "muskmelon":"🍈", "watermelon":"🍉", "grapes":"🍇",
         "mango":"🥭", "banana":"🍌", "pomegranate":"💎", "lentil":"🫘",
         "blackgram":"⚫", "mungbean":"🟢", "mothbeans":"🫘", "pigeonpeas":"🫘",
-        "kidneybeans":"🫘", "chickpea":"🫘", "coffee":"☕" }
+        "kidneybeans":"🫘", "chickpea":"🫘", "coffee":"☕"
+    }
     emoji = crop_emojis.get(selected_crop.lower(), "🌱")
     
     st.markdown(f"""
@@ -189,7 +388,10 @@ def show_trend():
         </div>
     """, unsafe_allow_html=True)
     
-     tab1, tab2 = st.tabs(["📊 Crop Overview", "🔬 Crop Comparison"])
+    # ----------------------------
+    # TABS: Overview and Comparison
+    # ----------------------------
+    tab1, tab2 = st.tabs(["📊 Crop Overview", "🔬 Crop Comparison"])
     
     # ========================================
     # TAB 1: CROP OVERVIEW
@@ -454,143 +656,6 @@ def show_trend():
                 available_suggestions = [s for s in suggested if s in df["label"].unique()]
                 if available_suggestions:
                     st.info(f"For **{selected_crop}**, try comparing with: {', '.join(available_suggestions)}")
-                    
-    # # ----------------------------
-    # # Row 1: N, P, K
-    # # ----------------------------
-    # st.markdown("---")
-    # st.subheader("🌱 Soil Nutrients (NPK)")
-    
-    # cols1 = st.columns(len(features_row1), gap="medium")
-    # for i, f in enumerate(features_row1):
-    #     with cols1[i]:
-    #         st.markdown(
-    #             f"<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);'>",
-    #             unsafe_allow_html=True
-    #         )
-    #         fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row1[i], feature_units[f])
-    #         st.plotly_chart(fig, use_container_width=True)
-    #         st.markdown(
-    #             f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
-    #             unsafe_allow_html=True
-    #         )
-            
-    #         # Add interpretation
-    #         percentage = (mean_values[f] / feature_max[f]) * 100
-    #         if percentage < 30:
-    #             status = "🔵 Low"
-    #         elif percentage < 60:
-    #             status = "🟢 Moderate"
-    #         else:
-    #             status = "🟠 High"
-            
-    #         st.markdown(
-    #             f"<p style='text-align:center;color:#666;font-size:12px;margin-top:-10px;'>{status}</p>",
-    #             unsafe_allow_html=True
-    #         )
-    #         st.markdown("</div>", unsafe_allow_html=True)
-
-    # # ----------------------------
-    # # Row 2: pH, Temperature, Humidity, Rainfall
-    # # ----------------------------
-    # st.subheader("🌤️ Climate & Soil Conditions")
-    
-    # cols2 = st.columns(len(features_row2), gap="medium")
-    # for i, f in enumerate(features_row2):
-    #     with cols2[i]:
-    #         st.markdown(
-    #             f"<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);'>",
-    #             unsafe_allow_html=True
-    #         )
-    #         fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
-    #         st.plotly_chart(fig, use_container_width=True)
-    #         st.markdown(
-    #             f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
-    #             unsafe_allow_html=True
-    #         )
-            
-    #         # Add interpretation for each parameter
-    #         if f == "ph":
-    #             if mean_values[f] < 6:
-    #                 status = "🔴 Acidic"
-    #             elif mean_values[f] <= 7.5:
-    #                 status = "🟢 Neutral"
-    #             else:
-    #                 status = "🔵 Alkaline"
-    #         elif f == "temperature":
-    #             if mean_values[f] < 20:
-    #                 status = "❄️ Cool"
-    #             elif mean_values[f] <= 30:
-    #                 status = "🌡️ Moderate"
-    #             else:
-    #                 status = "🔥 Warm"
-    #         elif f == "humidity":
-    #             if mean_values[f] < 40:
-    #                 status = "🏜️ Dry"
-    #             elif mean_values[f] <= 70:
-    #                 status = "💧 Moderate"
-    #             else:
-    #                 status = "💦 Humid"
-    #         else:  # rainfall
-    #             if mean_values[f] < 100:
-    #                 status = "🌵 Low"
-    #             elif mean_values[f] <= 200:
-    #                 status = "🌧️ Moderate"
-    #             else:
-    #                 status = "⛈️ High"
-            
-    #         st.markdown(
-    #             f"<p style='text-align:center;color:#666;font-size:12px;margin-top:-10px;'>{status}</p>",
-    #             unsafe_allow_html=True
-    #         )
-    #         st.markdown("</div>", unsafe_allow_html=True)
-    
-    # # ----------------------------
-    # # Crop Comparison Feature
-    # # ----------------------------
-    # st.markdown("---")
-    # st.subheader(" 🔬  Compare with Other Crops")
-    
-    # with st.expander("🔍 View Crop Comparison"):
-    #     compare_crops = st.multiselect(
-    #         "Select crops to compare",
-    #         [c for c in sorted(df["label"].unique()) if c != selected_crop],
-    #         max_selections=3
-    #     )
-        
-    #     if compare_crops:
-    #         comparison_data = {"Crop": [selected_crop] + compare_crops}
-            
-    #         for feature in features_row1 + features_row2:
-    #             comparison_data[feature_names[feature]] = [mean_values[feature]]
-    #             for crop in compare_crops:
-    #                 crop_mean = df[df["label"] == crop][feature].mean()
-    #                 comparison_data[feature_names[feature]].append(round(crop_mean, 1))
-            
-    #         comp_df = pd.DataFrame(comparison_data)
-    #         st.dataframe(comp_df, use_container_width=True, hide_index=True)
-            
-    #         # Visualization
-    #         selected_feature = st.selectbox(
-    #             "Select parameter to visualize",
-    #             [feature_names[f] for f in features_row1 + features_row2]
-    #         )
-            
-    #         import plotly.express as px
-    #         fig = px.bar(
-    #             comp_df, 
-    #             x="Crop", 
-    #             y=selected_feature,
-    #             title=f"{selected_feature} Comparison",
-    #             color="Crop",
-    #             text=selected_feature
-    #         )
-    #         fig.update_traces(texttemplate='%{text}', textposition='outside')
-    #         fig.update_layout(showlegend=False, height=400)
-    #         st.plotly_chart(fig, use_container_width=True)
-    
-
-
 
 def show_prediction():
     st.title("🌱 Intelligent Crop Recommendation")
