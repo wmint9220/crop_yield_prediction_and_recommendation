@@ -111,11 +111,6 @@ def half_circle_gauge_card(value, max_value, feature, color, unit=""):
     )
     return fig
 
-def compute_thi(temp, humidity):
-    return temp - (0.55 - 0.0055 * humidity) * (temp - 14.5)
-
-def soil_fertility_index(n, p, k):
-    return (n + p + k) / 3
 
 
 # =============================
@@ -144,31 +139,26 @@ def show_trend():
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
         return
 
+    thi = round(compute_thi(
+        mean_values["temperature"],
+        mean_values["humidity"]
+    ), 1)
+    
+    sfi = round(soil_fertility_index(
+        mean_values["N"],
+        mean_values["P"],
+        mean_values["K"]
+    ), 1)
+
+    
     # ----------------------------
     # Features, max values, units, colors
     # ----------------------------
     features_row1 = ["N", "P", "K"]
     features_row2 = ["ph", "temperature", "humidity", "rainfall"]
 
-    feature_max = {
-        "N":150,
-        "P":150,
-        "K":200,   # ✅ K max updated
-        "ph":14,
-        "temperature":50,
-        "humidity":100,
-        "rainfall":300
-    }
-
-    feature_units = {
-        "N":"",
-        "P":"",
-        "K":"",
-        "ph":"",
-        "temperature":"°C",
-        "humidity":"%",
-        "rainfall":"mm"
-    }
+    feature_max = {"N":150,"P":150,"K":200,"ph":14,"temperature":50,"humidity":100,"rainfall":300}
+    feature_units = {"N":"","P":"","K":"","ph":"","temperature":"°C","humidity":"%","rainfall":"mm"}
 
     colors_row1 = ["#2ca02c","#ff7f0e","#1f77b4"]
     colors_row2 = ["#9467bd","#d62728","#8c564b","#e377c2"]
@@ -179,84 +169,50 @@ def show_trend():
     selected_crop = st.selectbox("Select Crop", sorted(df["label"].unique()))
     crop_df = df[df["label"] == selected_crop]
     mean_values = crop_df[features_row1 + features_row2].mean().round(1)
-
-    st.caption(f"Based on {crop_df.shape[0]} samples")
-
-    # ----------------------------
-    # Compute indices (AFTER mean_values)
-    # ----------------------------
-    thi = round(compute_thi(
-        mean_values["temperature"],
-        mean_values["humidity"]
-    ), 1)
-
-    sfi = round(soil_fertility_index(
-        mean_values["N"],
-        mean_values["P"],
-        mean_values["K"]
-    ), 1)
+    sample_count = crop_df.shape[0]
+    st.caption(f"Based on {sample_count} samples")
 
     # ----------------------------
-    # Composite Indices
-    # ----------------------------
-    st.subheader("📌 Composite Indices")
-    cols_idx = st.columns(2, gap="medium")
-
-    with cols_idx[0]:
-        st.markdown(
-            "<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow:0 4px 10px rgba(0,0,0,0.08);'>",
-            unsafe_allow_html=True
-        )
-        fig = half_circle_gauge_card(
-            value=sfi,
-            max_value=200,  # matches K scale
-            feature="Soil Fertility Index",
-            color="#2ca02c"
-        )
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown(f"<p style='text-align:center;font-weight:bold;'>SFI = {sfi}</p>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    with cols_idx[1]:
-        st.markdown(
-            "<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow:0 4px 10px rgba(0,0,0,0.08);'>",
-            unsafe_allow_html=True
-        )
-        fig = half_circle_gauge_card(
-            value=thi,
-            max_value=50,
-            feature="Temperature–Humidity Index",
-            color="#d62728"
-        )
-        st.plotly_chart(fig, use_container_width=True)
-        st.markdown(f"<p style='text-align:center;font-weight:bold;'>THI = {thi}</p>", unsafe_allow_html=True)
-        st.markdown("</div>", unsafe_allow_html=True)
-
-    # ----------------------------
-    # Raw Features: N, P, K
+    # Row 1: N, P, K
     # ----------------------------
     st.subheader("🌱 Soil Nutrients")
     cols1 = st.columns(len(features_row1), gap="medium")
-
     for i, f in enumerate(features_row1):
         with cols1[i]:
             st.markdown(
-                "<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow:0 4px 10px rgba(0,0,0,0.08);'>",
+                f"<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);'>",
                 unsafe_allow_html=True
             )
-            fig = half_circle_gauge_card(
-                mean_values[f],
-                feature_max[f],
-                f,
-                colors_row1[i],
-                feature_units[f]
-            )
+            fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row1[i], feature_units[f])
             st.plotly_chart(fig, use_container_width=True)
             st.markdown(
-                f"<p style='text-align:center;font-weight:bold;'>{mean_values[f]} / {feature_max[f]}</p>",
+                f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
                 unsafe_allow_html=True
             )
             st.markdown("</div>", unsafe_allow_html=True)
+
+    # ----------------------------
+    # Row 2: pH, Temperature, Humidity, Rainfall
+    # ----------------------------
+    st.subheader("🌤️ Climate & Soil pH")
+    cols2 = st.columns(len(features_row2), gap="medium")
+    for i, f in enumerate(features_row2):
+        with cols2[i]:
+            st.markdown(
+                f"<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);'>",
+                unsafe_allow_html=True
+            )
+            fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
+            st.plotly_chart(fig, use_container_width=True)
+            st.markdown(
+                f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+                unsafe_allow_html=True
+            )
+            st.markdown("</div>", unsafe_allow_html=True)
+
+
+
+
 
 
 
