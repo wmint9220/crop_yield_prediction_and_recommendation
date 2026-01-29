@@ -246,9 +246,9 @@ def show_prediction():
             </div>
         """, unsafe_allow_html=True)
         
-        st.subheader("📊 Suggestion Improvement")
-        df = load_data()
-        crop_optimal = df[df["label"] == crop_name].mean(numeric_only=True)
+        # st.subheader("📊 Suggestion Improvement")
+        # df = load_data()
+        # crop_optimal = df[df["label"] == crop_name].mean(numeric_only=True)
         
         # # Calculate indices
         # thi = temp - (0.55 - 0.0055 * hum) * (temp - 14.4)
@@ -317,92 +317,96 @@ def show_prediction():
                 
         #         Balance all three nutrients for best results.
         #         """)
+        
+        # st.markdown("##### 🎯 Match Score")
+        
+        # params = {
+        #     "Nitrogen (N)": (N, crop_optimal["N"], 150),
+        #     "Phosphorus (P)": (P, crop_optimal["P"], 150),
+        #     "Potassium (K)": (K, crop_optimal["K"], 150),
+        #     "pH Level": (ph, crop_optimal["ph"], 14),
+        #     "Temperature": (temp, crop_optimal["temperature"], 50),
+        #     "Humidity": (hum, crop_optimal["humidity"], 100),
+        #     "Rainfall": (rain, crop_optimal["rainfall"], 300)
+        # }
+        
+        # for param_name, (user_val, opt_val, max_val) in params.items():
+        #     match_pct = 100 - abs((user_val - opt_val) / opt_val * 100)
+        #     match_pct = max(0, min(100, match_pct))  # Clamp between 0-100
+            
+        #     # Color based on match
+        #     if match_pct >= 90:
+        #         color = "🟢"
+        #         bar_color = "#28a745"
+        #     elif match_pct >= 70:
+        #         color = "🟡"
+        #         bar_color = "#ffc107"
+        #     else:
+        #         color = "🔴"
+        #         bar_color = "#dc3545"
+            
+        #     st.markdown(f"**{color} {param_name}**: Your: {user_val:.1f} | Optimal: {opt_val:.1f}")
+        #     st.progress(match_pct / 100)
+  
+      
 
+        st.subheader("📊 Your Input vs. Optimal Conditions")
+        df = load_data()
+        crop_optimal = df[df["label"] == crop_name].mean(numeric_only=True)
         
         # Calculate indices
         thi = temp - (0.55 - 0.0055 * hum) * (temp - 14.4)
         sfi = (N + P + K) / 3
         
         col1, col2 = st.columns(2)
-        
         with col1:
-            # THI Gauge
-            fig_thi = go.Figure(go.Indicator(
-                mode="gauge+number+delta",
-                value=thi,
-                title={'text': "🌡️ Temperature-Humidity Index"},
-                delta={'reference': 20, 'suffix': " from ideal"},
-                gauge={
-                    'axis': {'range': [None, 40]},
-                    'bar': {'color': "darkblue"},
-                    'steps': [
-                        {'range': [0, 15], 'color': "lightblue"},
-                        {'range': [15, 22], 'color': "lightgreen"},
-                        {'range': [22, 28], 'color': "yellow"},
-                        {'range': [28, 40], 'color': "salmon"}
-                    ],
-                    'threshold': {'line': {'color': "red", 'width': 4}, 'thickness': 0.75, 'value': 28}
-                }
-            ))
-            fig_thi.update_layout(height=250)
-            st.plotly_chart(fig_thi, use_container_width=True)
-            
-            st.caption("**Ideal range: 15-22** | Measures combined effect of temperature & humidity on crop comfort")
-        
+            st.metric("🌡️ Temperature-Humidity Index", f"{thi:.1f}")
         with col2:
-            # SFI Gauge
-            fig_sfi = go.Figure(go.Indicator(
-                mode="gauge+number",
-                value=sfi,
-                title={'text': "🌱 Soil Fertility Index"},
-                gauge={
-                    'axis': {'range': [None, 150]},
-                    'bar': {'color': "darkgreen"},
-                    'steps': [
-                        {'range': [0, 30], 'color': "lightcoral"},
-                        {'range': [30, 60], 'color': "lightyellow"},
-                        {'range': [60, 90], 'color': "lightgreen"},
-                        {'range': [90, 150], 'color': "green"}
-                    ],
-                }
-            ))
-            fig_sfi.update_layout(height=250)
-            st.plotly_chart(fig_sfi, use_container_width=True)
-            
-            st.caption("**Good range: 60-90** | Average of N, P, K nutrients indicating soil health")
+            st.metric("🌱 Soil Fertility Index", f"{sfi:.1f}")
         
-        st.markdown("##### 🎯 Match Score")
+        # Normalize values for radar chart
+        categories = ['N', 'P', 'K', 'pH', 'Temp', 'Humidity', 'Rainfall']
+        user_normalized = [
+            N/150, P/150, K/150, ph/14, temp/50, hum/100, rain/300
+        ]
+        optimal_normalized = [
+            crop_optimal["N"]/150,
+            crop_optimal["P"]/150,
+            crop_optimal["K"]/150,
+            crop_optimal["ph"]/14,
+            crop_optimal["temperature"]/50,
+            crop_optimal["humidity"]/100,
+            crop_optimal["rainfall"]/300
+        ]
         
-        params = {
-            "Nitrogen (N)": (N, crop_optimal["N"], 150),
-            "Phosphorus (P)": (P, crop_optimal["P"], 150),
-            "Potassium (K)": (K, crop_optimal["K"], 150),
-            "pH Level": (ph, crop_optimal["ph"], 14),
-            "Temperature": (temp, crop_optimal["temperature"], 50),
-            "Humidity": (hum, crop_optimal["humidity"], 100),
-            "Rainfall": (rain, crop_optimal["rainfall"], 300)
-        }
+        fig = go.Figure()
         
-        for param_name, (user_val, opt_val, max_val) in params.items():
-            match_pct = 100 - abs((user_val - opt_val) / opt_val * 100)
-            match_pct = max(0, min(100, match_pct))  # Clamp between 0-100
-            
-            # Color based on match
-            if match_pct >= 90:
-                color = "🟢"
-                bar_color = "#28a745"
-            elif match_pct >= 70:
-                color = "🟡"
-                bar_color = "#ffc107"
-            else:
-                color = "🔴"
-                bar_color = "#dc3545"
-            
-            st.markdown(f"**{color} {param_name}**: Your: {user_val:.1f} | Optimal: {opt_val:.1f}")
-            st.progress(match_pct / 100)
-  
-    
+        fig.add_trace(go.Scatterpolar(
+            r=optimal_normalized,
+            theta=categories,
+            fill='toself',
+            name='Optimal',
+            line_color='#2ca02c',
+            fillcolor='rgba(44, 160, 44, 0.2)'
+        ))
         
+        fig.add_trace(go.Scatterpolar(
+            r=user_normalized,
+            theta=categories,
+            fill='toself',
+            name='Your Input',
+            line_color='#ff7f0e',
+            fillcolor='rgba(255, 127, 14, 0.2)'
+        ))
+        
+        fig.update_layout(
+            polar=dict(radialaxis=dict(visible=True, range=[0, 1])),
+            showlegend=True,
+            height=400
+        )
+        
+        st.plotly_chart(fig, use_container_width=True)
+                
         # ------------------------
         # Stage 2: Yield Prediction Prompt
         # ------------------------
