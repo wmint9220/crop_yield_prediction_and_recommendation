@@ -181,7 +181,7 @@ def show_trend():
     emoji = crop_emojis.get(selected_crop.lower(), "🌱")
     
     st.markdown(f"""
-        <div style='background: linear-gradient(135deg, #4B371C 0%, #3C238D 100%); 
+        <div style='background: linear-gradient(135deg, #4B371C 0%, #3C280D 100%); 
                     padding: 25px; border-radius: 15px; color: white; margin: 20px 0;
                     box-shadow: 0 8px 16px rgba(0,0,0,0.1);'>
             <h2 style='margin: 0; color: white;'>{emoji} {selected_crop.upper()}</h2>
