@@ -89,21 +89,6 @@ def load_data():
     except:
         return None
 
-# =============================
-# UI SECTIONS
-# =============================
-def show_login():
-    st.title("🔐 Crop Insight Login")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        if username == "admin" and password == "admin123":
-            st.session_state.logged_in = True
-            st.session_state.page = "trend"
-            st.rerun()
-        else:
-            st.error("❌ Invalid credentials")
- 
 def half_circle_gauge_card(value, max_value, feature, color, unit=""):
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
@@ -126,6 +111,30 @@ def half_circle_gauge_card(value, max_value, feature, color, unit=""):
     )
     return fig
 
+def compute_thi(temp, humidity):
+    return temp - (0.55 - 0.0055 * humidity) * (temp - 14.5)
+
+def soil_fertility_index(n, p, k):
+    return (n + p + k) / 3
+
+
+# =============================
+# UI SECTIONS
+# =============================
+def show_login():
+    st.title("🔐 Crop Insight Login")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        if username == "admin" and password == "admin123":
+            st.session_state.logged_in = True
+            st.session_state.page = "trend"
+            st.rerun()
+        else:
+            st.error("❌ Invalid credentials")
+ 
+
+
 def show_trend():
     st.title("📊 Agricultural Data Trends")
     st.info("Select a crop to view its average soil nutrients and climate conditions.")
@@ -135,6 +144,57 @@ def show_trend():
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
         return
 
+    thi = round(compute_thi(
+        mean_values["temperature"],
+        mean_values["humidity"]
+    ), 1)
+    
+    sfi = round(soil_fertility_index(
+        mean_values["N"],
+        mean_values["P"],
+        mean_values["K"]
+    ), 1)
+
+    st.subheader("📌 Composite Indices")
+
+cols_idx = st.columns(2, gap="medium")
+
+with cols_idx[0]:
+    st.markdown(
+        "<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow:0 4px 10px rgba(0,0,0,0.08);'>",
+        unsafe_allow_html=True
+    )
+    fig = half_circle_gauge_card(
+        value=sfi,
+        max_value=150,  # same scale as NPK
+        feature="Soil Fertility Index",
+        color="#2ca02c"
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    st.markdown(
+        f"<p style='text-align:center;font-weight:bold;'>SFI = {sfi}</p>",
+        unsafe_allow_html=True
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
+
+with cols_idx[1]:
+    st.markdown(
+        "<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow:0 4px 10px rgba(0,0,0,0.08);'>",
+        unsafe_allow_html=True
+    )
+    fig = half_circle_gauge_card(
+        value=thi,
+        max_value=50,  # typical THI range
+        feature="Temperature–Humidity Index",
+        color="#d62728"
+    )
+    st.plotly_chart(fig, use_container_width=True)
+    st.markdown(
+        f"<p style='text-align:center;font-weight:bold;'>THI = {thi}</p>",
+        unsafe_allow_html=True
+    )
+    st.markdown("</div>", unsafe_allow_html=True)
+    
     # ----------------------------
     # Features, max values, units, colors
     # ----------------------------
