@@ -89,6 +89,21 @@ def load_data():
     except:
         return None
 
+# =============================
+# UI SECTIONS
+# =============================
+def show_login():
+    st.title("🔐 Crop Insight Login")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+    if st.button("Login"):
+        if username == "admin" and password == "admin123":
+            st.session_state.logged_in = True
+            st.session_state.page = "trend"
+            st.rerun()
+        else:
+            st.error("❌ Invalid credentials")
+ 
 def half_circle_gauge_card(value, max_value, feature, color, unit=""):
     fig = go.Figure(go.Indicator(
         mode="gauge+number",
@@ -111,25 +126,6 @@ def half_circle_gauge_card(value, max_value, feature, color, unit=""):
     )
     return fig
 
-
-
-# =============================
-# UI SECTIONS
-# =============================
-def show_login():
-    st.title("🔐 Crop Insight Login")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-    if st.button("Login"):
-        if username == "admin" and password == "admin123":
-            st.session_state.logged_in = True
-            st.session_state.page = "trend"
-            st.rerun()
-        else:
-            st.error("❌ Invalid credentials")
- 
-
-
 def show_trend():
     st.title("📊 Agricultural Data Trends")
     st.info("Select a crop to view its average soil nutrients and climate conditions.")
@@ -139,25 +135,13 @@ def show_trend():
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
         return
 
-    thi = round(compute_thi(
-        mean_values["temperature"],
-        mean_values["humidity"]
-    ), 1)
-    
-    sfi = round(soil_fertility_index(
-        mean_values["N"],
-        mean_values["P"],
-        mean_values["K"]
-    ), 1)
-
-    
     # ----------------------------
     # Features, max values, units, colors
     # ----------------------------
     features_row1 = ["N", "P", "K"]
     features_row2 = ["ph", "temperature", "humidity", "rainfall"]
 
-    feature_max = {"N":150,"P":150,"K":200,"ph":14,"temperature":50,"humidity":100,"rainfall":300}
+    feature_max = {"N":150,"P":150,"K":150,"ph":14,"temperature":50,"humidity":100,"rainfall":300}
     feature_units = {"N":"","P":"","K":"","ph":"","temperature":"°C","humidity":"%","rainfall":"mm"}
 
     colors_row1 = ["#2ca02c","#ff7f0e","#1f77b4"]
@@ -211,11 +195,6 @@ def show_trend():
             st.markdown("</div>", unsafe_allow_html=True)
 
 
-
-
-
-
-
 def show_prediction():
     st.title("🌱 Intelligent Crop Recommendation")
     
@@ -236,7 +215,7 @@ def show_prediction():
             st.markdown("##### **Soil Chemical Properties**")
             N = st.slider("Nitrogen (N) Content", 0, 150, 50)
             P = st.slider("Phosphorus (P) Content", 0, 150, 50)
-            K = st.slider("Potassium (K) Content", 0, 200, 50)
+            K = st.slider("Potassium (K) Content", 0, 150, 50)
             ph = st.number_input("Soil pH Level (0.0 - 14.0)", 0.0, 14.0, 6.5)
         
         with col2:
