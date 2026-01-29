@@ -318,7 +318,38 @@ def show_prediction():
                 Balance all three nutrients for best results.
                 """)
         
-        st.markdown("##### 🎯 Match Score")
+        # st.markdown("##### 🎯 Match Score")
+        
+        # params = {
+        #     "Nitrogen (N)": (N, crop_optimal["N"], 150),
+        #     "Phosphorus (P)": (P, crop_optimal["P"], 150),
+        #     "Potassium (K)": (K, crop_optimal["K"], 150),
+        #     "pH Level": (ph, crop_optimal["ph"], 14),
+        #     "Temperature": (temp, crop_optimal["temperature"], 50),
+        #     "Humidity": (hum, crop_optimal["humidity"], 100),
+        #     "Rainfall": (rain, crop_optimal["rainfall"], 300)
+        # }
+        
+        # for param_name, (user_val, opt_val, max_val) in params.items():
+        #     match_pct = 100 - abs((user_val - opt_val) / opt_val * 100)
+        #     match_pct = max(0, min(100, match_pct))  # Clamp between 0-100
+            
+        #     # Color based on match
+        #     if match_pct >= 90:
+        #         color = "🟢"
+        #         bar_color = "#28a745"
+        #     elif match_pct >= 70:
+        #         color = "🟡"
+        #         bar_color = "#ffc107"
+        #     else:
+        #         color = "🔴"
+        #         bar_color = "#dc3545"
+            
+        #     st.markdown(f"**{color} {param_name}**: Your: {user_val:.1f} | Optimal: {opt_val:.1f}")
+        #     st.progress(match_pct / 100)
+  
+        st.markdown("#####🎯 Parameter Match Score")
+        st.caption("Compare your inputs with optimal conditions for maximum yield")
         
         params = {
             "Nitrogen (N)": (N, crop_optimal["N"], 150),
@@ -330,26 +361,86 @@ def show_prediction():
             "Rainfall": (rain, crop_optimal["rainfall"], 300)
         }
         
-        for param_name, (user_val, opt_val, max_val) in params.items():
-            match_pct = 100 - abs((user_val - opt_val) / opt_val * 100)
-            match_pct = max(0, min(100, match_pct))  # Clamp between 0-100
-            
-            # Color based on match
-            if match_pct >= 90:
-                color = "🟢"
-                bar_color = "#28a745"
-            elif match_pct >= 70:
-                color = "🟡"
-                bar_color = "#ffc107"
-            else:
-                color = "🔴"
-                bar_color = "#dc3545"
-            
-            st.markdown(f"**{color} {param_name}**: Your: {user_val:.1f} | Optimal: {opt_val:.1f}")
-            st.progress(match_pct / 100)
-  
-
+        # Create two columns for better layout
+        col_left, col_right = st.columns(2)
+        
+        param_items = list(params.items())
+        mid_point = len(param_items) // 2 + len(param_items) % 2
+        
+        with col_left:
+            for param_name, (user_val, opt_val, max_val) in param_items[:mid_point]:
+                match_pct = 100 - abs((user_val - opt_val) / opt_val * 100) if opt_val != 0 else 100
+                match_pct = max(0, min(100, match_pct))
                 
+                if match_pct >= 90:
+                    color = "🟢"
+                elif match_pct >= 70:
+                    color = "🟡"
+                else:
+                    color = "🔴"
+                
+                st.markdown(f"**{color} {param_name}**")
+                st.progress(match_pct / 100)
+                st.caption(f"Your: {user_val:.1f} | Optimal: {opt_val:.1f} | Match: {match_pct:.0f}%")
+                st.markdown("<br>", unsafe_allow_html=True)
+        
+        with col_right:
+            for param_name, (user_val, opt_val, max_val) in param_items[mid_point:]:
+                match_pct = 100 - abs((user_val - opt_val) / opt_val * 100) if opt_val != 0 else 100
+                match_pct = max(0, min(100, match_pct))
+                
+                if match_pct >= 90:
+                    color = "🟢"
+                elif match_pct >= 70:
+                    color = "🟡"
+                else:
+                    color = "🔴"
+                
+                st.markdown(f"**{color} {param_name}**")
+                st.progress(match_pct / 100)
+                st.caption(f"Your: {user_val:.1f} | Optimal: {opt_val:.1f} | Match: {match_pct:.0f}%")
+                st.markdown("<br>", unsafe_allow_html=True)
+        
+        # Overall Match Summary
+        overall_matches = []
+        for param_name, (user_val, opt_val, max_val) in params.items():
+            match_pct = 100 - abs((user_val - opt_val) / opt_val * 100) if opt_val != 0 else 100
+            match_pct = max(0, min(100, match_pct))
+            overall_matches.append(match_pct)
+        
+        avg_match = sum(overall_matches) / len(overall_matches)
+        
+        if avg_match >= 90:
+            match_emoji = "🌟"
+            match_text = "Excellent Match!"
+            match_color = "#2ecc71"
+        elif avg_match >= 75:
+            match_emoji = "👍"
+            match_text = "Good Match"
+            match_color = "#27ae60"
+        elif avg_match >= 60:
+            match_emoji = "⚠️"
+            match_text = "Fair Match"
+            match_color = "#f39c12"
+        else:
+            match_emoji = "❗"
+            match_text = "Needs Adjustment"
+            match_color = "#e74c3c"
+        
+        st.markdown("---")
+        st.markdown(f"""
+            <div style='background-color:{match_color}22; padding:20px; border-radius:10px; text-align:center; border:2px solid {match_color};'>
+                <h3 style='color:{match_color}; margin:0;'>{match_emoji} Overall Match: {avg_match:.1f}%</h3>
+                <p style='margin:5px 0; font-size:16px;'><b>{match_text}</b></p>
+                <p style='margin:0; font-size:14px; color:#666;'>
+                    {'Your conditions are very close to optimal!' if avg_match >= 90 else
+                     'Your conditions are good for this crop.' if avg_match >= 75 else
+                     'Consider adjusting some parameters for better yield.' if avg_match >= 60 else
+                     'Several parameters need adjustment for optimal growth.'}
+                </p>
+            </div>
+        """, unsafe_allow_html=True)
+                        
         # ------------------------
         # Stage 2: Yield Prediction Prompt
         # ------------------------
