@@ -268,7 +268,6 @@ def show_prediction():
             </div>
         """, unsafe_allow_html=True)
         
-        # ✅ NEW: Comparison with Optimal Values
         st.subheader("📊 Your Input vs. Optimal Conditions")
         df = load_data()
         crop_optimal = df[df["label"] == crop_name].mean(numeric_only=True)
@@ -283,18 +282,35 @@ def show_prediction():
         with col2:
             st.metric("🌱 Soil Fertility Index", f"{sfi:.1f}")
         
-        # Show parameter comparison
-        comp_df = pd.DataFrame({
-            "Parameter": ["N", "P", "K", "pH", "Temp", "Humidity", "Rainfall"],
-            "Your Input": [N, P, K, ph, temp, hum, rain],
-            "Optimal": [crop_optimal["N"], crop_optimal["P"], crop_optimal["K"], 
-                        crop_optimal["ph"], crop_optimal["temperature"], 
-                        crop_optimal["humidity"], crop_optimal["rainfall"]],
-        })
-        comp_df["Difference (%)"] = ((comp_df["Your Input"] - comp_df["Optimal"]) / comp_df["Optimal"] * 100).round(1)
+        st.markdown("##### 🎯 Match Score")
         
-        st.dataframe(comp_df, use_container_width=True)
+        params = {
+            "Nitrogen (N)": (N, crop_optimal["N"], 150),
+            "Phosphorus (P)": (P, crop_optimal["P"], 150),
+            "Potassium (K)": (K, crop_optimal["K"], 150),
+            "pH Level": (ph, crop_optimal["ph"], 14),
+            "Temperature": (temp, crop_optimal["temperature"], 50),
+            "Humidity": (hum, crop_optimal["humidity"], 100),
+            "Rainfall": (rain, crop_optimal["rainfall"], 300)
+        }
         
+        for param_name, (user_val, opt_val, max_val) in params.items():
+            match_pct = 100 - abs((user_val - opt_val) / opt_val * 100)
+            match_pct = max(0, min(100, match_pct))  # Clamp between 0-100
+            
+            # Color based on match
+            if match_pct >= 90:
+                color = "🟢"
+                bar_color = "#28a745"
+            elif match_pct >= 70:
+                color = "🟡"
+                bar_color = "#ffc107"
+            else:
+                color = "🔴"
+                bar_color = "#dc3545"
+            
+            st.markdown(f"**{color} {param_name}**: Your: {user_val:.1f} | Optimal: {opt_val:.1f}")
+            st.progress(match_pct / 100)
   
                 
         # ------------------------
