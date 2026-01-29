@@ -231,56 +231,71 @@ def show_prediction():
         # ------------------------
         # Stage 1: Crop Recommendation
         # ------------------------
-        input_stage1 = np.array([[N, P, K, temp, hum, ph, rain]])
-        crop_encoded = stage1_model.predict(input_stage1)[0]
-        crop_name = le.inverse_transform([crop_encoded])[0]
+        # input_stage1 = np.array([[N, P, K, temp, hum, ph, rain]])
+        # crop_encoded = stage1_model.predict(input_stage1)[0]
+        # crop_name = le.inverse_transform([crop_encoded])[0]
         
-        # Save Stage 1 results in session
-        st.session_state.stage1_crop = crop_name
-        st.session_state.stage1_input = {"N": N, "P": P, "K": K, "temperature": temp, "humidity": hum, "ph": ph, "rainfall": rain}
+        # # Save Stage 1 results in session
+        # st.session_state.stage1_crop = crop_name
+        # st.session_state.stage1_input = {"N": N, "P": P, "K": K, "temperature": temp, "humidity": hum, "ph": ph, "rainfall": rain}
 
-        crop_emojis = {"rice":"🌾","wheat":"🌾","maize":"🌽","coffee":"☕","cotton":"☁️","banana":"🍌"}
-        emoji = crop_emojis.get(crop_name.lower(), "🌱")
+        # crop_emojis = {"rice":"🌾","wheat":"🌾","maize":"🌽","coffee":"☕","cotton":"☁️","banana":"🍌"}
+        # emoji = crop_emojis.get(crop_name.lower(), "🌱")
 
-        st.markdown(f"""
-            <div class="prediction-card">
-                <h2>Recommended Crop: <strong>{crop_name.upper()} {emoji}</strong></h2>
-                <p>Based on your input, <b>{crop_name}</b> is identified as the most suitable crop.</p>
-            </div>
-        """, unsafe_allow_html=True)
+        # st.markdown(f"""
+        #     <div class="prediction-card">
+        #         <h2>Recommended Crop: <strong>{crop_name.upper()} {emoji}</strong></h2>
+        #         <p>Based on your input, <b>{crop_name}</b> is identified as the most suitable crop.</p>
+        #     </div>
+        # """, unsafe_allow_html=True)
 
-        # After crop recommendation, show comparison
-        st.subheader("📊 Input vs. Optimal Comparison")
-        df = load_data()
-        crop_optimal = df[df["label"] == crop_name].mean()
-        
-        comparison_data = {
-            "Parameter": ["N", "P", "K", "pH", "Temperature", "Humidity", "Rainfall"],
-            "Your Input": [N, P, K, ph, temp, hum, rain],
-            "Optimal": [crop_optimal["N"], crop_optimal["P"], crop_optimal["K"], 
-                        crop_optimal["ph"], crop_optimal["temperature"], 
-                        crop_optimal["humidity"], crop_optimal["rainfall"]]
-        }
-        
-        # Calculate THI (Temperature-Humidity Index) and SFI (Soil Fertility Index)
-        thi = temp - (0.55 - 0.0055 * hum) * (temp - 58)  # Livestock comfort, adapt for crops
-        sfi = (N + P + K) / 3  # Simple average, or weighted
-        
-        st.metric("Temperature-Humidity Index (THI)", f"{thi:.1f}")
-        st.metric("Soil Fertility Index (SFI)", f"{sfi:.1f}")
+        if submit:
+    # Stage 1: Crop Recommendation
+    input_stage1 = np.array([[N, P, K, temp, hum, ph, rain]])
+    crop_encoded = stage1_model.predict(input_stage1)[0]
+    crop_name = le.inverse_transform([crop_encoded])[0]
+    
+    st.session_state.stage1_crop = crop_name
+    st.session_state.stage1_input = {"N": N, "P": P, "K": K, "temperature": temp, "humidity": hum, "ph": ph, "rainfall": rain}
 
-        fig = go.Figure()
-        fig.add_trace(go.Scatterpolar(
-            r=[N/150, P/150, K/150, ph/14, temp/50, hum/100, rain/300],
-            theta=['N', 'P', 'K', 'pH', 'Temp', 'Humidity', 'Rainfall'],
-            name='Your Input'
-        ))
-        fig.add_trace(go.Scatterpolar(
-            r=[crop_optimal["N"]/150, crop_optimal["P"]/150, ...],
-            theta=['N', 'P', 'K', 'pH', 'Temp', 'Humidity', 'Rainfall'],
-            name='Optimal'
-        ))
-        st.plotly_chart(fig)
+    crop_emojis = {"rice":"🌾","wheat":"🌾","maize":"🌽","coffee":"☕","cotton":"☁️","banana":"🍌"}
+    emoji = crop_emojis.get(crop_name.lower(), "🌱")
+
+    st.markdown(f"""
+        <div class="prediction-card">
+            <h2>Recommended Crop: <strong>{crop_name.upper()} {emoji}</strong></h2>
+            <p>Based on your input, <b>{crop_name}</b> is identified as the most suitable crop.</p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # ✅ NEW: Comparison with Optimal Values
+    st.subheader("📊 Your Input vs. Optimal Conditions")
+    df = load_data()
+    crop_optimal = df[df["label"] == crop_name].mean(numeric_only=True)
+    
+    # Calculate indices
+    thi = temp - (0.55 - 0.0055 * hum) * (temp - 14.4)
+    sfi = (N + P + K) / 3
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.metric("🌡️ Temperature-Humidity Index", f"{thi:.1f}")
+    with col2:
+        st.metric("🌱 Soil Fertility Index", f"{sfi:.1f}")
+    
+    # Show parameter comparison
+    comp_df = pd.DataFrame({
+        "Parameter": ["N", "P", "K", "pH", "Temp", "Humidity", "Rainfall"],
+        "Your Input": [N, P, K, ph, temp, hum, rain],
+        "Optimal": [crop_optimal["N"], crop_optimal["P"], crop_optimal["K"], 
+                    crop_optimal["ph"], crop_optimal["temperature"], 
+                    crop_optimal["humidity"], crop_optimal["rainfall"]],
+    })
+    comp_df["Difference (%)"] = ((comp_df["Your Input"] - comp_df["Optimal"]) / comp_df["Optimal"] * 100).round(1)
+    
+    st.dataframe(comp_df, use_container_width=True)
+    
+  
                 
         # ------------------------
         # Stage 2: Yield Prediction Prompt
