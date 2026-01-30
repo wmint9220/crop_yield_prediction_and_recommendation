@@ -443,12 +443,6 @@ def show_prediction():
         return
     if stage2_model is None:
         st.warning("⚠️ Stage 2 model not loaded. You can still get crop recommendation.")
-
-    # 1. Initialize session state variables
-    if 'stage1_complete' not in st.session_state:
-        st.session_state.stage1_complete = False
-    if 'crop_name' not in st.session_state:
-        st.session_state.crop_name = ""
         
     with st.form("prediction_form"):
         st.subheader("📝 Farm Environment Profile")
@@ -479,9 +473,6 @@ def show_prediction():
         st.session_state.stage1_crop = crop_name
         st.session_state.stage1_input = {"N": N, "P": P, "K": K, "temperature": temp, "humidity": hum, "ph": ph, "rainfall": rain}
         st.session_state.submitted = True
-
-        if st.session_state.stage1_complete:
-        crop_name = st.session_state.crop_name
         
         crop_emojis = {
         "rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿",
