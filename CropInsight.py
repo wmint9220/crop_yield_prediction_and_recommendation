@@ -690,25 +690,16 @@ def show_prediction():
 
         #         st.balloons()
 
+        if hasattr(st.session_state, 'submitted') and st.session_state.submitted:
+        crop_name = st.session_state.stage1_crop
         allowed_crops = ["rice", "maize", "cotton"]
         
         if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
             st.markdown("---")
             st.subheader("🌾 Yield Prediction")
             
-            # Initialize session state for radio if not exists
-            if 'continue_stage2' not in st.session_state:
-                st.session_state.continue_stage2 = "No"
-            
-            continue_stage2 = st.radio(
-                "Do you want to predict yield for this crop?",
-                ("No", "Yes"),
-                key="yield_prediction_radio",
-                help="Get an estimated yield prediction based on your input parameters"
-            )
-    
-            if continue_stage2 == "Yes":
-                # Use session state input
+            # Use button instead of radio
+            if st.button("🔮 Predict Yield for " + crop_name.upper(), type="primary", use_container_width=True):
                 stage2_input = st.session_state.stage1_input.copy()
                 stage2_input["crop"] = crop_name
     
@@ -716,11 +707,11 @@ def show_prediction():
                 yield_pred = stage2_model.predict(stage2_input_df)[0]
     
                 crop_remarks = {
-                    "rice": "Provides high nitrogen, ideal for rapid leafy growth. Prefer this for nitrogen-deficient soils as it supports vegetative growth.",
-                    "maize": "Requires balanced nutrients, thrives in moderate rainfall. Good choice for high sunlight areas.",
-                    "cotton": "Needs adequate potassium for fiber development. Suitable for warmer regions."
+                    "rice": "Provides high nitrogen, ideal for rapid leafy growth.",
+                    "maize": "Requires balanced nutrients, thrives in moderate rainfall.",
+                    "cotton": "Needs adequate potassium for fiber development."
                 }
-                remark = crop_remarks.get(crop_name, "Ensure proper soil fertility and climate management for best yield.")
+                remark = crop_remarks.get(crop_name, "Ensure proper soil fertility and climate management.")
     
                 st.markdown(f"""
                 <div class="prediction-card">
@@ -730,10 +721,6 @@ def show_prediction():
                 """, unsafe_allow_html=True)
     
                 st.balloons()
-        
-        elif crop_name.strip().lower() not in allowed_crops:
-            st.info(f"ℹ️ Yield prediction is currently available only for Rice, Maize, and Cotton. Your recommended crop ({crop_name}) doesn't have yield prediction yet.")
-            
 # =============================
 # MAIN NAVIGATION
 # =============================
