@@ -444,6 +444,12 @@ def show_prediction():
     if stage2_model is None:
         st.warning("⚠️ Stage 2 model not loaded. You can still get crop recommendation.")
 
+    # 1. Initialize session state variables
+    if 'stage1_complete' not in st.session_state:
+        st.session_state.stage1_complete = False
+    if 'crop_name' not in st.session_state:
+        st.session_state.crop_name = ""
+        
     with st.form("prediction_form"):
         st.subheader("📝 Farm Environment Profile")
         col1, col2 = st.columns(2)
@@ -473,6 +479,9 @@ def show_prediction():
         st.session_state.stage1_crop = crop_name
         st.session_state.stage1_input = {"N": N, "P": P, "K": K, "temperature": temp, "humidity": hum, "ph": ph, "rainfall": rain}
         st.session_state.submitted = True
+
+        if st.session_state.stage1_complete:
+        crop_name = st.session_state.crop_name
         
         crop_emojis = {
         "rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿",
@@ -657,40 +666,6 @@ def show_prediction():
             </div>
         """, unsafe_allow_html=True)
                         
-        # # ------------------------
-        # # Stage 2: Yield Prediction Prompt
-        # # ------------------------
-        # allowed_crops = ["rice", "maize", "cotton"]
-        # if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
-        #     continue_stage2 = st.radio(
-        #         "Do you want to predict yield for this crop?",
-        #         ("No", "Yes")
-        #     )
-
-        #     if continue_stage2 == "Yes":
-        #         # Use session state input
-        #         stage2_input = st.session_state.stage1_input.copy()
-        #         stage2_input["crop"] = crop_name
-
-        #         stage2_input_df = pd.DataFrame([stage2_input])
-        #         yield_pred = stage2_model.predict(stage2_input_df)[0]
-
-        #         crop_remarks = {
-        #             "Rice": "Provides high nitrogen, ideal for rapid leafy growth. Prefer this for nitrogen-deficient soils as it supports vegetative growth.",
-        #             "Maize": "Requires balanced nutrients, thrives in moderate rainfall. Good choice for high sunlight areas.",
-        #             "Cotton": "Needs adequate potassium for fiber development. Suitable for warmer regions."
-        #         }
-        #         remark = crop_remarks.get(crop_name, "Ensure proper soil fertility and climate management for best yield.")
-
-        #         st.markdown(f"""
-        #         <div class="prediction-card">
-        #             <h2>Predicted Yield: <strong>{yield_pred:.2f} tons/hectare</strong></h2>
-        #             <p>{remark}</p>
-        #         </div>
-        #         """, unsafe_allow_html=True)
-
-        #         st.balloons()
-    
         # ========================================
         # Stage 2: Yield Prediction (Outside submit block)
         # ========================================
