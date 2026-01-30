@@ -680,21 +680,13 @@ def show_prediction():
                 """, unsafe_allow_html=True)
                 
                 # Radio button - use callback to update session state
-               
-                choice = st.radio(
+               choice = st.radio(
                     "Do you want to predict yield for this crop?",
                     ("No", "Yes"),
-                    index=0 if st.session_state.stage2_choice == "No" else 1,
                 )
                 
                 st.session_state.stage2_choice = choice
-
-                # # Update session state when choice changes
-                # if choice != st.session_state.stage2_choice:
-                #     st.session_state.stage2_choice = choice
-                #     st.rerun()
                 
-                # Show form if user selected Yes
                 if choice == "Yes":
                     with st.form("stage2_form"):
                         st.subheader("📋 Additional Farm Parameters")
