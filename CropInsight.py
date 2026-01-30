@@ -691,44 +691,41 @@ def show_prediction():
 
         #         st.balloons()
 
+        # Stage 2: Outside the form submit block
+
         if hasattr(st.session_state, 'submitted') and st.session_state.submitted:
-        crop_name = st.session_state.stage1_crop
-        
-        # ------------------------
-        # Stage 2: Yield Prediction Prompt
-        # ------------------------
-        allowed_crops = ["rice", "maize", "cotton"]
-        
-        if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
-            st.markdown("---")
-            st.subheader("🌾 Yield Prediction")
+            crop_name = st.session_state.stage1_crop
             
-            # Use button instead of radio
-            if st.button("🔮 Predict Yield for " + crop_name.upper(), type="primary", use_container_width=True):
-                stage2_input = st.session_state.stage1_input.copy()
-                stage2_input["crop"] = crop_name
-    
-                stage2_input_df = pd.DataFrame([stage2_input])
-                yield_pred = stage2_model.predict(stage2_input_df)[0]
-    
-                crop_remarks = {
-                    "rice": "Provides high nitrogen, ideal for rapid leafy growth. Prefer this for nitrogen-deficient soils as it supports vegetative growth.",
-                    "maize": "Requires balanced nutrients, thrives in moderate rainfall. Good choice for high sunlight areas.",
-                    "cotton": "Needs adequate potassium for fiber development. Suitable for warmer regions."
-                }
-                remark = crop_remarks.get(crop_name, "Ensure proper soil fertility and climate management for best yield.")
-    
-                st.markdown(f"""
-                <div class="prediction-card">
-                    <h2>Predicted Yield: <strong>{yield_pred:.2f} tons/hectare</strong></h2>
-                    <p>{remark}</p>
-                </div>
-                """, unsafe_allow_html=True)
-    
-                st.balloons()
-        
-        elif crop_name.strip().lower() not in allowed_crops:
-            st.info(f"ℹ️ Yield prediction is currently available only for Rice, Maize, and Cotton. Your recommended crop ({crop_name}) doesn't have yield prediction yet.")
+            allowed_crops = ["rice", "maize", "cotton"]
+            
+            if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
+                st.markdown("---")
+                st.subheader("🌾 Yield Prediction")
+                
+                if st.button("🔮 Predict Yield for " + crop_name.upper(), type="primary", use_container_width=True):
+                    stage2_input = st.session_state.stage1_input.copy()
+                    stage2_input["crop"] = crop_name
+                    
+                    stage2_input_df = pd.DataFrame([stage2_input])
+                    yield_pred = stage2_model.predict(stage2_input_df)[0]
+                    
+                    crop_remarks = {
+                        "rice": "Provides high nitrogen, ideal for rapid leafy growth.",
+                        "maize": "Requires balanced nutrients, thrives in moderate rainfall.",
+                        "cotton": "Needs adequate potassium for fiber development."
+                    }
+                    remark = crop_remarks.get(crop_name, "Ensure proper soil fertility.")
+                    
+                    st.markdown(f"""
+                    <div class="prediction-card">
+                        <h2>Predicted Yield: <strong>{yield_pred:.2f} tons/hectare</strong></h2>
+                        <p>{remark}</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+                    
+                    st.balloons()
+
+
 # =============================
 # MAIN NAVIGATION
 # =============================
