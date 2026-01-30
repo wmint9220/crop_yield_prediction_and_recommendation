@@ -701,6 +701,10 @@ def show_prediction():
             if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
                 st.markdown("---")
                 
+                # Initialize session state for stage 2 choice
+                if 'stage2_choice' not in st.session_state:
+                    st.session_state.stage2_choice = "No"
+                
                 # Simple "Do you want to predict yield?" prompt
                 st.markdown(f"""
                     <div style='background-color:#e8f5e9; padding:20px; border-radius:10px; border-left:5px solid #4caf50; margin: 20px 0;'>
@@ -709,22 +713,24 @@ def show_prediction():
                     </div>
                 """, unsafe_allow_html=True)
                 
-                # Initialize session state for choice
-                if 'show_stage2_form' not in st.session_state:
-                    st.session_state.show_stage2_form = False
-                
-                # Radio button for yes/no
+                # Radio button - use callback to update session state
                 choice = st.radio(
                     "Do you want to predict yield for this crop?",
                     ("No", "Yes"),
-                    key="yield_choice"
+                    index=0 if st.session_state.stage2_choice == "No" else 1,
+                    key="yield_choice_radio"
                 )
                 
-                # Show form if user selects Yes
-                if choice == "Yes":
+                # Update session state when choice changes
+                if choice != st.session_state.stage2_choice:
+                    st.session_state.stage2_choice = choice
+                    st.rerun()
+                
+                # Show form if user selected Yes
+                if st.session_state.stage2_choice == "Yes":
                     with st.form("stage2_form"):
                         st.subheader("📋 Additional Farm Parameters")
-                        st.caption("💡 Stage 1 parameters (N={}, P={}, K={}, pH={}, Temp={}°C, Humidity={}%, Rainfall={}mm) will be reused".format(
+                        st.caption("💡 Reused from Stage 1: N={}, P={}, K={}, pH={}, Temp={}°C, Humidity={}%, Rainfall={}mm".format(
                             st.session_state.stage1_input["N"],
                             st.session_state.stage1_input["P"],
                             st.session_state.stage1_input["K"],
@@ -880,7 +886,9 @@ def show_prediction():
             
             elif crop_name.strip().lower() not in allowed_crops:
                 st.info(f"ℹ️ Yield prediction is currently available only for **Rice, Maize, and Cotton**. Your recommended crop (**{crop_name}**) doesn't have yield prediction yet.")
+        
 
+                      
 # =============================
 # MAIN NAVIGATION
 # =============================
