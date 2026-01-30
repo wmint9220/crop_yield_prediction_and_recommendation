@@ -693,6 +693,10 @@ def show_prediction():
 
         if hasattr(st.session_state, 'submitted') and st.session_state.submitted:
         crop_name = st.session_state.stage1_crop
+        
+        # ------------------------
+        # Stage 2: Yield Prediction Prompt
+        # ------------------------
         allowed_crops = ["rice", "maize", "cotton"]
         
         if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
@@ -708,11 +712,11 @@ def show_prediction():
                 yield_pred = stage2_model.predict(stage2_input_df)[0]
     
                 crop_remarks = {
-                    "rice": "Provides high nitrogen, ideal for rapid leafy growth.",
-                    "maize": "Requires balanced nutrients, thrives in moderate rainfall.",
-                    "cotton": "Needs adequate potassium for fiber development."
+                    "rice": "Provides high nitrogen, ideal for rapid leafy growth. Prefer this for nitrogen-deficient soils as it supports vegetative growth.",
+                    "maize": "Requires balanced nutrients, thrives in moderate rainfall. Good choice for high sunlight areas.",
+                    "cotton": "Needs adequate potassium for fiber development. Suitable for warmer regions."
                 }
-                remark = crop_remarks.get(crop_name, "Ensure proper soil fertility and climate management.")
+                remark = crop_remarks.get(crop_name, "Ensure proper soil fertility and climate management for best yield.")
     
                 st.markdown(f"""
                 <div class="prediction-card">
@@ -722,6 +726,9 @@ def show_prediction():
                 """, unsafe_allow_html=True)
     
                 st.balloons()
+        
+        elif crop_name.strip().lower() not in allowed_crops:
+            st.info(f"ℹ️ Yield prediction is currently available only for Rice, Maize, and Cotton. Your recommended crop ({crop_name}) doesn't have yield prediction yet.")
 # =============================
 # MAIN NAVIGATION
 # =============================
