@@ -658,7 +658,7 @@ def show_prediction():
         """, unsafe_allow_html=True)
                         
         # ========================================
-        # Stage 2: Yield Prediction (Outside submit block)
+        # Stage 2: Yield Prediction 
         # ========================================
         if hasattr(st.session_state, 'submitted') and st.session_state.submitted:
             crop_name = st.session_state.stage1_crop
@@ -852,7 +852,6 @@ def show_prediction():
             
             elif crop_name.strip().lower() not in allowed_crops:
                 st.info(f"ℹ️ Yield prediction is currently available only for **Rice, Maize, and Cotton**. Your recommended crop (**{crop_name}**) doesn't have yield prediction yet.")
-        
 
                       
 # =============================
