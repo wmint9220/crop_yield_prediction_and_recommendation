@@ -692,7 +692,6 @@ def show_prediction():
         #         st.balloons()
 
         # Stage 2: Outside the form submit block
-
         if hasattr(st.session_state, 'submitted') and st.session_state.submitted:
             crop_name = st.session_state.stage1_crop
             
@@ -700,31 +699,226 @@ def show_prediction():
             
             if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
                 st.markdown("---")
-                st.subheader("🌾 Yield Prediction")
-                
-                if st.button("🔮 Predict Yield for " + crop_name.upper(), type="primary", use_container_width=True):
-                    stage2_input = st.session_state.stage1_input.copy()
-                    stage2_input["crop"] = crop_name
-                    
-                    stage2_input_df = pd.DataFrame([stage2_input])
-                    yield_pred = stage2_model.predict(stage2_input_df)[0]
-                    
-                    crop_remarks = {
-                        "rice": "Provides high nitrogen, ideal for rapid leafy growth.",
-                        "maize": "Requires balanced nutrients, thrives in moderate rainfall.",
-                        "cotton": "Needs adequate potassium for fiber development."
-                    }
-                    remark = crop_remarks.get(crop_name, "Ensure proper soil fertility.")
-                    
-                    st.markdown(f"""
-                    <div class="prediction-card">
-                        <h2>Predicted Yield: <strong>{yield_pred:.2f} tons/hectare</strong></h2>
-                        <p>{remark}</p>
+                st.markdown(f"""
+                    <div style='background-color:#e8f5e9; padding:20px; border-radius:10px; border-left:5px solid #4caf50;'>
+                        <h3 style='margin:0; color:#2e7d32;'>🌾 Stage 2: Yield Prediction for {crop_name.upper()}</h3>
+                        <p style='margin:5px 0 0 0; color:#555;'>Provide additional farm management details to estimate yield</p>
                     </div>
-                    """, unsafe_allow_html=True)
+                """, unsafe_allow_html=True)
+                
+                with st.form("stage2_form"):
+                    st.subheader("📋 Additional Farm Parameters")
+                    st.caption("Stage 1 parameters (N, P, K, pH, Temperature, Humidity, Rainfall) will be reused automatically")
                     
-                    st.balloons()
-
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        st.markdown("##### **Soil & Environmental**")
+                        
+                        soil_moisture = st.slider(
+                            "Soil Moisture (%)", 
+                            0, 100, 50,
+                            help="Current soil moisture content percentage"
+                        )
+                        
+                        soil_type = st.selectbox(
+                            "Soil Type",
+                            ["Loamy", "Sandy", "Silt", "Clay"],
+                            help="Primary soil composition type"
+                        )
+                        
+                        sunlight_hours = st.number_input(
+                            "Sunlight Hours (hours/day)", 
+                            0.0, 24.0, 8.0, 0.5,
+                            help="Average daily sunlight exposure"
+                        )
+                    
+                    with col2:
+                        st.markdown("##### **Farm Management**")
+                        
+                        irrigation_type = st.selectbox(
+                            "Irrigation Type",
+                            ["Drip", "Canal", "Rainfed", "Sprinkler"],
+                            help="Primary irrigation method used"
+                        )
+                        
+                        fertilizer_used = st.number_input(
+                            "Fertilizer Used (kg/hectare)",
+                            0.0, 500.0, 100.0, 10.0,
+                            help="Amount of fertilizer applied"
+                        )
+                        
+                        pesticide_used = st.number_input(
+                            "Pesticide Used (kg/hectare)",
+                            0.0, 50.0, 5.0, 0.5,
+                            help="Amount of pesticide applied"
+                        )
+                    
+                    st.markdown("---")
+                    st.info("💡 **Reused from Stage 1:** N={}, P={}, K={}, pH={}, Temp={}°C, Humidity={}%, Rainfall={}mm".format(
+                        st.session_state.stage1_input["N"],
+                        st.session_state.stage1_input["P"],
+                        st.session_state.stage1_input["K"],
+                        st.session_state.stage1_input["ph"],
+                        st.session_state.stage1_input["temperature"],
+                        st.session_state.stage1_input["humidity"],
+                        st.session_state.stage1_input["rainfall"]
+                    ))
+                    
+                    submit_stage2 = st.form_submit_button("🔮 Predict Yield", type="primary", use_container_width=True)
+                
+                if submit_stage2:
+                    # Combine Stage 1 and Stage 2 inputs
+                    stage2_input = {
+                        # From Stage 1
+                        "N": st.session_state.stage1_input["N"],
+                        "P": st.session_state.stage1_input["P"],
+                        "K": st.session_state.stage1_input["K"],
+                        "Soil_pH": st.session_state.stage1_input["ph"],
+                        "Temperature": st.session_state.stage1_input["temperature"],
+                        "Humidity": st.session_state.stage1_input["humidity"],
+                        "Rainfall": st.session_state.stage1_input["rainfall"],
+                        
+                        # New Stage 2 inputs (numeric)
+                        "Soil_Moisture": soil_moisture,
+                        "Sunlight_Hours": sunlight_hours,
+                        "Fertilizer_Used": fertilizer_used,
+                        "Pesticide_Used": pesticide_used,
+                        
+                        # Categorical inputs
+                        "Soil_Type": soil_type,
+                        "Irrigation_Type": irrigation_type,
+                        
+                        # Crop type
+                        "Crop_Type": crop_name
+                    }
+                    
+                    # Convert to DataFrame
+                    stage2_input_df = pd.DataFrame([stage2_input])
+                    
+                    # Make prediction
+                    try:
+                        yield_pred = stage2_model.predict(stage2_input_df)[0]
+                        
+                        # Crop-specific remarks
+                        crop_remarks = {
+                            "rice": "Rice thrives with high nitrogen and consistent water management. Your predicted yield reflects optimal flooded conditions and balanced nutrients.",
+                            "maize": "Maize requires balanced NPK nutrients and adequate sunlight. Ensure proper spacing and weed control for maximum yield.",
+                            "cotton": "Cotton needs sufficient potassium for fiber quality. Monitor for pests and ensure adequate irrigation during flowering stage."
+                        }
+                        remark = crop_remarks.get(crop_name.lower(), "Ensure proper soil fertility and climate management for best yield.")
+                        
+                        # Display result
+                        st.markdown(f"""
+                        <div class="prediction-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                            <h2 style="color: white;">🎯 Predicted Yield: <strong>{yield_pred:.2f} tons/hectare</strong></h2>
+                            <p style="color: white; opacity: 0.95;">{remark}</p>
+                        </div>
+                        """, unsafe_allow_html=True)
+                        
+                        # Yield interpretation
+                        st.markdown("---")
+                        st.subheader("📊 Yield Analysis")
+                        
+                        col_a, col_b, col_c = st.columns(3)
+                        
+                        # Define yield benchmarks by crop
+                        benchmarks = {
+                            "rice": {"low": 3, "avg": 5, "high": 7},
+                            "maize": {"low": 4, "avg": 7, "high": 10},
+                            "cotton": {"low": 1.5, "avg": 2.5, "high": 4}
+                        }
+                        
+                        bench = benchmarks.get(crop_name.lower(), {"low": 2, "avg": 4, "high": 6})
+                        
+                        with col_a:
+                            if yield_pred < bench["low"]:
+                                status = "🔴 Below Average"
+                                advice = "Consider improving soil fertility or irrigation"
+                            elif yield_pred < bench["avg"]:
+                                status = "🟡 Average"
+                                advice = "Good baseline, room for optimization"
+                            elif yield_pred < bench["high"]:
+                                status = "🟢 Above Average"
+                                advice = "Excellent conditions maintained"
+                            else:
+                                status = "🌟 Exceptional"
+                                advice = "Outstanding farm management!"
+                            
+                            st.metric("Yield Category", status)
+                            st.caption(advice)
+                        
+                        with col_b:
+                            st.metric("Benchmark (Average)", f"{bench['avg']:.1f} t/ha")
+                            difference = ((yield_pred - bench['avg']) / bench['avg'] * 100)
+                            st.caption(f"{difference:+.1f}% from average")
+                        
+                        with col_c:
+                            st.metric("Potential (High)", f"{bench['high']:.1f} t/ha")
+                            potential_gap = bench['high'] - yield_pred
+                            if potential_gap > 0:
+                                st.caption(f"Gap: {potential_gap:.1f} t/ha to reach high yield")
+                            else:
+                                st.caption("✨ Exceeding high benchmark!")
+                        
+                        # Recommendations
+                        st.markdown("---")
+                        st.markdown("#### 💡 Improvement Recommendations")
+                        
+                        recommendations = []
+                        
+                        # Soil moisture check
+                        if soil_moisture < 30:
+                            recommendations.append("💧 **Increase irrigation** - Soil moisture is low. Consider more frequent watering.")
+                        elif soil_moisture > 80:
+                            recommendations.append("⚠️ **Reduce waterlogging** - Excessive moisture can harm roots. Improve drainage.")
+                        
+                        # Sunlight check
+                        if sunlight_hours < 6:
+                            recommendations.append("☀️ **Improve light exposure** - Consider pruning or spacing adjustments for better sunlight penetration.")
+                        elif sunlight_hours > 12:
+                            recommendations.append("🌤️ **Optimal sunlight** - Excellent light conditions for photosynthesis!")
+                        
+                        # Fertilizer optimization
+                        if fertilizer_used < 50:
+                            recommendations.append("🌱 **Increase fertilizer** - Consider applying more nutrients for better growth.")
+                        elif fertilizer_used > 300:
+                            recommendations.append("⚠️ **Risk of over-fertilization** - Excessive fertilizer can harm crops and pollute soil.")
+                        
+                        # Pesticide check
+                        if pesticide_used > 20:
+                            recommendations.append("🐛 **High pesticide use** - Consider integrated pest management to reduce chemical dependency.")
+                        
+                        # Irrigation efficiency
+                        if irrigation_type == "Rainfed":
+                            recommendations.append("💦 **Consider supplementary irrigation** - Rainfed farming can be risky during dry spells.")
+                        elif irrigation_type == "Canal" and crop_name.lower() != "rice":
+                            recommendations.append("💧 **Upgrade to drip/sprinkler** - More efficient water use for this crop type.")
+                        
+                        # Soil type recommendations
+                        if soil_type == "Sandy":
+                            recommendations.append("🏖️ **Sandy soil management** - Add organic matter to improve water retention.")
+                        elif soil_type == "Clay":
+                            recommendations.append("🧱 **Clay soil management** - Improve drainage and aeration with organic amendments.")
+                        
+                        if recommendations:
+                            for rec in recommendations:
+                                st.markdown(f"- {rec}")
+                        else:
+                            st.success("✅ Your current practices are well-optimized!")
+                        
+                        st.balloons()
+                        
+                    except Exception as e:
+                        st.error(f"❌ Error predicting yield: {str(e)}")
+                        st.info("💡 Tip: Ensure your model can handle the categorical values (Soil_Type, Irrigation_Type)")
+                        with st.expander("Debug Info"):
+                            st.write("Input data:")
+                            st.json(stage2_input)
+            
+            elif crop_name.strip().lower() not in allowed_crops:
+                st.info(f"ℹ️ Yield prediction is currently available only for **Rice, Maize, and Cotton**. Your recommended crop (**{crop_name}**) doesn't have yield prediction yet.")
+        
 
 # =============================
 # MAIN NAVIGATION
