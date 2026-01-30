@@ -680,7 +680,7 @@ def show_prediction():
                 """, unsafe_allow_html=True)
                 
                 # Radio button - use callback to update session state
-               choice = st.radio(
+                choice = st.radio(
                     "Do you want to predict yield for this crop?",
                     ("No", "Yes"),
                 )
