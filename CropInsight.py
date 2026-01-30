@@ -472,6 +472,7 @@ def show_prediction():
         
         st.session_state.stage1_crop = crop_name
         st.session_state.stage1_input = {"N": N, "P": P, "K": K, "temperature": temp, "humidity": hum, "ph": ph, "rainfall": rain}
+        st.session_state.submitted = True
         
         crop_emojis = {
         "rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿",
