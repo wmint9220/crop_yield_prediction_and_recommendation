@@ -687,10 +687,10 @@ def show_prediction():
                     key="yield_choice_radio"
                 )
                 
-                # Update session state when choice changes
-                if choice != st.session_state.stage2_choice:
-                    st.session_state.stage2_choice = choice
-                    st.rerun()
+                # # Update session state when choice changes
+                # if choice != st.session_state.stage2_choice:
+                #     st.session_state.stage2_choice = choice
+                #     st.rerun()
                 
                 # Show form if user selected Yes
                 if st.session_state.stage2_choice == "Yes":
