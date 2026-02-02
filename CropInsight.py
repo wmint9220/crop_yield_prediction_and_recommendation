@@ -532,40 +532,7 @@ def show_trend():
            crop_emoji = crop_emojis.get(crop.lower(), "🌱")
            st.progress(similarity / 100)
            st.caption(f"{crop_emoji} **{crop}** is {similarity:.1f}% similar to **{selected_crop}**")
-
-            # ----------------------------
-            # EXPANDER: Suggest Similar Crops
-            # ----------------------------
-            with st.expander("💡 See Suggested Similar Crops", expanded=True):
-                st.markdown("### 🏆 Most Similar Crops to " + selected_crop.upper())
-                st.info("Based on overall growing condition similarity")
-                
-                # Calculate similarity for all crops
-                all_crops = [c for c in df["label"].unique() if c != selected_crop]
-                similarities = {}
-                
-                for crop in all_crops:
-                    crop_data = df[df["label"] == crop][features_row1 + features_row2].mean()
-                    differences = []
-                    for feature in features_row1 + features_row2:
-                        diff = abs(crop_data[feature] - mean_values[feature])
-                        norm_diff = (diff / feature_max[feature])
-                        differences.append(norm_diff)
-                    
-                    similarities[crop] = (1 - sum(differences) / len(differences)) * 100
-                
-                # Show top 5
-                top_matches = sorted(similarities.items(), key=lambda x: x[1], reverse=True)[:5]
-                
-                cols = st.columns(5)
-                for idx, (crop, score) in enumerate(top_matches):
-                    with cols[idx]:
-                        crop_emoji_sugg = crop_emojis.get(crop.lower(), "🌱")
-                        st.markdown(f"### {crop_emoji_sugg}")
-                        st.markdown(f"**{crop}**")
-                        st.metric("Match", f"{score:.0f}%")
-    
-                   
+                      
                     
     with tab3:
             st.markdown("### 📊 Complete Dataset Overview")
