@@ -458,7 +458,20 @@ def show_trend():
             # Key differences section
             st.markdown("---")
             st.markdown("#### 🔍 Key Differences")
-            
+            with st.expander("ℹ️ How to interpret these differences"):
+                st.markdown(f"""
+                This section highlights where the comparison crops **deviate significantly** from your primary choice, **{selected_crop.upper()}**.
+                
+                * **The 20% Rule:** We only display a difference if it is greater than **20%**. This filters out minor variations and focuses on the factors that truly change how you manage the field.
+                * **🔺 (Red Up):** Indicates the comparison crop requires **significantly more** of this resource. You may need higher fertilizer input or more frequent irrigation.
+                * **🔻 (Red Down):** Indicates the comparison crop requires **significantly less**. This could represent a more cost-effective or "hardy" alternative for your specific soil.
+                
+                **Why this matters:** If you see a **+80% Nitrogen** difference, switching to that crop would require a complete overhaul of your fertilization schedule.
+                """)
+                
+                # Optional: Display the formula for technical clarity
+                st.latex(r"Percentage\ Change = \frac{Comparison\ Mean - Selected\ Mean}{Selected\ Mean} \times 100")
+                
             diff_cols = st.columns(len(compare_crops))
             for idx, crop in enumerate(compare_crops):
                 with diff_cols[idx]:
