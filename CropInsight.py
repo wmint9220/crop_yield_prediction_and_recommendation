@@ -952,7 +952,7 @@ def show_prediction():
                         yield_pred = stage2_model.predict(stage2_input_df)[0]
                         
                         # Crop-specific remarks
-                         crop_remarks = {
+                        crop_remarks = {
                                 "rice": "Rice thrives with high nitrogen and consistent water management. Your predicted yield reflects optimal flooded conditions and balanced nutrients.",
                                 "maize": "Maize requires balanced NPK nutrients and adequate sunlight. Ensure proper spacing and weed control for maximum yield.",
                                 "cotton": "Cotton needs sufficient potassium for fiber quality. Monitor for pests and ensure adequate irrigation during flowering stage."
