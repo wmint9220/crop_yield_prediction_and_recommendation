@@ -403,6 +403,12 @@ def show_trend():
                     xaxis_title="Crop",
                     yaxis_title=selected_feature
                 )
+                with st.expander("📊 Understanding the Bar Chart"):
+                    st.markdown("""
+                        **This chart compares **Single Parameter Focus** requirements across the selected crops.**
+                        * Use this to see exact numerical differences for a specific metric. 
+                        * It is the best way to determine which crop is the "most" or "least" demanding for a single nutrient.
+                    """)
                 st.plotly_chart(fig, use_container_width=True)
             
             else:  # Radar Chart
