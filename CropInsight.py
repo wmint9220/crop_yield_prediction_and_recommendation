@@ -194,7 +194,7 @@ def show_trend():
     # ----------------------------
     # TABS: Overview and Comparison
     # ----------------------------
-    tab1, tab2, tab3, tab4 = st.tabs(["📊 Crop Overview", "🔬 Crop Comparison", "🗺️ Crop Suitability Map", "📊 Dataset Statistics"])
+    tab1, tab2, tab3  = st.tabs(["📊 Crop Overview", "🔬 Crop Comparison", "📊 Dataset Statistics"])
 
     with tab1:
         # ----------------------------
@@ -517,65 +517,8 @@ def show_trend():
                    st.markdown(f"**{crop}**")
                    st.metric("Match", f"{score:.0f}%")
                    
-    with tab3:
-        st.markdown("### 🗺️ Regional Suitability Analysis")
-        st.info("Input your current soil and climate conditions to see which crops are most suitable")
-        
-        col1, col2 = st.columns(2)
-        
-        with col1:
-            st.markdown("**🌱 Soil Conditions**")
-            user_n = st.slider("Nitrogen (N)", 0, 150, 50)
-            user_p = st.slider("Phosphorus (P)", 0, 150, 50)
-            user_k = st.slider("Potassium (K)", 0, 150, 50)
-            user_ph = st.slider("pH Level", 0.0, 14.0, 7.0, 0.1)
-        
-        with col2:
-            st.markdown("**🌤️ Climate Conditions**")
-            user_temp = st.slider("Temperature (°C)", 0, 50, 25)
-            user_humidity = st.slider("Humidity (%)", 0, 100, 50)
-            user_rainfall = st.slider("Rainfall (mm)", 0, 300, 100)
-        
-        if st.button("🔍 Find Suitable Crops", type="primary"):
-            user_conditions = {
-                "N": user_n, "P": user_p, "K": user_k, "ph": user_ph,
-                "temperature": user_temp, "humidity": user_humidity, "rainfall": user_rainfall
-            }
-            
-            # Calculate match score for each crop
-            crop_scores = {}
-            for crop in df["label"].unique():
-                crop_means = df[df["label"] == crop][features_row1 + features_row2].mean()
-                
-                score = 0
-                for feature in features_row1 + features_row2:
-                    diff = abs(user_conditions[feature] - crop_means[feature])
-                    max_val = feature_max[feature]
-                    score += (1 - diff / max_val)
-                
-                crop_scores[crop] = (score / len(features_row1 + features_row2)) * 100
-            
-            # Display results
-            sorted_crops = sorted(crop_scores.items(), key=lambda x: x[1], reverse=True)
-            
-            st.markdown("---")
-            st.markdown("#### 🏆 Top 10 Recommended Crops")
-            
-            for idx, (crop, score) in enumerate(sorted_crops[:10], 1):
-                crop_emoji = crop_emojis.get(crop.lower(), "🌱")
-                
-                col_rank, col_crop, col_score, col_bar = st.columns([0.5, 2, 1, 3])
-                
-                with col_rank:
-                    st.markdown(f"**#{idx}**")
-                with col_crop:
-                    st.markdown(f"{crop_emoji} **{crop}**")
-                with col_score:
-                    st.markdown(f"**{score:.1f}%**")
-                with col_bar:
-                    st.progress(score / 100)
                     
-    with tab4:
+    with tab3:
             st.markdown("### 📊 Complete Dataset Overview")
             
             # Summary statistics
