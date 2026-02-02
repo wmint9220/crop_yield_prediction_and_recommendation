@@ -198,24 +198,28 @@ def show_trend():
 
     with tab1:
         with st.expander("📅 Growing Insights", expanded=False):
+            # This text stays inside the expander but above the columns
+            st.markdown(f"""
+                These ranges show the **minimum and maximum** values observed in the dataset for **{selected_crop}**. 
+                They represent the tolerance limits of this crop.
+            """)
+            
+            # Create the two columns inside the expander
             col1, col2 = st.columns(2)
-               st.markdown(f"""
-                These ranges show the **minimum and maximum** values observed in the dataset for {selected_crop}. 
-                They represent the tolerance limits of this crop.""")
             
             with col1:
                 st.markdown(f"""
                     **🌡️ Temperature Range:** {crop_df['temperature'].min():.1f}°C - {crop_df['temperature'].max():.1f}°C
                     
                     **💧 Humidity Range:** {crop_df['humidity'].min():.1f}% - {crop_df['humidity'].max():.1f}%
-                    """)
+                """)
                 
             with col2:
                 st.markdown(f"""
                     **🌧️ Rainfall Range:** {crop_df['rainfall'].min():.1f}mm - {crop_df['rainfall'].max():.1f}mm
                     
                     **⚗️ pH Range:** {crop_df['ph'].min():.1f} - {crop_df['ph'].max():.1f}
-                    """)
+                """)
         # ----------------------------
         # Row 1: N, P, K
         # ----------------------------
