@@ -837,7 +837,10 @@ def show_prediction():
     # ========================================
     # FIXED: Moved this OUTSIDE the submit block
     if st.session_state.get('submitted', False):
-        crop_name = st.session_state.stage1_crop
+    # Use .get() with a default empty string to avoid NoneType errors
+    crop_name = st.session_state.get('stage1_crop', "")
+
+    if crop_name and isinstance(crop_name, str):
         allowed_crops = ["rice", "maize", "cotton"]
         
         if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
@@ -1021,10 +1024,9 @@ def show_prediction():
                             st.write("Input data:")
                             st.json(stage2_input)
         
-        elif crop_name.strip().lower() not in allowed_crops:
-            st.info(f"ℹ️ Yield prediction is currently available only for **Rice, Maize, and Cotton**. Your recommended crop (**{crop_name}**) doesn't have yield prediction yet.")
-
-                      
+      else:
+            st.warning("Please submit the initial farm profile to get a recommendation first.")
+                          
 # =============================
 # MAIN NAVIGATION
 # =============================
