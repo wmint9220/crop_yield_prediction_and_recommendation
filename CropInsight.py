@@ -129,8 +129,8 @@ def show_login():
 
 def show_trend():
     st.title("📊 Agricultural Data Trends")
-    st.markdown("Welcome to the **Crop Insight**. This platform leverages historical soil and climate data to identify optimal growing conditions and crop alternatives. The dashboard analyzes the relationship between soil nutrients, environmental factors, and pH levels. It is designed to support data-driven decision-making for sustainable farming.")
-    
+    st.markdown("Welcome to the **Crop Insight**. This platform leverages historical soil and climate data to identify optimal growing conditions and crop alternatives.")
+    st.info("💡 The dashboard analyzes the relationship between soil nutrients, environmental factors, and pH levels. It is designed to support data-driven decision-making for sustainable farming.")
     df = load_data()
     if df is None:
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
