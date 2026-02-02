@@ -405,7 +405,7 @@ def show_trend():
                 )
                 with st.expander("📊 Understanding the Bar Chart"):
                     st.markdown("""
-                        **This chart compares **Single Parameter Focus** requirements across the selected crops.**
+                        * This chart compares **Single Parameter Focus** requirements across the selected crops.
                         * Use this to see exact numerical differences for a specific metric. 
                         * It is the best way to determine which crop is the "most" or "least" demanding for a single nutrient.
                     """)
@@ -447,6 +447,12 @@ def show_trend():
                     title="Normalized Multi-Parameter Comparison",
                     height=500
                 )
+                with st.expander("📊 Understanding the Rader Chart"):
+                    st.markdown("""
+                            * This chart **normalizes** all values (0% to 100%) so you can compare temperature, pH, and nutrients on the same scale.
+                            * **What to look for:** If the shapes of two crops overlap significantly, they share a similar "biological fingerprint" and likely grow well in the same regions.
+                    """)
+                
                 st.plotly_chart(fig, use_container_width=True)
             
             # Key differences section
