@@ -129,8 +129,7 @@ def show_login():
 
 def show_trend():
     st.title("📊 Agricultural Data Trends")
-    st.info("Welcome to the Crop Insight. This platform leverages historical soil and climate data to identify optimal growing conditions and crop alternatives.
-        The dashboard analyzes the relationship between soil nutrients, environmental factors, and pH levels. It is designed to support data-driven decision-making for sustainable farming.")
+    st.info("Welcome to the Crop Insight. This platform leverages historical soil and climate data to identify optimal growing conditions and crop alternatives. The dashboard analyzes the relationship between soil nutrients, environmental factors, and pH levels. It is designed to support data-driven decision-making for sustainable farming.")
     
     df = load_data()
     if df is None:
