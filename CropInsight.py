@@ -542,6 +542,17 @@ def show_trend():
             # Heatmap of all crops
             st.markdown("---")
             st.subheader("🔥 Feature Heatmap Across All Crops")
+        
+            with st.expander("📝 How to read the Heatmap"):
+                st.markdown("""
+                    **What this shows:** This heatmap compares the **average requirements** of every crop side-by-side.
+                    
+                    * **Vertical Axis:** The features (N, P, K, Temp, etc.).
+                    * **Horizontal Axis:** The different crop types.
+                    * **Colors:** 🟩 **Green** indicates high values, while 🟥 **Red** indicates low values.
+                    
+                    **💡 Pro-Tip:** Use this to find "extreme" crops. For example, you can quickly spot which crops need the most rainfall or the highest Nitrogen levels compared to all others.
+                """)
             
             # Create pivot table
             heatmap_data = df.groupby("label")[features_row1 + features_row2].mean()
@@ -558,7 +569,19 @@ def show_trend():
             # Correlation analysis
             st.markdown("---")
             st.subheader("🔗 Feature Correlations")
-            
+
+            with st.expander("📝 Understanding Feature Correlations"):
+                st.markdown("""
+                    **What this shows:** This matrix measures the **strength of the relationship** between two variables.
+                    
+                    * **Scale:** Values range from **+1.0 to -1.0**.
+                    * **Positive (+):** As one feature increases, the other tends to increase (e.g., Phosphorus and Potassium often have high positive correlation).
+                    * **Negative (-):** As one increases, the other decreases.
+                    * **Near 0:** No linear relationship between the features.
+                    
+                    **💡 Why it matters:** If two features are almost perfectly correlated (near 1.0), they provide the same information. This helps in **feature selection** for your machine learning model.
+                """)
+        
             corr_matrix = df[features_row1 + features_row2].corr()
             
             fig = px.imshow(
