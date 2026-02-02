@@ -606,7 +606,6 @@ def show_trend():
             st.plotly_chart(fig, use_container_width=True)             
         
 
-
 def show_prediction():
     st.title("🌱 Intelligent Crop Recommendation")
     
@@ -837,9 +836,8 @@ def show_prediction():
     # ========================================
     # FIXED: Moved this OUTSIDE the submit block
     if st.session_state.get('submitted', False):
-    
-    crop_name = st.session_state.get('stage1_crop', "")
-    allowed_crops = ["rice", "maize", "cotton"]
+        crop_name = st.session_state.stage1_crop
+        allowed_crops = ["rice", "maize", "cotton"]
         
         if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
             st.markdown("---")
@@ -1022,8 +1020,8 @@ def show_prediction():
                             st.write("Input data:")
                             st.json(stage2_input)
         
-      else:
-            st.warning("Please submit the initial farm profile to get a recommendation first.")
+        elif crop_name.strip().lower() not in allowed_crops:
+            pass 
                           
 # =============================
 # MAIN NAVIGATION
