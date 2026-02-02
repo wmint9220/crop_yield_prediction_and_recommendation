@@ -837,11 +837,9 @@ def show_prediction():
     # ========================================
     # FIXED: Moved this OUTSIDE the submit block
     if st.session_state.get('submitted', False):
-    # Use .get() with a default empty string to avoid NoneType errors
+    
     crop_name = st.session_state.get('stage1_crop', "")
-
-    if crop_name and isinstance(crop_name, str):
-        allowed_crops = ["rice", "maize", "cotton"]
+    allowed_crops = ["rice", "maize", "cotton"]
         
         if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
             st.markdown("---")
