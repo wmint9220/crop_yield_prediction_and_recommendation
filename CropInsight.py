@@ -257,7 +257,6 @@ def show_trend():
         # ----------------------------
         # Row 2: pH, Temperature, Humidity, Rainfall
         # ----------------------------
-        st.markdown("---")
         st.subheader("🌤️ Climate & Soil Conditions")
         
         cols2 = st.columns(len(features_row2), gap="medium")
