@@ -1031,6 +1031,7 @@ if st.session_state.logged_in:
     st.sidebar.write(f"Logged in as: **Admin**")
     
     choice = st.sidebar.radio("Go to:", ["📊 Trend Visualization", "🌱 Crop Prediction"])
+    
     st.sidebar.markdown("---")
     if st.sidebar.button("🚪 Logout", use_container_width=True):
         logout()
