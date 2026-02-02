@@ -328,6 +328,21 @@ def show_trend():
         )
         fig.add_vline(x=mean_values[selected_param], line_dash="dash", 
                          line_color="red", annotation_text="Mean")
+
+        with st.expander("🔍 Understanding this Distribution"):
+            st.markdown(f"""
+            **What this chart shows:**
+            This histogram displays how **{feature_names[selected_param]}** values are spread across all samples for **{selected_crop}**.
+        
+            * **📊 Bars (Bins):** The height of each bar shows how many samples fall within that specific range.
+            * **🔴 Red Dashed Line:** This is the **Mean (Average)**. It shows the typical requirement for this crop.
+            
+            **How to use this information:**
+            * **Narrow Cluster:** If the bars are tightly packed, the crop has very **strict** requirements. You must be precise with your inputs.
+            * **Wide Spread:** If the bars are spread out, the crop is **resilient** and can tolerate a wider range of conditions.
+            * **Gaps in Bars:** Large gaps might indicate that certain conditions are unsuitable for growth.
+            """)
+        
         st.plotly_chart(fig, use_container_width=True)
 
 
