@@ -633,25 +633,22 @@ def show_prediction():
         
         with col_tech1:
             st.markdown("**Stage 1: Classification**")
-            st.info("""
+            st.markdown("""
             - **Model:** Random Forest Classifier
-            - **Metric:** 0.995 Accuracy
-            - **Status:** Highly Optimized
+            - **Accuracy:** 0.995 
             - **Insights:** This model excels at identifying the biological 'sweet spot' for 22 different crop varieties based on soil and climate input.
             """)
             
         with col_tech2:
             st.markdown("**Stage 2: Regression**")
-            st.info(f"""
+            st.markdown(f"""
             - **Model:** XGBoost Regressor
-            - **Metric:** 0.723 R-Squared
-            - **Status:** Validated
+            - **R-Squared:** 0.723 
             - **Insights:** Predicting yield is complex due to external variables. An $R^2$ of 0.723 indicates the model explains 72% of the variance in crop tonnage.
             """)
         
         st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
-    st.divider()
-    
+   
     with st.form("prediction_form"):
         st.subheader("📝 Farm Environment Profile")
         col1, col2 = st.columns(2)
