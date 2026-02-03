@@ -14,7 +14,7 @@ from reportlab.lib import colors
 from datetime import datetime
 import io
 import os
-from crop_prediction_pdf import create_crop_prediction_pdf
+
 
 # =============================
 # PAGE CONFIG & STYLING
@@ -121,114 +121,48 @@ def half_circle_gauge_card(value, max_value, feature, color, unit=""):
     )
     return fig
 
-
 def create_crop_prediction_pdf(
-    # Stage 1 inputs
     N, P, K, ph, temperature, humidity, rainfall,
-    # Stage 1 results
-    recommended_crop,
-    thi, sfi,
-    parameter_matches,
-    overall_match,
-    # Stage 2 inputs (optional)
-    soil_moisture=None,
-    soil_type=None,
-    sunlight_hours=None,
-    irrigation_type=None,
-    fertilizer_used=None,
-    pesticide_used=None,
-    # Stage 2 results (optional)
-    predicted_yield=None,
-    filename=None
+    recommended_crop, thi, sfi, parameter_matches, overall_match,
+    soil_moisture=None, soil_type=None, sunlight_hours=None,
+    irrigation_type=None, fertilizer_used=None, pesticide_used=None,
+    predicted_yield=None
 ):
-    """
-    Generate a comprehensive PDF report for crop prediction analysis
-    Returns BytesIO object for Streamlit download button
+    """Generate PDF report in memory and return BytesIO object"""
     
-    Args:
-        Stage 1 parameters: N, P, K, ph, temperature, humidity, rainfall
-        Stage 1 results: recommended_crop, thi, sfi, parameter_matches, overall_match
-        Stage 2 parameters (optional): soil_moisture, soil_type, sunlight_hours, etc.
-        Stage 2 results (optional): predicted_yield
-        filename: Optional filename (for display purposes only)
-    
-    Returns:
-        BytesIO: PDF file in memory
-    """
-    
-    # Create PDF in memory instead of writing to disk
     buffer = io.BytesIO()
-    
-    doc = SimpleDocTemplate(
-        buffer,
-        pagesize=letter,
-        topMargin=0.75*inch,
-        bottomMargin=0.75*inch,
-        leftMargin=0.75*inch,
-        rightMargin=0.75*inch
-    )
+    doc = SimpleDocTemplate(buffer, pagesize=letter, topMargin=0.75*inch,
+                           bottomMargin=0.75*inch, leftMargin=0.75*inch, rightMargin=0.75*inch)
     
     story = []
     styles = getSampleStyleSheet()
     
     # Custom styles
-    title_style = ParagraphStyle(
-        'CustomTitle',
-        parent=styles['Heading1'],
-        fontSize=26,
-        textColor=HexColor('#2c5282'),
-        spaceAfter=10,
-        alignment=TA_CENTER,
-        fontName='Helvetica-Bold'
-    )
+    title_style = ParagraphStyle('CustomTitle', parent=styles['Heading1'], fontSize=26,
+                                 textColor=HexColor('#2c5282'), spaceAfter=10,
+                                 alignment=TA_CENTER, fontName='Helvetica-Bold')
     
-    subtitle_style = ParagraphStyle(
-        'Subtitle',
-        parent=styles['Normal'],
-        fontSize=12,
-        textColor=HexColor('#666666'),
-        alignment=TA_CENTER,
-        spaceAfter=30
-    )
+    subtitle_style = ParagraphStyle('Subtitle', parent=styles['Normal'], fontSize=12,
+                                    textColor=HexColor('#666666'), alignment=TA_CENTER, spaceAfter=30)
     
-    section_header = ParagraphStyle(
-        'SectionHeader',
-        parent=styles['Heading2'],
-        fontSize=18,
-        textColor=HexColor('#2c5282'),
-        spaceAfter=15,
-        spaceBefore=20,
-        fontName='Helvetica-Bold'
-    )
+    section_header = ParagraphStyle('SectionHeader', parent=styles['Heading2'], fontSize=18,
+                                   textColor=HexColor('#2c5282'), spaceAfter=15,
+                                   spaceBefore=20, fontName='Helvetica-Bold')
     
-    subsection_header = ParagraphStyle(
-        'SubsectionHeader',
-        parent=styles['Heading3'],
-        fontSize=14,
-        textColor=HexColor('#4a5568'),
-        spaceAfter=10,
-        spaceBefore=15,
-        fontName='Helvetica-Bold'
-    )
+    subsection_header = ParagraphStyle('SubsectionHeader', parent=styles['Heading3'], fontSize=14,
+                                      textColor=HexColor('#4a5568'), spaceAfter=10,
+                                      spaceBefore=15, fontName='Helvetica-Bold')
     
-    body_style = ParagraphStyle(
-        'CustomBody',
-        parent=styles['Normal'],
-        fontSize=11,
-        leading=16,
-        spaceAfter=12,
-        alignment=TA_JUSTIFY
-    )
+    body_style = ParagraphStyle('CustomBody', parent=styles['Normal'], fontSize=11,
+                               leading=16, spaceAfter=12, alignment=TA_JUSTIFY)
     
-    # ==================== HEADER ====================
+    # Header
     story.append(Paragraph("🌱 Intelligent Crop Recommendation Report", title_style))
     story.append(Paragraph(f"Generated on {datetime.now().strftime('%B %d, %Y at %I:%M %p')}", subtitle_style))
     story.append(Spacer(1, 0.3*inch))
     
-    # ==================== STAGE 1: INPUT PARAMETERS ====================
+    # Input Parameters
     story.append(Paragraph("📝 Input Parameters", section_header))
-    
-    # Create input table
     input_data = [
         ['Parameter', 'Value', 'Unit'],
         ['Nitrogen (N)', f'{N}', 'ppm'],
@@ -253,40 +187,31 @@ def create_crop_prediction_pdf(
         ('GRID', (0, 0), (-1, -1), 1, HexColor('#e2e8f0')),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, HexColor('#f7fafc')])
     ]))
-    
     story.append(input_table)
     story.append(Spacer(1, 0.3*inch))
     
-    # ==================== STAGE 1: CROP RECOMMENDATION ====================
+    # Recommended Crop
     story.append(Paragraph("🌾 Recommended Crop", section_header))
+    crop_emojis = {"rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿", "cotton":"☁️",
+                   "coconut":"🥥", "papaya":"🍈", "orange":"🍊", "apple":"🍎",
+                   "muskmelon":"🍈", "watermelon":"🍉", "grapes":"🍇", "mango":"🥭",
+                   "banana":"🍌", "pomegranate":"💎", "lentil":"🫘", "blackgram":"⚫",
+                   "mungbean":"🟢", "mothbeans":"🫘", "pigeonpeas":"🫘",
+                   "kidneybeans":"🫘", "chickpea":"🫘", "coffee":"☕"}
     
-    crop_emojis = {
-        "rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿",
-        "cotton":"☁️", "coconut":"🥥", "papaya":"🍈", "orange":"🍊",
-        "apple":"🍎", "muskmelon":"🍈", "watermelon":"🍉", "grapes":"🍇",
-        "mango":"🥭", "banana":"🍌", "pomegranate":"💎", "lentil":"🫘",
-        "blackgram":"⚫", "mungbean":"🟢", "mothbeans":"🫘", "pigeonpeas":"🫘",
-        "kidneybeans":"🫘", "chickpea":"🫘", "coffee":"☕"
-    }
     emoji = crop_emojis.get(recommended_crop.lower(), "🌱")
-    
-    story.append(Paragraph(
-        f"<b>{emoji} {recommended_crop.upper()}</b>",
-        ParagraphStyle('CropName', parent=body_style, fontSize=16, textColor=HexColor('#2c5282'), alignment=TA_CENTER)
-    ))
+    story.append(Paragraph(f"<b>{emoji} {recommended_crop.upper()}</b>",
+                          ParagraphStyle('CropName', parent=body_style, fontSize=16,
+                                       textColor=HexColor('#2c5282'), alignment=TA_CENTER)))
     story.append(Spacer(1, 0.1*inch))
-    
     story.append(Paragraph(
-        f"Based on your soil and environmental parameters, <b>{recommended_crop}</b> is identified as the most suitable crop. "
-        f"This recommendation considers the soil pH and NPK balance required for optimal growth under current temperature and rainfall conditions.",
-        body_style
-    ))
+        f"Based on your soil and environmental parameters, <b>{recommended_crop}</b> is identified as the most suitable crop.",
+        body_style))
     story.append(Spacer(1, 0.2*inch))
     
-    # ==================== ENVIRONMENTAL INDICES ====================
+    # Environmental Indices
     story.append(Paragraph("📊 Environmental Indices", subsection_header))
     
-    # THI interpretation
     if thi < 15:
         thi_status = "Cold Stress - May slow crop growth"
     elif 15 <= thi < 22:
@@ -296,7 +221,6 @@ def create_crop_prediction_pdf(
     else:
         thi_status = "Heat Stress - Risk to crop health"
     
-    # SFI interpretation
     if sfi < 30:
         sfi_status = "Low - Needs fertilization"
     elif 30 <= sfi < 60:
@@ -324,23 +248,15 @@ def create_crop_prediction_pdf(
         ('BACKGROUND', (0, 1), (-1, -1), colors.white),
         ('GRID', (0, 0), (-1, -1), 1, HexColor('#e2e8f0'))
     ]))
-    
     story.append(indices_table)
     story.append(Spacer(1, 0.3*inch))
     
-    # ==================== PARAMETER MATCH ANALYSIS ====================
+    # Parameter Match Analysis
     story.append(Paragraph("🎯 Parameter Match Analysis", subsection_header))
-    
-    # Create parameter match table
     match_data = [['Parameter', 'Your Value', 'Optimal Value', 'Match %']]
     
     for param_name, (user_val, opt_val, match_pct) in parameter_matches.items():
-        match_data.append([
-            param_name,
-            f'{user_val:.1f}',
-            f'{opt_val:.1f}',
-            f'{match_pct:.1f}%'
-        ])
+        match_data.append([param_name, f'{user_val:.1f}', f'{opt_val:.1f}', f'{match_pct:.1f}%'])
     
     match_table = Table(match_data, colWidths=[2*inch, 1.2*inch, 1.2*inch, 1.1*inch])
     match_table.setStyle(TableStyle([
@@ -354,11 +270,10 @@ def create_crop_prediction_pdf(
         ('GRID', (0, 0), (-1, -1), 1, HexColor('#e2e8f0')),
         ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, HexColor('#f7fafc')])
     ]))
-    
     story.append(match_table)
     story.append(Spacer(1, 0.2*inch))
     
-    # Overall match summary
+    # Overall Match
     if overall_match >= 90:
         match_text = "Excellent Match! Your conditions are very close to optimal."
         match_color = HexColor('#2ecc71')
@@ -366,27 +281,22 @@ def create_crop_prediction_pdf(
         match_text = "Good Match - Your conditions are good for this crop."
         match_color = HexColor('#27ae60')
     elif overall_match >= 60:
-        match_text = "Fair Match - Consider adjusting some parameters for better yield."
+        match_text = "Fair Match - Consider adjusting some parameters."
         match_color = HexColor('#f39c12')
     else:
-        match_text = "Needs Adjustment - Several parameters need improvement for optimal growth."
+        match_text = "Needs Adjustment - Several parameters need improvement."
         match_color = HexColor('#e74c3c')
     
-    story.append(Paragraph(
-        f"<b>Overall Match Score: {overall_match:.1f}%</b>",
-        ParagraphStyle('MatchScore', parent=body_style, fontSize=14, textColor=match_color, alignment=TA_CENTER)
-    ))
-    story.append(Paragraph(
-        match_text,
-        ParagraphStyle('MatchText', parent=body_style, fontSize=11, alignment=TA_CENTER)
-    ))
+    story.append(Paragraph(f"<b>Overall Match Score: {overall_match:.1f}%</b>",
+                          ParagraphStyle('MatchScore', parent=body_style, fontSize=14,
+                                       textColor=match_color, alignment=TA_CENTER)))
+    story.append(Paragraph(match_text,
+                          ParagraphStyle('MatchText', parent=body_style, fontSize=11, alignment=TA_CENTER)))
     
-    # ==================== STAGE 2: YIELD PREDICTION (if available) ====================
+    # Stage 2: Yield Prediction (if available)
     if predicted_yield is not None:
         story.append(PageBreak())
         story.append(Paragraph("🌾 Yield Prediction Analysis", section_header))
-        
-        # Stage 2 inputs table
         story.append(Paragraph("Additional Farm Parameters", subsection_header))
         
         stage2_data = [
@@ -412,72 +322,33 @@ def create_crop_prediction_pdf(
             ('GRID', (0, 0), (-1, -1), 1, HexColor('#e2e8f0')),
             ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, HexColor('#f7fafc')])
         ]))
-        
         story.append(stage2_table)
         story.append(Spacer(1, 0.3*inch))
         
-        # Predicted yield
         story.append(Paragraph("🎯 Predicted Yield", subsection_header))
-        story.append(Paragraph(
-            f"<b>{predicted_yield:.2f} tons/hectare</b>",
-            ParagraphStyle('YieldValue', parent=body_style, fontSize=18, textColor=HexColor('#2c5282'), alignment=TA_CENTER)
-        ))
+        story.append(Paragraph(f"<b>{predicted_yield:.2f} tons/hectare</b>",
+                              ParagraphStyle('YieldValue', parent=body_style, fontSize=18,
+                                           textColor=HexColor('#2c5282'), alignment=TA_CENTER)))
         story.append(Spacer(1, 0.2*inch))
         
-        # Crop-specific remarks
         crop_remarks = {
-            "rice": "Rice thrives with high nitrogen and consistent water management. Your predicted yield reflects optimal flooded conditions and balanced nutrients.",
-            "maize": "Maize requires balanced NPK nutrients and adequate sunlight. Ensure proper spacing and weed control for maximum yield.",
-            "cotton": "Cotton needs sufficient potassium for fiber quality. Monitor for pests and ensure adequate irrigation during flowering stage."
+            "rice": "Rice thrives with high nitrogen and consistent water management.",
+            "maize": "Maize requires balanced NPK nutrients and adequate sunlight.",
+            "cotton": "Cotton needs sufficient potassium for fiber quality."
         }
-        remark = crop_remarks.get(recommended_crop.lower(), "Ensure proper soil fertility and climate management for best yield.")
-        
+        remark = crop_remarks.get(recommended_crop.lower(), "Ensure proper soil fertility.")
         story.append(Paragraph(remark, body_style))
     
-    # ==================== FOOTER ====================
+    # Footer
     story.append(Spacer(1, 0.4*inch))
     story.append(Paragraph(
-        "⚠️ <i>Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.</i>",
-        ParagraphStyle('Footer', parent=body_style, fontSize=9, textColor=HexColor('#666666'), alignment=TA_CENTER)
-    ))
+        "⚠️ <i>Note: Predictions are based on historical data patterns.</i>",
+        ParagraphStyle('Footer', parent=body_style, fontSize=9, textColor=HexColor('#666666'), alignment=TA_CENTER)))
     
     # Build PDF
     doc.build(story)
-    
-    # Get PDF bytes
     buffer.seek(0)
     return buffer
-
-
-# ==================== EXAMPLE USAGE (Remove this in production) ====================
-if __name__ == "__main__":
-    # Example Stage 1 data
-    example_params = {
-        'N': 90,
-        'P': 42,
-        'K': 43,
-        'ph': 6.5,
-        'temperature': 20.8,
-        'humidity': 82,
-        'rainfall': 202.9,
-        'recommended_crop': 'Rice',
-        'thi': 19.2,
-        'sfi': 58.3,
-        'parameter_matches': {
-            'Nitrogen (N)': (90, 80.4, 88.6),
-            'Phosphorus (P)': (42, 47.8, 91.2),
-            'Potassium (K)': (43, 40.9, 94.9),
-            'pH Level': (6.5, 6.4, 98.4),
-            'Temperature': (20.8, 23.7, 87.8),
-            'Humidity': (82, 80.1, 97.6),
-            'Rainfall': (202.9, 210.4, 96.4)
-        },
-        'overall_match': 93.6
-    }
-    
-    # This is just for testing - in production, the function returns BytesIO
-    print("PDF generation function loaded successfully!")
-    print("Use create_crop_prediction_pdf() in your Streamlit app with st.download_button()")
 
 # =============================
 # UI SECTIONS
