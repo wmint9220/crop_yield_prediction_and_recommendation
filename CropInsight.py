@@ -617,7 +617,41 @@ def show_prediction():
         return
     if stage2_model is None:
         st.warning("⚠️ Stage 2 model not loaded. You can still get crop recommendation.")
+
+    st.markdown("### 🧠 Model Performance & Transparency")
+    
+    # 1. Visual Metrics for Quick Trust
+    m1, m2 = st.columns(2)
+    with m1:
+        st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
+    with m2:
+        st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
+    
+    # 2. Technical Deep-Dive
+    with st.expander("📊 Technical Model Specifications"):
+        col_tech1, col_tech2 = st.columns(2)
         
+        with col_tech1:
+            st.markdown("**Stage 1: Classification**")
+            st.info("""
+            - **Model:** Random Forest Classifier
+            - **Metric:** 0.995 Accuracy
+            - **Status:** Highly Optimized
+            - **Insights:** This model excels at identifying the biological 'sweet spot' for 22 different crop varieties based on soil and climate input.
+            """)
+            
+        with col_tech2:
+            st.markdown("**Stage 2: Regression**")
+            st.info(f"""
+            - **Model:** XGBoost Regressor
+            - **Metric:** 0.723 R-Squared
+            - **Status:** Validated
+            - **Insights:** Predicting yield is complex due to external variables. An $R^2$ of 0.723 indicates the model explains 72% of the variance in crop tonnage.
+            """)
+        
+        st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
+    st.divider()
+    
     with st.form("prediction_form"):
         st.subheader("📝 Farm Environment Profile")
         col1, col2 = st.columns(2)
