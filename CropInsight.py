@@ -119,6 +119,8 @@ from reportlab.lib.units import inch
 from reportlab.lib.colors import HexColor, Color
 from reportlab.lib import colors
 from datetime import datetime
+import io
+import os
 
 def create_crop_prediction_pdf(
     # Stage 1 inputs
@@ -137,21 +139,28 @@ def create_crop_prediction_pdf(
     pesticide_used=None,
     # Stage 2 results (optional)
     predicted_yield=None,
-    filename="crop_prediction_report.pdf"
+    filename=None
 ):
     """
     Generate a comprehensive PDF report for crop prediction analysis
+    Returns BytesIO object for Streamlit download button
     
     Args:
         Stage 1 parameters: N, P, K, ph, temperature, humidity, rainfall
         Stage 1 results: recommended_crop, thi, sfi, parameter_matches, overall_match
         Stage 2 parameters (optional): soil_moisture, soil_type, sunlight_hours, etc.
         Stage 2 results (optional): predicted_yield
-        filename: Output PDF filename
+        filename: Optional filename (for display purposes only)
+    
+    Returns:
+        BytesIO: PDF file in memory
     """
     
+    # Create PDF in memory instead of writing to disk
+    buffer = io.BytesIO()
+    
     doc = SimpleDocTemplate(
-        filename,
+        buffer,
         pagesize=letter,
         topMargin=0.75*inch,
         bottomMargin=0.75*inch,
@@ -434,11 +443,13 @@ def create_crop_prediction_pdf(
     
     # Build PDF
     doc.build(story)
-    print(f"✅ PDF generated successfully: {filename}")
-    return filename
+    
+    # Get PDF bytes
+    buffer.seek(0)
+    return buffer
 
 
-# ==================== EXAMPLE USAGE ====================
+# ==================== EXAMPLE USAGE (Remove this in production) ====================
 if __name__ == "__main__":
     # Example Stage 1 data
     example_params = {
@@ -464,22 +475,9 @@ if __name__ == "__main__":
         'overall_match': 93.6
     }
     
-    # Example without Stage 2
-    create_crop_prediction_pdf(**example_params, filename="/mnt/user-data/outputs/crop_report_stage1_only.pdf")
-    
-    # Example with Stage 2
-    example_params_with_stage2 = {
-        **example_params,
-        'soil_moisture': 65,
-        'soil_type': 'Loamy',
-        'sunlight_hours': 7.5,
-        'irrigation_type': 'Canal',
-        'fertilizer_used': 120.0,
-        'pesticide_used': 4.5,
-        'predicted_yield': 5.87
-    }
-    
-    create_crop_prediction_pdf(**example_params_with_stage2, filename="/mnt/user-data/outputs/crop_report_full.pdf")
+    # This is just for testing - in production, the function returns BytesIO
+    print("PDF generation function loaded successfully!")
+    print("Use create_crop_prediction_pdf() in your Streamlit app with st.download_button()")
 
 # =============================
 # UI SECTIONS
@@ -1255,22 +1253,19 @@ def show_prediction():
         try:
             pdf_filename = f"crop_report_{crop_name.lower()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
             
-            create_crop_prediction_pdf(
+            # Generate PDF in memory (returns BytesIO object)
+            pdf_buffer = create_crop_prediction_pdf(
                 N=N, P=P, K=K, ph=ph,
                 temperature=temp, humidity=hum, rainfall=rain,
                 recommended_crop=crop_name,
                 thi=thi, sfi=sfi,
                 parameter_matches=param_matches_dict,
-                overall_match=avg_match,
-                filename=pdf_filename
+                overall_match=avg_match
             )
-            
-            with open(pdf_filename, "rb") as pdf_file:
-                pdf_bytes = pdf_file.read()
             
             st.download_button(
                 label="📄 Download Stage 1 Report (PDF)",
-                data=pdf_bytes,
+                data=pdf_buffer,
                 file_name=pdf_filename,
                 mime="application/pdf",
                 use_container_width=True,
@@ -1421,7 +1416,8 @@ def show_prediction():
                         try:
                             pdf_filename_full = f"crop_report_full_{crop_name.lower()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
                             
-                            create_crop_prediction_pdf(
+                            # Generate PDF in memory (returns BytesIO object)
+                            pdf_buffer_full = create_crop_prediction_pdf(
                                 # Stage 1 inputs
                                 N=st.session_state.stage1_input["N"],
                                 P=st.session_state.stage1_input["P"],
@@ -1444,16 +1440,12 @@ def show_prediction():
                                 fertilizer_used=fertilizer_used,
                                 pesticide_used=pesticide_used,
                                 # Stage 2 results
-                                predicted_yield=yield_pred,
-                                filename=pdf_filename_full
+                                predicted_yield=yield_pred
                             )
-                            
-                            with open(pdf_filename_full, "rb") as pdf_file:
-                                pdf_bytes_full = pdf_file.read()
                             
                             st.download_button(
                                 label="📄 Download Complete Report (PDF)",
-                                data=pdf_bytes_full,
+                                data=pdf_buffer_full,
                                 file_name=pdf_filename_full,
                                 mime="application/pdf",
                                 use_container_width=True,
@@ -1470,7 +1462,6 @@ def show_prediction():
         
         elif crop_name.strip().lower() not in allowed_crops:
             pass
-
 
 
 # def show_prediction():
