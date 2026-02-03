@@ -617,17 +617,7 @@ def show_prediction():
         return
     if stage2_model is None:
         st.warning("⚠️ Stage 2 model not loaded. You can still get crop recommendation.")
-
-    st.markdown("### 🧠 Model Performance & Transparency")
     
-    # 1. Visual Metrics for Quick Trust
-    m1, m2 = st.columns(2)
-    with m1:
-        st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
-    with m2:
-        st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
-    
-    # 2. Technical Deep-Dive
     with st.expander("📊 Technical Model Specifications"):
         col_tech1, col_tech2 = st.columns(2)
         
@@ -648,6 +638,13 @@ def show_prediction():
             """)
         
         st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
+
+    
+    m1, m2 = st.columns(2)
+    with m1:
+        st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
+    with m2:
+        st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
    
     with st.form("prediction_form"):
         st.subheader("📝 Farm Environment Profile")
