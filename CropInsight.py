@@ -967,52 +967,52 @@ def show_prediction():
                         </div>
                         """, unsafe_allow_html=True)
                         
-                        # Yield interpretation
-                        st.markdown("---")
-                        st.subheader("📊 Yield Analysis")
+                        # # Yield interpretation
+                        # st.markdown("---")
+                        # st.subheader("📊 Yield Analysis")
                         
-                        col_a, col_b, col_c = st.columns(3)
+                        # col_a, col_b, col_c = st.columns(3)
                         
-                        # Define yield benchmarks by crop
-                        benchmarks = {
-                            "rice": {"low": 3, "avg": 5, "high": 7},
-                            "maize": {"low": 4, "avg": 7, "high": 10},
-                            "cotton": {"low": 1.5, "avg": 2.5, "high": 4}
-                        }
+                        # # Define yield benchmarks by crop
+                        # benchmarks = {
+                        #     "rice": {"low": 3, "avg": 5, "high": 7},
+                        #     "maize": {"low": 4, "avg": 7, "high": 10},
+                        #     "cotton": {"low": 1.5, "avg": 2.5, "high": 4}
+                        # }
                         
-                        bench = benchmarks.get(crop_name.lower(), {"low": 2, "avg": 4, "high": 6})
+                        # bench = benchmarks.get(crop_name.lower(), {"low": 2, "avg": 4, "high": 6})
                         
-                        with col_a:
-                            if yield_pred < bench["low"]:
-                                status = "🔴 Below Average"
-                                advice = "Consider improving soil fertility or irrigation"
-                            elif yield_pred < bench["avg"]:
-                                status = "🟡 Average"
-                                advice = "Good baseline, room for optimization"
-                            elif yield_pred < bench["high"]:
-                                status = "🟢 Above Average"
-                                advice = "Excellent conditions maintained"
-                            else:
-                                status = "🌟 Exceptional"
-                                advice = "Outstanding farm management!"
+                        # with col_a:
+                        #     if yield_pred < bench["low"]:
+                        #         status = "🔴 Below Average"
+                        #         advice = "Consider improving soil fertility or irrigation"
+                        #     elif yield_pred < bench["avg"]:
+                        #         status = "🟡 Average"
+                        #         advice = "Good baseline, room for optimization"
+                        #     elif yield_pred < bench["high"]:
+                        #         status = "🟢 Above Average"
+                        #         advice = "Excellent conditions maintained"
+                        #     else:
+                        #         status = "🌟 Exceptional"
+                        #         advice = "Outstanding farm management!"
                             
-                            st.metric("Yield Category", status)
-                            st.caption(advice)
+                        #     st.metric("Yield Category", status)
+                        #     st.caption(advice)
                         
-                        with col_b:
-                            st.metric("Benchmark (Average)", f"{bench['avg']:.1f} t/ha")
-                            difference = ((yield_pred - bench['avg']) / bench['avg'] * 100)
-                            st.caption(f"{difference:+.1f}% from average")
+                        # with col_b:
+                        #     st.metric("Benchmark (Average)", f"{bench['avg']:.1f} t/ha")
+                        #     difference = ((yield_pred - bench['avg']) / bench['avg'] * 100)
+                        #     st.caption(f"{difference:+.1f}% from average")
                         
-                        with col_c:
-                            st.metric("Potential (High)", f"{bench['high']:.1f} t/ha")
-                            potential_gap = bench['high'] - yield_pred
-                            if potential_gap > 0:
-                                st.caption(f"Gap: {potential_gap:.1f} t/ha")
-                            else:
-                                st.caption("✨ Exceeding high benchmark!")
+                        # with col_c:
+                        #     st.metric("Potential (High)", f"{bench['high']:.1f} t/ha")
+                        #     potential_gap = bench['high'] - yield_pred
+                        #     if potential_gap > 0:
+                        #         st.caption(f"Gap: {potential_gap:.1f} t/ha")
+                        #     else:
+                        #         st.caption("✨ Exceeding high benchmark!")
                         
-                        st.balloons()
+                        # st.balloons()
                         
                     except Exception as e:
                         st.error(f"❌ Error predicting yield: {str(e)}")
