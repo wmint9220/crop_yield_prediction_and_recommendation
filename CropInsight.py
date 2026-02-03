@@ -328,7 +328,7 @@ def show_trend():
         fig.add_vline(x=mean_values[selected_param], line_dash="dash", 
                          line_color="red", annotation_text="Mean")
 
-        with st.expander("🔍 Understanding this Distribution"):
+        with st.expander("🔍 **Understanding this Distribution**"):
             st.markdown(f"""
             **What this chart shows:**
             This histogram displays how **{feature_names[selected_param]}** values are spread across all samples for **{selected_crop}**.
@@ -417,7 +417,7 @@ def show_trend():
                     xaxis_title="Crop",
                     yaxis_title=selected_feature
                 )
-                with st.expander("📊 Understanding the Bar Chart"):
+                with st.expander("📊 **Understanding the Bar Chart**"):
                     st.markdown("""
                         * This chart compares **Single Parameter Focus** requirements across the selected crops.
                         * Use this to see exact numerical differences for a specific metric. 
@@ -461,7 +461,7 @@ def show_trend():
                     title="Normalized Multi-Parameter Comparison",
                     height=500
                 )
-                with st.expander("📊 Understanding the Rader Chart"):
+                with st.expander("📊 **Understanding the Rader Chart**"):
                     st.markdown("""
                             * This chart **normalizes** all values (0% to 100%) so you can compare temperature, pH, and nutrients on the same scale.
                             * **What to look for:** If the shapes of two crops overlap significantly, they share a similar "biological fingerprint" and likely grow well in the same regions.
@@ -472,7 +472,7 @@ def show_trend():
             # Key differences section
             st.markdown("---")
             st.markdown("#### 🔍 Key Differences")
-            with st.expander("ℹ️ How to interpret these differences"):
+            with st.expander("ℹ️ **How to interpret these differences**"):
                 st.markdown(f"""
                 This section highlights where the comparison crops **deviate significantly** from your primary choice, **{selected_crop.upper()}**.
                 
@@ -554,7 +554,7 @@ def show_trend():
             st.markdown("---")
             st.subheader("🔥 Feature Heatmap Across All Crops")
         
-            with st.expander("📝 How to read the Heatmap"):
+            with st.expander("📝 **Understand the Heatmap**"):
                 st.markdown("""
                     **What this shows:** This heatmap compares the **average requirements** of every crop side-by-side.
                     
@@ -581,7 +581,7 @@ def show_trend():
             st.markdown("---")
             st.subheader("🔗 Feature Correlations")
 
-            with st.expander("📝 Understanding Feature Correlations"):
+            with st.expander("📝 **Understanding Feature Correlations**"):
                 st.markdown("""
                     **What this shows:** This matrix measures the **strength of the relationship** between two variables.
                     
@@ -618,7 +618,7 @@ def show_prediction():
     if stage2_model is None:
         st.warning("⚠️ Stage 2 model not loaded. You can still get crop recommendation.")
     
-    with st.expander("🧠 Model Performance "):
+    with st.expander("🧠 **Model Performance** "):
         col_tech1, col_tech2 = st.columns(2)
         
         with col_tech1:
