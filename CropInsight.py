@@ -618,7 +618,7 @@ def show_prediction():
     if stage2_model is None:
         st.warning("⚠️ Stage 2 model not loaded. You can still get crop recommendation.")
     
-    with st.expander("📊 Technical Model Specifications"):
+    with st.expander("🧠 Model Performance "):
         col_tech1, col_tech2 = st.columns(2)
         
         with col_tech1:
