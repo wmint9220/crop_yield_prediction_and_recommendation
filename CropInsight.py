@@ -4,7 +4,17 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
-
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
+from reportlab.lib.units import inch
+from reportlab.lib.colors import HexColor, Color
+from reportlab.lib import colors
+from datetime import datetime
+import io
+import os
+from crop_prediction_pdf import create_crop_prediction_pdf
 
 # =============================
 # PAGE CONFIG & STYLING
@@ -111,16 +121,6 @@ def half_circle_gauge_card(value, max_value, feature, color, unit=""):
     )
     return fig
 
-from reportlab.lib.pagesizes import letter, A4
-from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, PageBreak, Image
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
-from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_JUSTIFY
-from reportlab.lib.units import inch
-from reportlab.lib.colors import HexColor, Color
-from reportlab.lib import colors
-from datetime import datetime
-import io
-import os
 
 def create_crop_prediction_pdf(
     # Stage 1 inputs
@@ -974,12 +974,6 @@ def show_trend():
             st.plotly_chart(fig, use_container_width=True)             
         
 
-
-import streamlit as st
-import numpy as np
-import pandas as pd
-from datetime import datetime
-from crop_prediction_pdf import create_crop_prediction_pdf
 
 def show_prediction():
     st.title("🌱 Intelligent Crop Recommendation")
