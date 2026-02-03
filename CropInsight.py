@@ -197,7 +197,7 @@ def show_trend():
     tab1, tab2, tab3  = st.tabs(["📊 Crop Overview", "🔬 Crop Comparison", "📊 Dataset Statistics"])
 
     with tab1:
-        with st.expander("📅 Growing Insights", expanded=False):
+        with st.expander("📅 **Growing Insights**", expanded=False):
             # This text stays inside the expander but above the columns
             st.markdown(f"""
                 These ranges show the **minimum and maximum** values observed in the dataset for **{selected_crop}**. 
