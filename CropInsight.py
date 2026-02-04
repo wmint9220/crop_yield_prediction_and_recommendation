@@ -879,7 +879,7 @@ def show_prediction():
     with m1:
         st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
     with m2:
-        st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
+        st.metric(label="Stage 2: Yield Prediction", value="72.3%", delta="R² Score")
    
     with st.form("prediction_form"):
         st.subheader("📝 Farm Environment Profile")
