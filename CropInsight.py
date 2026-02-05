@@ -852,8 +852,9 @@ def show_trend():
                 labels=dict(color="Correlation")
             )
             fig.update_layout(height=500)
-            st.plotly_chart(fig, use_container_width=True)             
-        
+            st.plotly_chart(fig, use_container_width=True)    
+
+
 def show_prediction():
     st.title("🌱 Intelligent Crop Recommendation")
     
@@ -866,33 +867,11 @@ def show_prediction():
     if stage2_model is None:
         st.warning("⚠️ Stage 2 model not loaded. You can still get crop recommendation.")
     
-    with st.expander("🧠 **Model Performance** "):
-        col_tech1, col_tech2 = st.columns(2)
-        
-        with col_tech1:
-            st.markdown("**Stage 1: Classification**")
-            st.markdown("""
-            - **Model:** Random Forest Classifier
-            - **Accuracy:** 0.995 
-            - **Insights:** This model excels at identifying the biological 'sweet spot' for 22 different crop varieties based on soil and climate input.
-            """)
-            
-        with col_tech2:
-            st.markdown("**Stage 2: Regression**")
-            st.markdown(f"""
-            - **Model:** XGBoost Regressor
-            - **R-Squared:** 0.723 
-            - **Insights:** Predicting yield is complex due to external variables. An $R^2$ of 0.723 indicates the model explains 72% of the variance in crop tonnage.
-            """)
-        
-        st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
-
-    
     m1, m2 = st.columns(2)
     with m1:
         st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
     with m2:
-        st.metric(label="Stage 2: Yield Prediction", value="72.3%", delta="R² Score")
+        st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
    
     with st.form("prediction_form"):
         st.subheader("📝 Farm Environment Profile")
@@ -915,6 +894,16 @@ def show_prediction():
         submit = st.form_submit_button("✨ Analyze & Recommend")
 
     if submit:
+        # Show Stage 1 Model Performance
+        with st.expander("🧠 **Stage 1 Model Performance** "):
+            st.markdown("**Stage 1: Classification**")
+            st.markdown("""
+            - **Model:** Random Forest Classifier
+            - **Accuracy:** 0.995 
+            - **Insights:** This model excels at identifying the biological 'sweet spot' for 22 different crop varieties based on soil and climate input.
+            """)
+            st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
+        
         # Stage 1: Crop Recommendation
         input_stage1 = np.array([[N, P, K, temp, hum, ph, rain]])
         crop_encoded = stage1_model.predict(input_stage1)[0]
@@ -945,7 +934,13 @@ def show_prediction():
         st.balloons()
         st.subheader("📊 Suggestion Improvement")
         df = load_data()
-        crop_mode = df[df["label"] == crop_name].mode(numeric_only=True)
+        crop_data = df[df["label"] == crop_name]
+        
+        # Calculate mode (most frequently used values) for each numeric parameter
+        crop_frequently_used = {}
+        for col in ["N", "P", "K", "temperature", "humidity", "ph", "rainfall"]:
+            mode_values = crop_data[col].mode()
+            crop_frequently_used[col] = mode_values[0] if len(mode_values) > 0 else crop_data[col].mean()
         
         # Calculate indices
         thi = temp - (0.55 - 0.0055 * hum) * (temp - 14.4)
@@ -976,7 +971,7 @@ def show_prediction():
             
             st.markdown(f"<p style='color:{thi_color};font-size:14px;'>{thi_status}</p>", unsafe_allow_html=True)
             
-            with st.expander("ℹ️ **What is THI?**"):
+            with st.expander("ℹ️ What is THI?"):
                 st.write("""
                 **Temperature-Humidity Index** measures environmental stress on crops.
                 
@@ -1007,7 +1002,7 @@ def show_prediction():
             
             st.markdown(f"<p style='color:{sfi_color};font-size:14px;'>{sfi_status}</p>", unsafe_allow_html=True)
             
-            with st.expander("ℹ️ **What is SFI?**"):
+            with st.expander("ℹ️ What is SFI?"):
                 st.write("""
                 **Soil Fertility Index** reflects overall nutrient availability (N+P+K average).
                 
@@ -1023,13 +1018,13 @@ def show_prediction():
   
         st.markdown("##### 🎯 Parameter Match Score")
         params = {
-            "Nitrogen (N)": (N, crop_mode["N"], 150),
-            "Phosphorus (P)": (P, crop_mode["P"], 150),
-            "Potassium (K)": (K, crop_mode["K"], 150),
-            "pH Level": (ph, crop_mode["ph"], 14),
-            "Temperature": (temp, crop_mode["temperature"], 50),
-            "Humidity": (hum, crop_mode["humidity"], 100),
-            "Rainfall": (rain, crop_mode["rainfall"], 300)
+            "Nitrogen (N)": (N, crop_frequently_used["N"], 150),
+            "Phosphorus (P)": (P, crop_frequently_used["P"], 150),
+            "Potassium (K)": (K, crop_frequently_used["K"], 150),
+            "pH Level": (ph, crop_frequently_used["ph"], 14),
+            "Temperature": (temp, crop_frequently_used["temperature"], 50),
+            "Humidity": (hum, crop_frequently_used["humidity"], 100),
+            "Rainfall": (rain, crop_frequently_used["rainfall"], 300)
         }
         
         # Create two columns for better layout
@@ -1039,8 +1034,8 @@ def show_prediction():
         mid_point = len(param_items) // 2 + len(param_items) % 2
         
         with col_left:
-            for param_name, (user_val, opt_val, max_val) in param_items[:mid_point]:
-                match_pct = 100 - abs((user_val - opt_val) / opt_val * 100) if opt_val != 0 else 100
+            for param_name, (user_val, freq_val, max_val) in param_items[:mid_point]:
+                match_pct = 100 - abs((user_val - freq_val) / freq_val * 100) if freq_val != 0 else 100
                 match_pct = max(0, min(100, match_pct))
                 
                 if match_pct >= 90:
@@ -1052,12 +1047,12 @@ def show_prediction():
                 
                 st.markdown(f"**{color} {param_name}**")
                 st.progress(match_pct / 100)
-                st.caption(f"Your: {user_val:.1f} | Frequently Used: {opt_val:.1f} | Match: {match_pct:.0f}%")
+                st.caption(f"Your: {user_val:.1f} | Frequently Used: {freq_val:.1f} | Match: {match_pct:.0f}%")
                 st.markdown("<br>", unsafe_allow_html=True)
         
         with col_right:
-            for param_name, (user_val, opt_val, max_val) in param_items[mid_point:]:
-                match_pct = 100 - abs((user_val - opt_val) / opt_val * 100) if opt_val != 0 else 100
+            for param_name, (user_val, freq_val, max_val) in param_items[mid_point:]:
+                match_pct = 100 - abs((user_val - freq_val) / freq_val * 100) if freq_val != 0 else 100
                 match_pct = max(0, min(100, match_pct))
                 
                 if match_pct >= 90:
@@ -1069,18 +1064,18 @@ def show_prediction():
                 
                 st.markdown(f"**{color} {param_name}**")
                 st.progress(match_pct / 100)
-                st.caption(f"Your: {user_val:.1f} | Optimal: {opt_val:.1f} | Match: {match_pct:.0f}%")
+                st.caption(f"Your: {user_val:.1f} | Frequently Used: {freq_val:.1f} | Match: {match_pct:.0f}%")
                 st.markdown("<br>", unsafe_allow_html=True)
         
         # Overall Match Summary
         overall_matches = []
         param_matches_dict = {}  # For PDF generation
         
-        for param_name, (user_val, opt_val, max_val) in params.items():
-            match_pct = 100 - abs((user_val - opt_val) / opt_val * 100) if opt_val != 0 else 100
+        for param_name, (user_val, freq_val, max_val) in params.items():
+            match_pct = 100 - abs((user_val - freq_val) / freq_val * 100) if freq_val != 0 else 100
             match_pct = max(0, min(100, match_pct))
             overall_matches.append(match_pct)
-            param_matches_dict[param_name] = (user_val, opt_val, match_pct)
+            param_matches_dict[param_name] = (user_val, freq_val, match_pct)
         
         avg_match = sum(overall_matches) / len(overall_matches)
         
@@ -1110,7 +1105,7 @@ def show_prediction():
                 <h3 style='color:{match_color}; margin:0;'>{match_emoji} Overall Match: {avg_match:.1f}%</h3>
                 <p style='margin:5px 0; font-size:16px;'><b>{match_text}</b></p>
                 <p style='margin:0; font-size:14px; color:#666;'>
-                    {'Your conditions are very close to optimal!' if avg_match >= 90 else
+                    {'Your conditions are very close to frequently used values!' if avg_match >= 90 else
                      'Your conditions are good for this crop.' if avg_match >= 75 else
                      'Consider adjusting some parameters for better yield.' if avg_match >= 60 else
                      'Several parameters need adjustment for optimal growth.'}
@@ -1176,7 +1171,16 @@ def show_prediction():
             )
             
             if st.session_state.stage2_choice == "Yes":
-                st.metric(label="Stage 2: Yield Prediction", value="72.3%", delta="R² Score")
+                # Show Stage 2 Model Performance
+                with st.expander("🧠 **Stage 2 Model Performance** "):
+                    st.markdown("**Stage 2: Regression**")
+                    st.markdown(f"""
+                    - **Model:** XGBoost Regressor
+                    - **R-Squared:** 0.723 
+                    - **Insights:** Predicting yield is complex due to external variables. An $R^2$ of 0.723 indicates the model explains 72% of the variance in crop tonnage.
+                    """)
+                    st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
+                
                 with st.form("stage2_form"):
                     st.subheader("📋 Additional Farm Parameters")
                     st.caption("💡 Reused from Stage 1: N={}, P={}, K={}, pH={}, Temp={}°C, Humidity={}%, Rainfall={}mm".format(
@@ -1336,6 +1340,490 @@ def show_prediction():
         
         elif crop_name.strip().lower() not in allowed_crops:
             pass
+
+        
+# def show_prediction():
+#     st.title("🌱 Intelligent Crop Recommendation")
+    
+#     stage1_model, le = load_stage1()
+#     stage2_model = load_stage2()
+    
+#     if stage1_model is None or le is None:
+#         st.error("🚨 Stage 1 model files missing.")
+#         return
+#     if stage2_model is None:
+#         st.warning("⚠️ Stage 2 model not loaded. You can still get crop recommendation.")
+    
+#     with st.expander("🧠 **Model Performance** "):
+#         col_tech1, col_tech2 = st.columns(2)
+        
+#         with col_tech1:
+#             st.markdown("**Stage 1: Classification**")
+#             st.markdown("""
+#             - **Model:** Random Forest Classifier
+#             - **Accuracy:** 0.995 
+#             - **Insights:** This model excels at identifying the biological 'sweet spot' for 22 different crop varieties based on soil and climate input.
+#             """)
+            
+#         with col_tech2:
+#             st.markdown("**Stage 2: Regression**")
+#             st.markdown(f"""
+#             - **Model:** XGBoost Regressor
+#             - **R-Squared:** 0.723 
+#             - **Insights:** Predicting yield is complex due to external variables. An $R^2$ of 0.723 indicates the model explains 72% of the variance in crop tonnage.
+#             """)
+        
+#         st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
+
+    
+#     m1, m2 = st.columns(2)
+#     with m1:
+#         st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
+#     with m2:
+#         st.metric(label="Stage 2: Yield Prediction", value="72.3%", delta="R² Score")
+   
+#     with st.form("prediction_form"):
+#         st.subheader("📝 Farm Environment Profile")
+#         col1, col2 = st.columns(2)
+        
+#         with col1:
+#             st.markdown("##### **Soil Chemical Properties**")
+#             N = st.slider("Nitrogen (N) Content", 0, 150, 50)
+#             P = st.slider("Phosphorus (P) Content", 0, 150, 50)
+#             K = st.slider("Potassium (K) Content", 0, 150, 50)
+#             ph = st.number_input("Soil pH Level (0.0 - 14.0)", 0.0, 14.0, 6.5)
+        
+#         with col2:
+#             st.markdown("##### **Atmospheric Parameters**")
+#             temp = st.number_input("Ambient Temperature (°C)", 0.0, 50.0, 25.0)
+#             hum = st.slider("Relative Humidity (%)", 0, 100, 50)
+#             rain = st.number_input("Average Rainfall (mm)", 0.0, 1000.0, 100.0)
+        
+#         st.markdown("---")
+#         submit = st.form_submit_button("✨ Analyze & Recommend")
+
+#     if submit:
+#         # Stage 1: Crop Recommendation
+#         input_stage1 = np.array([[N, P, K, temp, hum, ph, rain]])
+#         crop_encoded = stage1_model.predict(input_stage1)[0]
+#         crop_name = le.inverse_transform([crop_encoded])[0]
+        
+#         st.session_state.stage1_crop = crop_name
+#         st.session_state.stage1_input = {"N": N, "P": P, "K": K, "temperature": temp, "humidity": hum, "ph": ph, "rainfall": rain}
+#         st.session_state.submitted = True
+        
+#         crop_emojis = {
+#         "rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿",
+#         "cotton":"☁️", "coconut":"🥥", "papaya":"🍈", "orange":"🍊",
+#         "apple":"🍎", "muskmelon":"🍈", "watermelon":"🍉", "grapes":"🍇",
+#         "mango":"🥭", "banana":"🍌", "pomegranate":"💎", "lentil":"🫘",
+#         "blackgram":"⚫", "mungbean":"🟢", "mothbeans":"🫘", "pigeonpeas":"🫘",
+#         "kidneybeans":"🫘", "chickpea":"🫘", "coffee":"☕" }
+        
+#         emoji = crop_emojis.get(crop_name.lower(), "🌱")
+    
+#         st.markdown(f"""
+#             <div class="prediction-card">
+#                 <h2>Recommended Crop: <strong>{crop_name.upper()} {emoji}</strong></h2>
+#                 <p>Based on your input, <b>{crop_name}</b> is identified as the most suitable crop. This recommendation takes into account the specific 
+#                 soil pH and NPK balance required for this species to thrive under the current temperature and rainfall projections.</p>
+#             </div>
+#         """, unsafe_allow_html=True)
+
+#         st.balloons()
+#         st.subheader("📊 Suggestion Improvement")
+#         df = load_data()
+#         crop_mode = df[df["label"] == crop_name].mode(numeric_only=True)
+        
+#         # Calculate indices
+#         thi = temp - (0.55 - 0.0055 * hum) * (temp - 14.4)
+#         sfi = (N + P + K) / 3
+        
+#         # Store in session state for PDF generation
+#         st.session_state.thi = thi
+#         st.session_state.sfi = sfi
+        
+#         col1, col2 = st.columns(2)
+        
+#         with col1:
+#             st.metric("🌡️ Temperature-Humidity Index", f"{thi:.1f}")
+            
+#             # THI interpretation
+#             if thi < 15:
+#                 thi_status = "❄️ **Cold Stress** - May slow crop growth"
+#                 thi_color = "#3498db"
+#             elif 15 <= thi < 22:
+#                 thi_status = "✅ **Optimal** - Ideal growing conditions"
+#                 thi_color = "#2ecc71"
+#             elif 22 <= thi < 28:
+#                 thi_status = "⚠️ **Warm** - Monitor water needs"
+#                 thi_color = "#f39c12"
+#             else:
+#                 thi_status = "🔥 **Heat Stress** - Risk to crop health"
+#                 thi_color = "#e74c3c"
+            
+#             st.markdown(f"<p style='color:{thi_color};font-size:14px;'>{thi_status}</p>", unsafe_allow_html=True)
+            
+#             with st.expander("ℹ️ **What is THI?**"):
+#                 st.write("""
+#                 **Temperature-Humidity Index** measures environmental stress on crops.
+                
+#                 - **Below 15**: Cold stress conditions
+#                 - **15-22**: Optimal comfort zone
+#                 - **22-28**: Moderate heat stress
+#                 - **Above 28**: Severe heat stress
+                
+#                 Higher humidity reduces heat stress effects.
+#                 """)
+        
+#         with col2:
+#             st.metric("🌱 Soil Fertility Index", f"{sfi:.1f}")
+            
+#             # SFI interpretation
+#             if sfi < 30:
+#                 sfi_status = "📉 **Low** - Needs fertilization"
+#                 sfi_color = "#e74c3c"
+#             elif 30 <= sfi < 60:
+#                 sfi_status = "📊 **Moderate** - Adequate nutrients"
+#                 sfi_color = "#f39c12"
+#             elif 60 <= sfi < 90:
+#                 sfi_status = "📈 **Good** - Well-balanced soil"
+#                 sfi_color = "#2ecc71"
+#             else:
+#                 sfi_status = "⚡ **Excellent** - Nutrient-rich soil"
+#                 sfi_color = "#27ae60"
+            
+#             st.markdown(f"<p style='color:{sfi_color};font-size:14px;'>{sfi_status}</p>", unsafe_allow_html=True)
+            
+#             with st.expander("ℹ️ **What is SFI?**"):
+#                 st.write("""
+#                 **Soil Fertility Index** reflects overall nutrient availability (N+P+K average).
+                
+#                 - **0-30**: Low - Requires fertilizer input
+#                 - **30-60**: Moderate - Baseline fertility
+#                 - **60-90**: Good - Supports healthy growth
+#                 - **90+**: Excellent - Premium soil quality
+                
+#                 Balance all three nutrients for best results.
+#                 """)
+        
+
+  
+#         st.markdown("##### 🎯 Parameter Match Score")
+#         params = {
+#             "Nitrogen (N)": (N, crop_mode["N"], 150),
+#             "Phosphorus (P)": (P, crop_mode["P"], 150),
+#             "Potassium (K)": (K, crop_mode["K"], 150),
+#             "pH Level": (ph, crop_mode["ph"], 14),
+#             "Temperature": (temp, crop_mode["temperature"], 50),
+#             "Humidity": (hum, crop_mode["humidity"], 100),
+#             "Rainfall": (rain, crop_mode["rainfall"], 300)
+#         }
+        
+#         # Create two columns for better layout
+#         col_left, col_right = st.columns(2)
+        
+#         param_items = list(params.items())
+#         mid_point = len(param_items) // 2 + len(param_items) % 2
+        
+#         with col_left:
+#             for param_name, (user_val, opt_val, max_val) in param_items[:mid_point]:
+#                 match_pct = 100 - abs((user_val - opt_val) / opt_val * 100) if opt_val != 0 else 100
+#                 match_pct = max(0, min(100, match_pct))
+                
+#                 if match_pct >= 90:
+#                     color = "🟢"
+#                 elif match_pct >= 70:
+#                     color = "🟡"
+#                 else:
+#                     color = "🔴"
+                
+#                 st.markdown(f"**{color} {param_name}**")
+#                 st.progress(match_pct / 100)
+#                 st.caption(f"Your: {user_val:.1f} | Frequently Used: {opt_val:.1f} | Match: {match_pct:.0f}%")
+#                 st.markdown("<br>", unsafe_allow_html=True)
+        
+#         with col_right:
+#             for param_name, (user_val, opt_val, max_val) in param_items[mid_point:]:
+#                 match_pct = 100 - abs((user_val - opt_val) / opt_val * 100) if opt_val != 0 else 100
+#                 match_pct = max(0, min(100, match_pct))
+                
+#                 if match_pct >= 90:
+#                     color = "🟢"
+#                 elif match_pct >= 70:
+#                     color = "🟡"
+#                 else:
+#                     color = "🔴"
+                
+#                 st.markdown(f"**{color} {param_name}**")
+#                 st.progress(match_pct / 100)
+#                 st.caption(f"Your: {user_val:.1f} | Optimal: {opt_val:.1f} | Match: {match_pct:.0f}%")
+#                 st.markdown("<br>", unsafe_allow_html=True)
+        
+#         # Overall Match Summary
+#         overall_matches = []
+#         param_matches_dict = {}  # For PDF generation
+        
+#         for param_name, (user_val, opt_val, max_val) in params.items():
+#             match_pct = 100 - abs((user_val - opt_val) / opt_val * 100) if opt_val != 0 else 100
+#             match_pct = max(0, min(100, match_pct))
+#             overall_matches.append(match_pct)
+#             param_matches_dict[param_name] = (user_val, opt_val, match_pct)
+        
+#         avg_match = sum(overall_matches) / len(overall_matches)
+        
+#         # Store in session state for PDF generation
+#         st.session_state.overall_match = avg_match
+#         st.session_state.param_matches = param_matches_dict
+        
+#         if avg_match >= 90:
+#             match_emoji = "🌟"
+#             match_text = "Excellent Match!"
+#             match_color = "#2ecc71"
+#         elif avg_match >= 75:
+#             match_emoji = "👍"
+#             match_text = "Good Match"
+#             match_color = "#27ae60"
+#         elif avg_match >= 60:
+#             match_emoji = "⚠️"
+#             match_text = "Fair Match"
+#             match_color = "#f39c12"
+#         else:
+#             match_emoji = "❗"
+#             match_text = "Needs Adjustment"
+#             match_color = "#e74c3c"
+
+#         st.markdown(f"""
+#             <div style='background-color:{match_color}22; padding:20px; border-radius:10px; text-align:center; border:2px solid {match_color};'>
+#                 <h3 style='color:{match_color}; margin:0;'>{match_emoji} Overall Match: {avg_match:.1f}%</h3>
+#                 <p style='margin:5px 0; font-size:16px;'><b>{match_text}</b></p>
+#                 <p style='margin:0; font-size:14px; color:#666;'>
+#                     {'Your conditions are very close to optimal!' if avg_match >= 90 else
+#                      'Your conditions are good for this crop.' if avg_match >= 75 else
+#                      'Consider adjusting some parameters for better yield.' if avg_match >= 60 else
+#                      'Several parameters need adjustment for optimal growth.'}
+#                 </p>
+#             </div>
+#         """, unsafe_allow_html=True)
+        
+#         # ========================================
+#         # PDF DOWNLOAD BUTTON - STAGE 1
+#         # ========================================
+#         st.markdown("---")
+        
+#         try:
+#             pdf_filename = f"crop_report_{crop_name.lower()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+            
+#             # Generate PDF in memory (returns BytesIO object)
+#             pdf_buffer = create_crop_prediction_pdf(
+#                 N=N, P=P, K=K, ph=ph,
+#                 temperature=temp, humidity=hum, rainfall=rain,
+#                 recommended_crop=crop_name,
+#                 thi=thi, sfi=sfi,
+#                 parameter_matches=param_matches_dict,
+#                 overall_match=avg_match
+#             )
+            
+#             st.download_button(
+#                 label="📄 Download Stage 1 Report (PDF)",
+#                 data=pdf_buffer,
+#                 file_name=pdf_filename,
+#                 mime="application/pdf",
+#                 use_container_width=True,
+#                 type="primary"
+#             )
+#         except Exception as e:
+#             st.error(f"Error generating PDF: {str(e)}")
+                        
+#     # ========================================
+#     # Stage 2: Yield Prediction 
+#     # ========================================
+#     if st.session_state.get('submitted', False):
+#         crop_name = st.session_state.stage1_crop
+#         allowed_crops = ["rice", "maize", "cotton"]
+        
+#         if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
+#             st.markdown("---")
+            
+#             # Initialize session state for stage 2 choice if not exists
+#             if 'stage2_choice' not in st.session_state:
+#                 st.session_state.stage2_choice = "No"
+            
+#             # Simple "Do you want to predict yield?" prompt
+#             st.markdown(f"""
+#                 <div style='background-color:#f9faf0; padding:20px; border-radius:10px; border-left:5px solid #4caf50; margin: 20px 0;'>
+#                     <h3 style='margin:0; color:#2e7d32;'>🌾 Yield Prediction Available</h3>
+#                     <p style='margin:5px 0 0 0; color:#555;'>Would you like to predict the yield for <strong>{crop_name}</strong>?</p>
+#                 </div>
+#             """, unsafe_allow_html=True)
+            
+#             choice = st.radio(
+#                 "Do you want to predict yield for this crop?",
+#                 ("No", "Yes"),
+#                 key="stage2_choice"
+#             )
+            
+#             if st.session_state.stage2_choice == "Yes":
+#                 st.metric(label="Stage 2: Yield Prediction", value="72.3%", delta="R² Score")
+#                 with st.form("stage2_form"):
+#                     st.subheader("📋 Additional Farm Parameters")
+#                     st.caption("💡 Reused from Stage 1: N={}, P={}, K={}, pH={}, Temp={}°C, Humidity={}%, Rainfall={}mm".format(
+#                         st.session_state.stage1_input["N"],
+#                         st.session_state.stage1_input["P"],
+#                         st.session_state.stage1_input["K"],
+#                         st.session_state.stage1_input["ph"],
+#                         st.session_state.stage1_input["temperature"],
+#                         st.session_state.stage1_input["humidity"],
+#                         st.session_state.stage1_input["rainfall"]
+#                     ))
+                    
+#                     col1, col2 = st.columns(2)
+                    
+#                     with col1:
+#                         st.markdown("##### **Soil & Environmental**")
+                        
+#                         soil_moisture = st.slider(
+#                             "Soil Moisture (%)", 
+#                             0, 100, 50,
+#                             help="Current soil moisture content percentage"
+#                         )
+                        
+#                         soil_type = st.selectbox(
+#                             "Soil Type",
+#                             ["Loamy", "Sandy", "Silt", "Clay"],
+#                             help="Primary soil composition type"
+#                         )
+                        
+#                         sunlight_hours = st.number_input(
+#                             "Sunlight Hours (hours/day)", 
+#                             0.0, 24.0, 8.0, 0.5,
+#                             help="Average daily sunlight exposure"
+#                         )
+                    
+#                     with col2:
+#                         st.markdown("##### **Farm Management**")
+                        
+#                         irrigation_type = st.selectbox(
+#                             "Irrigation Type",
+#                             ["Drip", "Canal", "Rainfed", "Sprinkler"],
+#                             help="Primary irrigation method used"
+#                         )
+                        
+#                         fertilizer_used = st.number_input(
+#                             "Fertilizer Used (kg/hectare)",
+#                             0.0, 500.0, 100.0, 10.0,
+#                             help="Amount of fertilizer applied"
+#                         )
+                        
+#                         pesticide_used = st.number_input(
+#                             "Pesticide Used (kg/hectare)",
+#                             0.0, 50.0, 5.0, 0.5,
+#                             help="Amount of pesticide applied"
+#                         )
+#                     st.markdown("---")
+#                     submit_stage2 = st.form_submit_button("✨  Predict Yield")
+                
+#                 if submit_stage2:
+#                     # Combine Stage 1 and Stage 2 inputs
+#                     stage2_input = {
+#                         # From Stage 1 (lowercase)
+#                         "N": st.session_state.stage1_input["N"],
+#                         "P": st.session_state.stage1_input["P"],
+#                         "K": st.session_state.stage1_input["K"],
+#                         "ph": st.session_state.stage1_input["ph"],
+#                         "temperature": st.session_state.stage1_input["temperature"],
+#                         "humidity": st.session_state.stage1_input["humidity"],
+#                         "rainfall": st.session_state.stage1_input["rainfall"],
+                        
+#                         # New Stage 2 inputs
+#                         "Soil_Moisture": soil_moisture,
+#                         "Sunlight_Hours": sunlight_hours,
+#                         "Fertilizer_Used": fertilizer_used,
+#                         "Pesticide_Used": pesticide_used,
+#                         "Soil_Type": soil_type,
+#                         "Irrigation_Type": irrigation_type,
+#                         "Crop_Type": crop_name
+#                     }
+                    
+#                     # Convert to DataFrame
+#                     stage2_input_df = pd.DataFrame([stage2_input])
+                    
+#                     # Make prediction
+#                     try:
+#                         yield_pred = stage2_model.predict(stage2_input_df)[0]
+                        
+#                         # Crop-specific remarks
+#                         crop_remarks = {
+#                                 "rice": "Rice thrives with high nitrogen and consistent water management. Your predicted yield reflects optimal flooded conditions and balanced nutrients.",
+#                                 "maize": "Maize requires balanced NPK nutrients and adequate sunlight. Ensure proper spacing and weed control for maximum yield.",
+#                                 "cotton": "Cotton needs sufficient potassium for fiber quality. Monitor for pests and ensure adequate irrigation during flowering stage."
+#                         }
+#                         remark = crop_remarks.get(crop_name.lower(), "Ensure proper soil fertility and climate management for best yield.")
+
+#                         # Display result
+#                         st.markdown(f"""
+#                         <div class="prediction-card" style="background: linear-gradient(135deg, #ffffff 0%, #fafcf7 100%); color: white;">
+#                             <h2 style="color: white;">🎯 Predicted Yield: <strong>{yield_pred:.2f} tons/hectare</strong></h2>
+#                             <p style="color: black; opacity: 0.95;">{remark}</p>
+#                         </div>
+#                         """, unsafe_allow_html=True)
+                        
+#                         st.balloons()
+                        
+#                         # ========================================
+#                         # PDF DOWNLOAD BUTTON - STAGE 2 (Full Report)
+#                         # ========================================
+#                         st.markdown("---")
+                        
+#                         try:
+#                             pdf_filename_full = f"crop_report_full_{crop_name.lower()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
+                            
+#                             # Generate PDF in memory (returns BytesIO object)
+#                             pdf_buffer_full = create_crop_prediction_pdf(
+#                                 # Stage 1 inputs
+#                                 N=st.session_state.stage1_input["N"],
+#                                 P=st.session_state.stage1_input["P"],
+#                                 K=st.session_state.stage1_input["K"],
+#                                 ph=st.session_state.stage1_input["ph"],
+#                                 temperature=st.session_state.stage1_input["temperature"],
+#                                 humidity=st.session_state.stage1_input["humidity"],
+#                                 rainfall=st.session_state.stage1_input["rainfall"],
+#                                 # Stage 1 results
+#                                 recommended_crop=crop_name,
+#                                 thi=st.session_state.thi,
+#                                 sfi=st.session_state.sfi,
+#                                 parameter_matches=st.session_state.param_matches,
+#                                 overall_match=st.session_state.overall_match,
+#                                 # Stage 2 inputs
+#                                 soil_moisture=soil_moisture,
+#                                 soil_type=soil_type,
+#                                 sunlight_hours=sunlight_hours,
+#                                 irrigation_type=irrigation_type,
+#                                 fertilizer_used=fertilizer_used,
+#                                 pesticide_used=pesticide_used,
+#                                 # Stage 2 results
+#                                 predicted_yield=yield_pred
+#                             )
+                            
+#                             st.download_button(
+#                                 label="📄 Download Complete Report (PDF)",
+#                                 data=pdf_buffer_full,
+#                                 file_name=pdf_filename_full,
+#                                 mime="application/pdf",
+#                                 use_container_width=True,
+#                                 type="primary"
+#                             )
+#                         except Exception as e:
+#                             st.error(f"Error generating full PDF report: {str(e)}")
+                        
+#                     except Exception as e:
+#                         st.error(f"❌ Error predicting yield: {str(e)}")
+#                         with st.expander("Debug Info"):
+#                             st.write("Input data:")
+#                             st.json(stage2_input)
+        
+#         elif crop_name.strip().lower() not in allowed_crops:
+#             pass
                           
 # =============================
 # MAIN NAVIGATION
