@@ -396,7 +396,7 @@ def show_trend():
     # Crop Selection with Multi-Column Layout
     # ----------------------------
     # Summary statistics
-    col1, col2, col3, col4 = st.columns(4)
+    col1, col2, col3 = st.columns(3)
             
     with col1:
         st.metric("🌾 Total Crops", df["label"].nunique())
@@ -404,9 +404,7 @@ def show_trend():
         st.metric("📋 Total Samples", len(df))
     with col3:
         st.metric("📊 Features", len(features_row1 + features_row2))
-    with col4:
-        avg_samples = len(df) / df["label"].nunique()
-        st.metric("📈 Avg Samples/Crop", f"{avg_samples:.0f}")
+    
     
     col_select, col_info = st.columns([2, 1])
     
@@ -422,7 +420,7 @@ def show_trend():
     sample_count = crop_df.shape[0]
     
     with col_info:
-        st.metric("📋 Data Samples", f"{sample_count:,}")
+        st.metric("📋 Avg Data Samples", f"{sample_count:,}")
     
     crop_emojis = {
         "rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿",
