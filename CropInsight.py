@@ -404,23 +404,25 @@ def show_trend():
         st.metric("📋 Total Samples", len(df))
     with col3:
         st.metric("📊 Features", len(features_row1 + features_row2))
+    with col4:
+        avg_samples = len(df) / df["label"].nunique()
+        st.metric("📈 Avg Samples/Crop", f"{avg_samples:.0f}")
     
+    # col_select, col_info = st.columns([2, 1])
     
-    col_select, col_info = st.columns([2, 1])
-    
-    with col_select:
-        selected_crop = st.selectbox(
+    # with col_select:
+    selected_crop = st.selectbox(
             "Select Crop to Analyze", 
             sorted(df["label"].unique()),
             help="Choose a crop to view its optimal growing conditions"
-        )
+    )
     
     crop_df = df[df["label"] == selected_crop]
     mean_values = crop_df[features_row1 + features_row2].mean().round(1)
-    sample_count = crop_df.shape[0]
+    # sample_count = crop_df.shape[0]
     
-    with col_info:
-        st.metric("📋 Avg Data Samples", f"{sample_count:,}")
+    # with col_info:
+    #     st.metric("📋 Avg Data Samples", f"{sample_count:,}")
     
     crop_emojis = {
         "rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿",
