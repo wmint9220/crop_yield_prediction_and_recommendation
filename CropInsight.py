@@ -945,7 +945,7 @@ def show_prediction():
         st.balloons()
         st.subheader("📊 Suggestion Improvement")
         df = load_data()
-        crop_optimal = df[df["label"] == crop_name].mean(numeric_only=True)
+        crop_mode = df[df["label"] == crop_name].mode(numeric_only=True)
         
         # Calculate indices
         thi = temp - (0.55 - 0.0055 * hum) * (temp - 14.4)
@@ -1023,13 +1023,13 @@ def show_prediction():
   
         st.markdown("##### 🎯 Parameter Match Score")
         params = {
-            "Nitrogen (N)": (N, crop_optimal["N"], 150),
-            "Phosphorus (P)": (P, crop_optimal["P"], 150),
-            "Potassium (K)": (K, crop_optimal["K"], 150),
-            "pH Level": (ph, crop_optimal["ph"], 14),
-            "Temperature": (temp, crop_optimal["temperature"], 50),
-            "Humidity": (hum, crop_optimal["humidity"], 100),
-            "Rainfall": (rain, crop_optimal["rainfall"], 300)
+            "Nitrogen (N)": (N, crop_mode["N"], 150),
+            "Phosphorus (P)": (P, crop_mode["P"], 150),
+            "Potassium (K)": (K, crop_mode["K"], 150),
+            "pH Level": (ph, crop_mode["ph"], 14),
+            "Temperature": (temp, crop_mode["temperature"], 50),
+            "Humidity": (hum, crop_mode["humidity"], 100),
+            "Rainfall": (rain, crop_mode["rainfall"], 300)
         }
         
         # Create two columns for better layout
@@ -1052,7 +1052,7 @@ def show_prediction():
                 
                 st.markdown(f"**{color} {param_name}**")
                 st.progress(match_pct / 100)
-                st.caption(f"Your: {user_val:.1f} | Optimal: {opt_val:.1f} | Match: {match_pct:.0f}%")
+                st.caption(f"Your: {user_val:.1f} | Frequently Used: {opt_val:.1f} | Match: {match_pct:.0f}%")
                 st.markdown("<br>", unsafe_allow_html=True)
         
         with col_right:
