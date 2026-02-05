@@ -396,7 +396,7 @@ def show_trend():
     # Crop Selection with Multi-Column Layout
     # ----------------------------
     # Summary statistics
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4 = st.columns(4)
             
     with col1:
         st.metric("🌾 Total Crops", df["label"].nunique())
