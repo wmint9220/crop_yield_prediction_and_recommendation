@@ -1176,6 +1176,7 @@ def show_prediction():
             )
             
             if st.session_state.stage2_choice == "Yes":
+                st.metric(label="Stage 2: Yield Prediction", value="72.3%", delta="R² Score")
                 with st.form("stage2_form"):
                     st.subheader("📋 Additional Farm Parameters")
                     st.caption("💡 Reused from Stage 1: N={}, P={}, K={}, pH={}, Temp={}°C, Humidity={}%, Rainfall={}mm".format(
