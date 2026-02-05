@@ -1016,7 +1016,7 @@ def show_prediction():
         
 
   
-        st.markdown("##### 🎯 Parameter Match Score")
+        st.markdown("##### 🎯 Frequently Used Parameter Match Score")
         params = {
             "Nitrogen (N)": (N, crop_frequently_used["N"], 150),
             "Phosphorus (P)": (P, crop_frequently_used["P"], 150),
@@ -1102,7 +1102,7 @@ def show_prediction():
 
         st.markdown(f"""
             <div style='background-color:{match_color}22; padding:20px; border-radius:10px; text-align:center; border:2px solid {match_color};'>
-                <h3 style='color:{match_color}; margin:0;'>{match_emoji} Overall Frequently Used Match: {avg_match:.1f}%</h3>
+                <h3 style='color:{match_color}; margin:0;'>{match_emoji} Overall Match: {avg_match:.1f}%</h3>
                 <p style='margin:5px 0; font-size:16px;'><b>{match_text}</b></p>
                 <p style='margin:0; font-size:14px; color:#666;'>
                     {'Your conditions are very close to frequently used values!' if avg_match >= 90 else
