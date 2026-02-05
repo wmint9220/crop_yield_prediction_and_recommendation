@@ -370,6 +370,20 @@ def show_trend():
     st.title("📊 Agricultural Data Trends")
     st.markdown("Welcome to the **Crop Insight**. This platform leverages historical soil and climate data to identify optimal growing conditions and crop alternatives.")
     st.info("💡 The dashboard analyzes the relationship between soil nutrients, environmental factors, and pH levels. It is designed to support data-driven decision-making for sustainable farming.")
+    
+    # Summary statistics
+    col1, col2, col3, col4 = st.columns(4)
+            
+    with col1:
+        st.metric("🌾 Total Crops", df["label"].nunique())
+    with col2:
+        st.metric("📋 Total Samples", len(df))
+    with col3:
+        st.metric("📊 Features", len(features_row1 + features_row2))
+    with col4:
+        avg_samples = len(df) / df["label"].nunique()
+        st.metric("📈 Avg Samples/Crop", f"{avg_samples:.0f}")
+        
     df = load_data()
     if df is None:
         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
