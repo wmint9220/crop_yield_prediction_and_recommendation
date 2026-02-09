@@ -463,8 +463,7 @@ def show_trend():
         )
         fig_corr.update_layout(height=500, margin=dict(l=20, r=20, t=30, b=20))
         st.plotly_chart(fig_corr, use_container_width=True)
-        
-        st.info("💡 **Analyst Note:** High correlation between P (Phosphorus) and K (Potassium) is common in agricultural datasets.")
+
     
     # col_select, col_info = st.columns([2, 1])
     
