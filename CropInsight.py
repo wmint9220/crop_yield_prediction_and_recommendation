@@ -407,6 +407,53 @@ def show_trend():
     with col4:
         avg_samples = len(df) / df["label"].nunique()
         st.metric("📈 Avg Samples/Crop", f"{avg_samples:.0f}")
+
+    # --- Advanced Data Insights Section ---
+with st.expander("📊 **About the Dataset**"):
+    st.markdown("Explore the underlying relationships and requirements across all crop types.")
+    
+    # --- 1. FEATURE HEATMAP ---
+    st.subheader("🔥 Feature Heatmap Across All Crops")
+    st.markdown("""
+        **What this shows:** Side-by-side comparison of **average requirements** for every crop.
+        * **🟩 Green:** High values | **🟥 Red:** Low values.
+    """)
+    
+    # Create pivot table
+    heatmap_data = df.groupby("label")[features_row1 + features_row2].mean()
+    
+    fig_heat = px.imshow(
+        heatmap_data.T,
+        labels=dict(x="Crop", y="Feature", color="Value"),
+        aspect="auto",
+        # Use .T to put crops on the horizontal axis
+        color_continuous_scale="RdYlGn"
+    )
+    fig_heat.update_layout(height=500, margin=dict(l=20, r=20, t=30, b=20))
+    st.plotly_chart(fig_heat, use_container_width=True)
+    
+    st.divider() # Visual break between charts
+
+    # --- 2. CORRELATION MATRIX ---
+    st.subheader("🔗 Feature Correlations")
+    st.markdown("""
+        **What this shows:** Measures the **strength of the relationship** between variables.
+        * **Scale (+1.0 to -1.0):** Blue (+) means they grow together, Red (-) means one drops as the other rises.
+    """)
+    
+    corr_matrix = df[features_row1 + features_row2].corr()
+    
+    fig_corr = px.imshow(
+        corr_matrix,
+        text_auto='.2f',
+        aspect="auto",
+        color_continuous_scale="RdBu_r",
+        labels=dict(color="Correlation")
+    )
+    fig_corr.update_layout(height=500, margin=dict(l=20, r=20, t=30, b=20))
+    st.plotly_chart(fig_corr, use_container_width=True)
+    
+    st.info("💡 **Analyst Note:** High correlation between P (Phosphorus) and K (Potassium) is common in agricultural datasets.")
     
     # col_select, col_info = st.columns([2, 1])
     
