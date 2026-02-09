@@ -379,7 +379,7 @@ def show_trend():
         st.metric("📊 Features", len(features_row1 + features_row2))
     with col4:
         avg_samples = len(df) / df["label"].nunique()
-        st.metric("📈 Avg Samples/Crop", f"{avg_samples:.0f}"
+        st.metric("📈 Avg Samples/Crop", f"{avg_samples:.0f}")
                   
     st.markdown("Welcome to the **Crop Insight**. This platform leverages historical soil and climate data to identify optimal growing conditions and crop alternatives.")
     st.info("💡 The dashboard analyzes the relationship between soil nutrients, environmental factors, and pH levels. It is designed to support data-driven decision-making for sustainable farming.")
