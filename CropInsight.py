@@ -504,7 +504,7 @@ def show_trend():
     # ----------------------------
     # TABS: Overview and Comparison
     # ----------------------------
-    tab1, tab2, tab3  = st.tabs(["📊 Crop Overview", "🔬 Crop Comparison", "📊 Dataset Statistics"])
+    tab1, tab2  = st.tabs(["📊 Crop Overview", "🔬 Crop Comparison"])
 
     with tab1:
         with st.expander("📅 **Growing Insights**", expanded=False):
@@ -678,7 +678,7 @@ def show_trend():
             comp_df = pd.DataFrame(comparison_data)
             
             # Display comparison table
-            st.markdown("#### 📋 Comparison Table")
+            st.markdown("#### 📋 Comparison Table in Farm Environment Profile")
             st.dataframe(
                 comp_df, 
                 use_container_width=True, 
@@ -690,7 +690,7 @@ def show_trend():
             
             # Visualization section
             st.markdown("---")
-            st.markdown("#### 🌡️ Visual Comparison")
+            st.markdown("#### 🌡️ Farm Environment Visual Comparison")
             
             col_viz1, col_viz2 = st.columns([1, 2])
             
@@ -841,76 +841,6 @@ def show_trend():
            st.progress(similarity / 100)
            st.caption(f"{crop_emoji} **{crop}** is {similarity:.1f}% similar to **{selected_crop}**")
                            
-    with tab3:
-            st.markdown("### 📊 Complete Dataset Overview")
-            
-            # Summary statistics
-            col1, col2, col3, col4 = st.columns(4)
-            
-            with col1:
-                st.metric("🌾 Total Crops", df["label"].nunique())
-            with col2:
-                st.metric("📋 Total Samples", len(df))
-            with col3:
-                st.metric("📊 Features", len(features_row1 + features_row2))
-            with col4:
-                avg_samples = len(df) / df["label"].nunique()
-                st.metric("📈 Avg Samples/Crop", f"{avg_samples:.0f}")
-            
-            # Heatmap of all crops
-            st.markdown("---")
-            st.subheader("🔥 Feature Heatmap Across All Crops")
-        
-            with st.expander("📝 **Understand the Heatmap**"):
-                st.markdown("""
-                    **What this shows:** This heatmap compares the **average requirements** of every crop side-by-side.
-                    
-                    * **Vertical Axis:** The features (N, P, K, Temp, etc.).
-                    * **Horizontal Axis:** The different crop types.
-                    * **Colors:** 🟩 **Green** indicates high values, while 🟥 **Red** indicates low values.
-                    
-                    **💡 Pro-Tip:** Use this to find "extreme" crops. For example, you can quickly spot which crops need the most rainfall or the highest Nitrogen levels compared to all others.
-                """)
-            
-            # Create pivot table
-            heatmap_data = df.groupby("label")[features_row1 + features_row2].mean()
-            
-            fig = px.imshow(
-                heatmap_data.T,
-                labels=dict(x="Crop", y="Feature", color="Value"),
-                aspect="auto",
-                color_continuous_scale="RdYlGn"
-            )
-            fig.update_layout(height=500)
-            st.plotly_chart(fig, use_container_width=True)
-            
-            # Correlation analysis
-            st.markdown("---")
-            st.subheader("🔗 Feature Correlations")
-
-            with st.expander("📝 **Understanding Feature Correlations**"):
-                st.markdown("""
-                    **What this shows:** This matrix measures the **strength of the relationship** between two variables.
-                    
-                    * **Scale:** Values range from **+1.0 to -1.0**.
-                    * **Positive (+):** As one feature increases, the other tends to increase (e.g., Phosphorus and Potassium often have high positive correlation).
-                    * **Negative (-):** As one increases, the other decreases.
-                    * **Near 0:** No linear relationship between the features.
-                    
-                    **💡 Why it matters:** If two features are almost perfectly correlated (near 1.0), they provide the same information. This helps in **feature selection** for your machine learning model.
-                """)
-        
-            corr_matrix = df[features_row1 + features_row2].corr()
-            
-            fig = px.imshow(
-                corr_matrix,
-                text_auto='.2f',
-                aspect="auto",
-                color_continuous_scale="RdBu_r",
-                labels=dict(color="Correlation")
-            )
-            fig.update_layout(height=500)
-            st.plotly_chart(fig, use_container_width=True)    
 
 
 def show_prediction():
