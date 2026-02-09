@@ -408,7 +408,9 @@ def show_trend():
         avg_samples = len(df) / df["label"].nunique()
         st.metric("📈 Avg Samples/Crop", f"{avg_samples:.0f}")
 
-        # --- Advanced Data Insights Section ---
+    # ----------------------------
+    # Data Insights Section 
+    # ----------------------------
     with st.expander("📊 **About the Dataset**"):
         st.markdown("Explore the underlying relationships and requirements across all crop types.")
         
@@ -464,10 +466,7 @@ def show_trend():
         fig_corr.update_layout(height=500, margin=dict(l=20, r=20, t=30, b=20))
         st.plotly_chart(fig_corr, use_container_width=True)
 
-    
-    # col_select, col_info = st.columns([2, 1])
-    
-    # with col_select:
+
     selected_crop = st.selectbox(
             "Select Crop to Analyze", 
             sorted(df["label"].unique()),
@@ -476,10 +475,7 @@ def show_trend():
     
     crop_df = df[df["label"] == selected_crop]
     mean_values = crop_df[features_row1 + features_row2].mean().round(1)
-    # sample_count = crop_df.shape[0]
-    
-    # with col_info:
-    #     st.metric("📋 Avg Data Samples", f"{sample_count:,}")
+
     
     crop_emojis = {
         "rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿",
