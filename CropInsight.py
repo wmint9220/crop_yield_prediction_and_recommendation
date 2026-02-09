@@ -367,20 +367,7 @@ def show_login():
 
 
 def show_trend():
-    st.title("📊 Agricultural Data Trends")
-
-    col1, col2, col3, col4 = st.columns(4)
-            
-    with col1:
-        st.metric("🌾 Total Crops", df["label"].nunique())
-    with col2:
-        st.metric("📋 Total Samples", len(df))
-    with col3:
-        st.metric("📊 Features", len(features_row1 + features_row2))
-    with col4:
-        avg_samples = len(df) / df["label"].nunique()
-        st.metric("📈 Avg Samples/Crop", f"{avg_samples:.0f}")
-                  
+    st.title("📊 Agricultural Data Trends")           
     st.markdown("Welcome to the **Crop Insight**. This platform leverages historical soil and climate data to identify optimal growing conditions and crop alternatives.")
     st.info("💡 The dashboard analyzes the relationship between soil nutrients, environmental factors, and pH levels. It is designed to support data-driven decision-making for sustainable farming.")
     df = load_data()
@@ -465,7 +452,19 @@ def show_trend():
         fig_corr.update_layout(height=500, margin=dict(l=20, r=20, t=30, b=20))
         st.plotly_chart(fig_corr, use_container_width=True)
 
+    col1, col2, col3, col4 = st.columns(4)
+            
+    with col1:
+        st.metric("🌾 Total Crops", df["label"].nunique())
+    with col2:
+        st.metric("📋 Total Samples", len(df))
+    with col3:
+        st.metric("📊 Features", len(features_row1 + features_row2))
+    with col4:
+        avg_samples = len(df) / df["label"].nunique()
+        st.metric("📈 Avg Samples/Crop", f"{avg_samples:.0f}")
 
+    
     selected_crop = st.selectbox(
             "Select Crop to Analyze", 
             sorted(df["label"].unique()),
