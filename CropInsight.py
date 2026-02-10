@@ -922,13 +922,6 @@ def show_prediction():
         return
     if stage2_model is None:
         st.warning("⚠️ Stage 2 model not loaded. You can still get crop recommendation.")
-    
-    # m1, m2 = st.columns(2)
-    # with m1:
-    #     st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
-    # with m2:
-    #     st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
-
 
     with st.expander("📖 **How to Use This System?**"):
         m1, m2 = st.columns(2)
@@ -948,7 +941,7 @@ def show_prediction():
         
         st.divider()
         
-        st.markdown("### 📈 Stage 2: Yield Prediction (The Big Three)")
+        st.markdown("### 📈 Stage 2: Yield Prediction (Regression)")
         st.write("""
             If the AI recommends **Rice, Maize, or Cotton**, you can unlock **Stage 2**. 
             - **Model:** XGBoost Regressor
