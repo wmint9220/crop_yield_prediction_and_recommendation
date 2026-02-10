@@ -854,39 +854,33 @@ def show_prediction():
     # with m2:
     #     st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
 
-        # Create a layout with the metric and the explanation
-    col_metric, col_text = st.columns([1, 2])
-    
-    with col_metric:
-        st.metric(
-            label="Stage 1: Crop Recommendation", 
-            value="99.5%", 
-            delta="Accuracy",
-            help="This indicates how often the model correctly identified the ideal crop in historical testing."
-        )
-    
-    with col_text:
-        st.markdown("#### 🤖 How the Intelligence Works")
-        st.write(
-            "Our **Random Forest Classifier** doesn't just look at numbers; "
-            "it looks for the biological 'sweet spot' where soil chemistry "
-            "and climate conditions perfectly overlap for 22 different crop varieties."
-        )
-    
-    # The Deep-Dive Expander
-    with st.expander("🔬 Technical Deep-Dive: Random Forest Logic"):
-        st.markdown("""
-        **What is a Random Forest?** Instead of one single "opinion," this model is an **Ensemble**. It consults hundreds of individual 'Decision Trees' that have each studied different parts of agricultural data. 
-        
-        1. **Voting System:** Each tree makes a prediction (e.g., 'Rice' or 'Maize').
-        2. **Consensus:** The final result is the crop that receives the majority of 'votes.'
-        3. **Synergy Detection:** It understands that **Nitrogen** is only useful if the **pH** allows the plant to absorb it.
+
+    with st.expander("📖 **How to Use This System: A 2-Step Journey**"):
+        m1, m2 = st.columns(2)
+        with m1:
+            st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
+        with m2:
+            st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
+            
+        st.markdown("### 🧬 Step 1: The Recommendation (22 Crops)")
+        st.write("""
+        Our **Stage 1 Intelligence** analyzes your soil and climate to pick the best crop for your land. 
+        It can identify the perfect environment for **22 different crops**, including fruits, grains, 
+        and legumes.
         """)
         
+        st.divider()
         
+        st.markdown("### 📈 Step 2: Advanced Yield Prediction (The Big Three)")
+        st.write("""
+        If the AI recommends **Rice, Maize, or Cotton**, you can unlock **Stage 2**. 
         
-        st.warning("⚠️ **Decision Support Note:** Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
-            
+        Because these three crops are vital for global industry, we use a specialized **XGBoost Regressor** to predict exactly how many tons per hectare ($t/ha$) you will harvest based on your 
+        farming inputs (Irrigation, Fertilizer, and Pesticides).
+        """)
+        
+
+    
     with st.form("prediction_form"):
         st.subheader("📝 Farm Environment Profile")
         col1, col2 = st.columns(2)
