@@ -783,6 +783,30 @@ def show_trend():
         # ----------------------------
         # CENTRAL TENDENCY SELECTION
         # ----------------------------
+        st.subheader("📅 **Growing Insights**"):
+        st.markdown(f"""
+                These ranges show the **minimum and maximum** values observed in the dataset for **{selected_crop}**. 
+                They represent the tolerance limits of this crop.
+        """)
+        
+        col1, col2 = st.columns(2)
+            with col1:
+                st.markdown(f"""
+                    **🌡️ Temperature Range:** {crop_df['temperature'].min():.1f}°C - {crop_df['temperature'].max():.1f}°C
+                    
+                    **💧 Humidity Range:** {crop_df['humidity'].min():.1f}% - {crop_df['humidity'].max():.1f}%
+                """)
+                
+            with col2:
+                st.markdown(f"""
+                    **🌧️ Rainfall Range:** {crop_df['rainfall'].min():.1f}mm - {crop_df['rainfall'].max():.1f}mm
+                    
+                    **⚗️ pH Range:** {crop_df['ph'].min():.1f} - {crop_df['ph'].max():.1f}
+                """)
+
+        st.markdown("---")
+
+        
         st.markdown("### 📊 Statistical Measure Selection")
         
         col_radio, col_expander = st.columns([1, 2])
