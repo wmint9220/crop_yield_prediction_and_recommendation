@@ -854,20 +854,39 @@ def show_prediction():
     # with m2:
     #     st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
 
-    st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
-
-    with st.expander("❓ Inside the Intelligent Prediction Engine"):
-        st.write("""
-        **Intelligent Prediction** means the system has learned the 'Biological Fingerprint' of 22 different crops. 
+        # Create a layout with the metric and the explanation
+    col_metric, col_text = st.columns([1, 2])
+    
+    with col_metric:
+        st.metric(
+            label="Stage 1: Crop Recommendation", 
+            value="99.5%", 
+            delta="Accuracy",
+            help="This indicates how often the model correctly identified the ideal crop in historical testing."
+        )
+    
+    with col_text:
+        st.markdown("#### 🤖 How the Intelligence Works")
+        st.write(
+            "Our **Random Forest Classifier** doesn't just look at numbers; "
+            "it looks for the biological 'sweet spot' where soil chemistry "
+            "and climate conditions perfectly overlap for 22 different crop varieties."
+        )
+    
+    # The Deep-Dive Expander
+    with st.expander("🔬 Technical Deep-Dive: Random Forest Logic"):
+        st.markdown("""
+        **What is a Random Forest?** Instead of one single "opinion," this model is an **Ensemble**. It consults hundreds of individual 'Decision Trees' that have each studied different parts of agricultural data. 
         
-        Instead of simple rules, it uses an **Ensemble Learning** approach:
-        1. **Data Correlation:** It analyzes the synergy between N, P, K, and pH.
-        2. **Probability Mapping:** It runs your data through 100+ 'Decision Trees' simultaneously.
-        3. **Consensus:** The final recommendation is the crop that the majority of these 'Trees' agree is the perfect fit for your specific environment.
+        1. **Voting System:** Each tree makes a prediction (e.g., 'Rice' or 'Maize').
+        2. **Consensus:** The final result is the crop that receives the majority of 'votes.'
+        3. **Synergy Detection:** It understands that **Nitrogen** is only useful if the **pH** allows the plant to absorb it.
         """)
-        st.info("🎯 **Result:** A recommendation that maximizes your success rate by minimizing the risk of nutrient-environment mismatch.")
-
         
+        
+        
+        st.warning("⚠️ **Decision Support Note:** Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
+            
     with st.form("prediction_form"):
         st.subheader("📝 Farm Environment Profile")
         col1, col2 = st.columns(2)
