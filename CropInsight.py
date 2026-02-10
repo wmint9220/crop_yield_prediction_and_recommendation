@@ -366,6 +366,287 @@ def show_login():
             st.error("❌ Invalid credentials")
 
 
+# def show_trend():
+#     st.title("📊 Agricultural Data Trends")           
+#     st.markdown("Welcome to the **Crop Insight**. This platform leverages historical soil and climate data to identify optimal growing conditions and crop alternatives.")
+#     st.info("💡 The dashboard analyzes the relationship between soil nutrients, environmental factors, and pH levels. It is designed to support data-driven decision-making for sustainable farming.")
+#     df = load_data()
+#     if df is None:
+#         st.warning("⚠️ Data source file ('Crop_recommendation.csv') is missing.")
+#         return
+
+#     # ----------------------------
+#     # Features, max values, units, colors
+#     # ----------------------------
+#     features_row1 = ["N", "P", "K"]
+#     features_row2 = ["ph", "temperature", "humidity", "rainfall"]
+    
+#     feature_max = {"N":150,"P":150,"K":200,"ph":14,"temperature":50,"humidity":100,"rainfall":300}
+#     feature_units = {"N":"","P":"","K":"","ph":"","temperature":"°C","humidity":"%","rainfall":"mm"}
+#     feature_names = {
+#         "N": "Nitrogen", "P": "Phosphorus", "K": "Potassium",
+#         "ph": "pH Level", "temperature": "Temperature", 
+#         "humidity": "Humidity", "rainfall": "Rainfall"
+#     }
+    
+#     colors_row1 = ["#2ca02c","#ff7f0e","#1f77b4"]
+#     colors_row2 = ["#9467bd","#d62728","#8c564b","#e377c2"]
+
+
+
+#     # ----------------------------
+#     # Data Insights Section 
+#     # ----------------------------
+#     with st.expander("📊 **About the Dataset**"):
+#         st.markdown("Explore the underlying relationships and requirements across all crop types.")
+        
+#         # --- 1. FEATURE HEATMAP ---
+#         st.subheader("🔥 Feature Heatmap Across All Crops")
+#         st.markdown("""
+#                     **What this shows:** This heatmap compares the **average requirements** of every crop side-by-side.
+                    
+#                     * **Vertical Axis:** The features (N, P, K, Temp, etc.).
+#                     * **Horizontal Axis:** The different crop types.
+#                     * **Colors:** 🟩 **Green** indicates high values, while 🟥 **Red** indicates low values.
+                    
+#                     **💡 Pro-Tip:** Use this to find "extreme" crops. For example, you can quickly spot which crops need the most rainfall or the highest Nitrogen levels compared to all others.
+#         """)
+        
+#         # Create pivot table
+#         heatmap_data = df.groupby("label")[features_row1 + features_row2].mean()
+        
+#         fig_heat = px.imshow(
+#             heatmap_data.T,
+#             labels=dict(x="Crop", y="Feature", color="Value"),
+#             aspect="auto",
+#             # Use .T to put crops on the horizontal axis
+#             color_continuous_scale="RdYlGn"
+#         )
+#         fig_heat.update_layout(height=500, margin=dict(l=20, r=20, t=30, b=20))
+#         st.plotly_chart(fig_heat, use_container_width=True)
+        
+#         st.divider() # Visual break between charts
+    
+#         # --- 2. CORRELATION MATRIX ---
+#         st.subheader("🔗 Feature Correlations")
+#         st.markdown("""
+#                     **What this shows:** This matrix measures the **strength of the relationship** between two variables.
+                    
+#                     * **Scale:** Values range from **+1.0 to -1.0**.
+#                     * **Positive (+):** As one feature increases, the other tends to increase (e.g., Phosphorus and Potassium often have high positive correlation).
+#                     * **Negative (-):** As one increases, the other decreases.
+#                     * **Near 0:** No linear relationship between the features.
+                    
+#                     **💡 Why it matters:** If two features are almost perfectly correlated (near 1.0), they provide the same information. This helps in **feature selection** for your machine learning model.
+#         """)
+        
+#         corr_matrix = df[features_row1 + features_row2].corr()
+        
+#         fig_corr = px.imshow(
+#             corr_matrix,
+#             text_auto='.2f',
+#             aspect="auto",
+#             color_continuous_scale="RdBu_r",
+#             labels=dict(color="Correlation")
+#         )
+#         fig_corr.update_layout(height=500, margin=dict(l=20, r=20, t=30, b=20))
+#         st.plotly_chart(fig_corr, use_container_width=True)
+
+#     col1, col2, col3, col4 = st.columns(4)
+            
+#     with col1:
+#         st.metric("🌾 Total Crops", df["label"].nunique())
+#     with col2:
+#         st.metric("📋 Total Samples", len(df))
+#     with col3:
+#         st.metric("📊 Features", len(features_row1 + features_row2))
+#     with col4:
+#         avg_samples = len(df) / df["label"].nunique()
+#         st.metric("📈 Avg Samples/Crop", f"{avg_samples:.0f}")
+
+    
+#     selected_crop = st.selectbox(
+#             "Select Crop to Analyze", 
+#             sorted(df["label"].unique()),
+#             help="Choose a crop to view its optimal growing conditions"
+#     )
+    
+#     crop_df = df[df["label"] == selected_crop]
+#     mean_values = crop_df[features_row1 + features_row2].mean().round(1)
+
+    
+#     crop_emojis = {
+#         "rice":"🌾", "wheat":"🌾", "maize":"🌽", "jute":"🌿",
+#         "cotton":"☁️", "coconut":"🥥", "papaya":"🍈", "orange":"🍊",
+#         "apple":"🍎", "muskmelon":"🍈", "watermelon":"🍉", "grapes":"🍇",
+#         "mango":"🥭", "banana":"🍌", "pomegranate":"💎", "lentil":"🫘",
+#         "blackgram":"⚫", "mungbean":"🟢", "mothbeans":"🫘", "pigeonpeas":"🫘",
+#         "kidneybeans":"🫘", "chickpea":"🫘", "coffee":"☕"
+#     }
+#     emoji = crop_emojis.get(selected_crop.lower(), "🌱")
+    
+#     st.markdown(f"""
+#         <div style='background: linear-gradient(135deg, #4B371C 0%, #3C280D 100%); 
+#                     padding: 25px; border-radius: 15px; color: white; margin: 20px 0;
+#                     box-shadow: 0 8px 16px rgba(0,0,0,0.1);'>
+#             <h2 style='margin: 0; color: white;'>{emoji} {selected_crop.upper()}</h2>
+#             <p style='margin: 10px 0 0 0; opacity: 0.9;'>Optimal growing conditions profile</p>
+#         </div>
+#     """, unsafe_allow_html=True)
+    
+#     # ----------------------------
+#     # TABS: Overview and Comparison
+#     # ----------------------------
+#     tab1, tab2  = st.tabs(["📊 Crop Overview", "🔬 Crop Comparison"])
+
+#     with tab1:
+#         with st.expander("📅 **Growing Insights**", expanded=False):
+#             # This text stays inside the expander but above the columns
+#             st.markdown(f"""
+#                 These ranges show the **minimum and maximum** values observed in the dataset for **{selected_crop}**. 
+#                 They represent the tolerance limits of this crop.
+#             """)
+            
+#             # Create the two columns inside the expander
+#             col1, col2 = st.columns(2)
+            
+#             with col1:
+#                 st.markdown(f"""
+#                     **🌡️ Temperature Range:** {crop_df['temperature'].min():.1f}°C - {crop_df['temperature'].max():.1f}°C
+                    
+#                     **💧 Humidity Range:** {crop_df['humidity'].min():.1f}% - {crop_df['humidity'].max():.1f}%
+#                 """)
+                
+#             with col2:
+#                 st.markdown(f"""
+#                     **🌧️ Rainfall Range:** {crop_df['rainfall'].min():.1f}mm - {crop_df['rainfall'].max():.1f}mm
+                    
+#                     **⚗️ pH Range:** {crop_df['ph'].min():.1f} - {crop_df['ph'].max():.1f}
+#                 """)
+#         # ----------------------------
+#         # Row 1: N, P, K
+#         # ----------------------------
+#         st.subheader("🌱 Soil Nutrients (NPK)")
+        
+#         cols1 = st.columns(len(features_row1), gap="medium")
+#         for i, f in enumerate(features_row1):
+#             with cols1[i]:
+#                 st.markdown(
+#                     f"<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);'>",
+#                     unsafe_allow_html=True
+#                 )
+#                 fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row1[i], feature_units[f])
+#                 st.plotly_chart(fig, use_container_width=True)
+#                 st.markdown(
+#                     f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+#                     unsafe_allow_html=True
+#                 )
+                
+#                 # Add interpretation
+#                 percentage = (mean_values[f] / feature_max[f]) * 100
+#                 if percentage < 30:
+#                     status = "🔵 Low"
+#                 elif percentage < 60:
+#                     status = "🟢 Moderate"
+#                 else:
+#                     status = "🟠 High"
+                
+#                 st.markdown(
+#                     f"<p style='text-align:center;color:#666;font-size:12px;margin-top:-10px;'>{status}</p>",
+#                     unsafe_allow_html=True
+#                 )
+#                 st.markdown("</div>", unsafe_allow_html=True)
+
+#         # ----------------------------
+#         # Row 2: pH, Temperature, Humidity, Rainfall
+#         # ----------------------------
+#         st.subheader("🌤️ Climate & Soil Conditions")
+        
+#         cols2 = st.columns(len(features_row2), gap="medium")
+#         for i, f in enumerate(features_row2):
+#             with cols2[i]:
+#                 st.markdown(
+#                     f"<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);'>",
+#                     unsafe_allow_html=True
+#                 )
+#                 fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
+#                 st.plotly_chart(fig, use_container_width=True)
+#                 st.markdown(
+#                     f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+#                     unsafe_allow_html=True
+#                 )
+                
+#                 # Add interpretation for each parameter
+#                 if f == "ph":
+#                     if mean_values[f] < 6:
+#                         status = "🔴 Acidic"
+#                     elif mean_values[f] <= 7.5:
+#                         status = "🟢 Neutral"
+#                     else:
+#                         status = "🔵 Alkaline"
+#                 elif f == "temperature":
+#                     if mean_values[f] < 20:
+#                         status = "❄️ Cool"
+#                     elif mean_values[f] <= 30:
+#                         status = "🌡️ Moderate"
+#                     else:
+#                         status = "🔥 Warm"
+#                 elif f == "humidity":
+#                     if mean_values[f] < 40:
+#                         status = "🏜️ Dry"
+#                     elif mean_values[f] <= 70:
+#                         status = "💧 Moderate"
+#                     else:
+#                         status = "💦 Humid"
+#                 else:  # rainfall
+#                     if mean_values[f] < 100:
+#                         status = "🌵 Low"
+#                     elif mean_values[f] <= 200:
+#                         status = "🌧️ Moderate"
+#                     else:
+#                         status = "⛈️ High"
+                
+#                 st.markdown(
+#                     f"<p style='text-align:center;color:#666;font-size:12px;margin-top:-10px;'>{status}</p>",
+#                     unsafe_allow_html=True
+#                 )
+#                 st.markdown("</div>", unsafe_allow_html=True)
+                
+#         st.markdown("---")
+#         st.subheader("📈 Distribution Analysis")
+           
+#         selected_param = st.selectbox(
+#                "View distribution for:",
+#                features_row1 + features_row2,
+#                format_func=lambda x: feature_names[x]
+#         )
+           
+#         fig = px.histogram(
+#                crop_df, 
+#                x=selected_param,
+#                nbins=30,
+#                title=f"{feature_names[selected_param]} Distribution for {selected_crop}",
+#                color_discrete_sequence=['#4B371C']
+#         )
+#         fig.add_vline(x=mean_values[selected_param], line_dash="dash", 
+#                          line_color="red", annotation_text="Mean")
+
+#         with st.expander("🔍 **Understanding this Distribution**"):
+#             st.markdown(f"""
+#             **What this chart shows:**
+#             This histogram displays how **{feature_names[selected_param]}** values are spread across all samples for **{selected_crop}**.
+        
+#             * **📊 Bars (Bins):** The height of each bar shows how many samples fall within that specific range.
+#             * **🔴 Red Dashed Line:** This is the **Mean (Average)**. It shows the typical requirement for this crop.
+            
+#             **How to use this information:**
+#             * **Narrow Cluster:** If the bars are tightly packed, the crop has very **strict** requirements. You must be precise with your inputs.
+#             * **Wide Spread:** If the bars are spread out, the crop is **resilient** and can tolerate a wider range of conditions.
+#             * **Gaps in Bars:** Large gaps might indicate that certain conditions are unsuitable for growth.
+#             """)
+        
+#         st.plotly_chart(fig, use_container_width=True)
+
 def show_trend():
     st.title("📊 Agricultural Data Trends")           
     st.markdown("Welcome to the **Crop Insight**. This platform leverages historical soil and climate data to identify optimal growing conditions and crop alternatives.")
@@ -472,7 +753,6 @@ def show_trend():
     )
     
     crop_df = df[df["label"] == selected_crop]
-    mean_values = crop_df[features_row1 + features_row2].mean().round(1)
 
     
     crop_emojis = {
@@ -500,6 +780,61 @@ def show_trend():
     tab1, tab2  = st.tabs(["📊 Crop Overview", "🔬 Crop Comparison"])
 
     with tab1:
+        # ----------------------------
+        # CENTRAL TENDENCY SELECTION
+        # ----------------------------
+        st.markdown("### 📊 Statistical Measure Selection")
+        
+        col_radio, col_expander = st.columns([1, 2])
+        
+        with col_radio:
+            central_tendency = st.radio(
+                "Choose calculation method:",
+                ("Mean", "Median"),
+                help="Select how to calculate central values for this crop"
+            )
+        
+        with col_expander:
+            with st.expander("ℹ️ **What's the difference?**"):
+                st.markdown("""
+                **Mean (Average)** 📊
+                - **What it is:** Sum of all values divided by the count
+                - **Best for:** Data without extreme outliers
+                - **Example:** If values are [10, 12, 11, 13, 10] → Mean = 11.2
+                
+                **Median (Middle Value)** 📍
+                - **What it is:** The middle value when data is sorted
+                - **Best for:** Data with outliers or skewed distributions
+                - **Example:** If values are [10, 12, 11, 13, 100] → Median = 12
+                
+                ---
+                
+                **🎯 When to use each:**
+                
+                | Situation | Recommended |
+                |-----------|-------------|
+                | Normal distribution | **Mean** |
+                | Data with outliers | **Median** |
+                | Extreme values present | **Median** |
+                | Symmetric data | **Mean** |
+                
+                **💡 Agricultural Context:**
+                - **Mean** shows the average requirement across all samples
+                - **Median** shows the typical middle-ground requirement, less affected by unusual farming conditions or measurement errors
+                
+                **Example:** If 99 farms use 50mm rainfall but 1 farm recorded 300mm (possibly an error), the **median** would be 50mm while the **mean** would be skewed higher.
+                """)
+        
+        st.markdown("---")
+        
+        # Calculate values based on selection
+        if central_tendency == "Mean":
+            calculated_values = crop_df[features_row1 + features_row2].mean().round(1)
+            metric_label = "Average"
+        else:  # Median
+            calculated_values = crop_df[features_row1 + features_row2].median().round(1)
+            metric_label = "Median"
+        
         with st.expander("📅 **Growing Insights**", expanded=False):
             # This text stays inside the expander but above the columns
             st.markdown(f"""
@@ -523,10 +858,11 @@ def show_trend():
                     
                     **⚗️ pH Range:** {crop_df['ph'].min():.1f} - {crop_df['ph'].max():.1f}
                 """)
+        
         # ----------------------------
         # Row 1: N, P, K
         # ----------------------------
-        st.subheader("🌱 Soil Nutrients (NPK)")
+        st.subheader(f"🌱 Soil Nutrients (NPK) - {metric_label} Values")
         
         cols1 = st.columns(len(features_row1), gap="medium")
         for i, f in enumerate(features_row1):
@@ -535,15 +871,15 @@ def show_trend():
                     f"<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);'>",
                     unsafe_allow_html=True
                 )
-                fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row1[i], feature_units[f])
+                fig = half_circle_gauge_card(calculated_values[f], feature_max[f], f, colors_row1[i], feature_units[f])
                 st.plotly_chart(fig, use_container_width=True)
                 st.markdown(
-                    f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+                    f"<p style='text-align:center;font-weight:bold;color:black;'>{calculated_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
                     unsafe_allow_html=True
                 )
                 
                 # Add interpretation
-                percentage = (mean_values[f] / feature_max[f]) * 100
+                percentage = (calculated_values[f] / feature_max[f]) * 100
                 if percentage < 30:
                     status = "🔵 Low"
                 elif percentage < 60:
@@ -560,7 +896,7 @@ def show_trend():
         # ----------------------------
         # Row 2: pH, Temperature, Humidity, Rainfall
         # ----------------------------
-        st.subheader("🌤️ Climate & Soil Conditions")
+        st.subheader(f"🌤️ Climate & Soil Conditions - {metric_label} Values")
         
         cols2 = st.columns(len(features_row2), gap="medium")
         for i, f in enumerate(features_row2):
@@ -569,39 +905,39 @@ def show_trend():
                     f"<div style='background-color:#CFE8C1; padding:15px; border-radius:18px; box-shadow: 0 4px 10px rgba(0,0,0,0.08);'>",
                     unsafe_allow_html=True
                 )
-                fig = half_circle_gauge_card(mean_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
+                fig = half_circle_gauge_card(calculated_values[f], feature_max[f], f, colors_row2[i], feature_units[f])
                 st.plotly_chart(fig, use_container_width=True)
                 st.markdown(
-                    f"<p style='text-align:center;font-weight:bold;color:black;'>{mean_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
+                    f"<p style='text-align:center;font-weight:bold;color:black;'>{calculated_values[f]}{feature_units[f]} / {feature_max[f]}{feature_units[f]}</p>",
                     unsafe_allow_html=True
                 )
                 
                 # Add interpretation for each parameter
                 if f == "ph":
-                    if mean_values[f] < 6:
+                    if calculated_values[f] < 6:
                         status = "🔴 Acidic"
-                    elif mean_values[f] <= 7.5:
+                    elif calculated_values[f] <= 7.5:
                         status = "🟢 Neutral"
                     else:
                         status = "🔵 Alkaline"
                 elif f == "temperature":
-                    if mean_values[f] < 20:
+                    if calculated_values[f] < 20:
                         status = "❄️ Cool"
-                    elif mean_values[f] <= 30:
+                    elif calculated_values[f] <= 30:
                         status = "🌡️ Moderate"
                     else:
                         status = "🔥 Warm"
                 elif f == "humidity":
-                    if mean_values[f] < 40:
+                    if calculated_values[f] < 40:
                         status = "🏜️ Dry"
-                    elif mean_values[f] <= 70:
+                    elif calculated_values[f] <= 70:
                         status = "💧 Moderate"
                     else:
                         status = "💦 Humid"
                 else:  # rainfall
-                    if mean_values[f] < 100:
+                    if calculated_values[f] < 100:
                         status = "🌵 Low"
-                    elif mean_values[f] <= 200:
+                    elif calculated_values[f] <= 200:
                         status = "🌧️ Moderate"
                     else:
                         status = "⛈️ High"
@@ -620,6 +956,10 @@ def show_trend():
                features_row1 + features_row2,
                format_func=lambda x: feature_names[x]
         )
+        
+        # Calculate both mean and median for the selected parameter
+        param_mean = crop_df[selected_param].mean()
+        param_median = crop_df[selected_param].median()
            
         fig = px.histogram(
                crop_df, 
@@ -628,8 +968,12 @@ def show_trend():
                title=f"{feature_names[selected_param]} Distribution for {selected_crop}",
                color_discrete_sequence=['#4B371C']
         )
-        fig.add_vline(x=mean_values[selected_param], line_dash="dash", 
-                         line_color="red", annotation_text="Mean")
+        
+        # Add both mean and median lines
+        fig.add_vline(x=param_mean, line_dash="dash", 
+                     line_color="red", annotation_text=f"Mean: {param_mean:.1f}")
+        fig.add_vline(x=param_median, line_dash="dot", 
+                     line_color="blue", annotation_text=f"Median: {param_median:.1f}")
 
         with st.expander("🔍 **Understanding this Distribution**"):
             st.markdown(f"""
@@ -637,7 +981,14 @@ def show_trend():
             This histogram displays how **{feature_names[selected_param]}** values are spread across all samples for **{selected_crop}**.
         
             * **📊 Bars (Bins):** The height of each bar shows how many samples fall within that specific range.
-            * **🔴 Red Dashed Line:** This is the **Mean (Average)**. It shows the typical requirement for this crop.
+            * **🔴 Red Dashed Line:** This is the **Mean (Average)** = {param_mean:.1f}{feature_units[selected_param]}
+            * **🔵 Blue Dotted Line:** This is the **Median (Middle Value)** = {param_median:.1f}{feature_units[selected_param]}
+            
+            **How to interpret the lines:**
+            * **Lines close together:** Data is symmetrically distributed, both measures are reliable
+            * **Lines far apart:** Data has outliers or is skewed, median is more reliable
+            * **Mean > Median:** Data is skewed right (has high outliers)
+            * **Mean < Median:** Data is skewed left (has low outliers)
             
             **How to use this information:**
             * **Narrow Cluster:** If the bars are tightly packed, the crop has very **strict** requirements. You must be precise with your inputs.
