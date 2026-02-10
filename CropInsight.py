@@ -930,29 +930,32 @@ def show_prediction():
     #     st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
 
 
-    with st.expander("📖 **How to Use This System: A 2-Step Journey**"):
+    with st.expander("📖 **How to Use This System?**"):
         m1, m2 = st.columns(2)
         with m1:
             st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
         with m2:
             st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
             
-        st.markdown("### 🧬 Step 1: The Recommendation (22 Crops)")
+        st.markdown("### 🧬 Stage 1: Crop Recommendation (Classification)")
         st.write("""
-        Our **Stage 1 Intelligence** analyzes your soil and climate to pick the best crop for your land. 
-        It can identify the perfect environment for **22 different crops**, including fruits, grains, 
-        and legumes.
+            - **Model:** Random Forest Classifier
+            - **Accuracy:** 0.995 
+            - **Insights:** This model excels at identifying the biological 'sweet spot' for 22 different crop varieties based on soil and climate input.
         """)
+        st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
+      
         
         st.divider()
         
-        st.markdown("### 📈 Step 2: Advanced Yield Prediction (The Big Three)")
+        st.markdown("### 📈 Stage 2: Yield Prediction (The Big Three)")
         st.write("""
-        If the AI recommends **Rice, Maize, or Cotton**, you can unlock **Stage 2**. 
-        
-        Because these three crops are vital for global industry, we use a specialized **XGBoost Regressor** to predict exactly how many tons per hectare ($t/ha$) you will harvest based on your 
-        farming inputs (Irrigation, Fertilizer, and Pesticides).
+            If the AI recommends **Rice, Maize, or Cotton**, you can unlock **Stage 2**. 
+            - **Model:** XGBoost Regressor
+            - **R-Squared:** 0.723 
+            - **Insights:** Predicting yield is complex due to external variables. An $R^2$ of 0.723 indicates the model explains 72% of the variance in crop tonnage.
         """)
+        st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
         
 
     
@@ -1254,16 +1257,6 @@ def show_prediction():
             )
             
             if st.session_state.stage2_choice == "Yes":
-                # Show Stage 2 Model Performance
-                with st.expander("🧠 **Stage 2 Model Performance** "):
-                    st.markdown("**Stage 2: Regression**")
-                    st.markdown(f"""
-                    - **Model:** XGBoost Regressor
-                    - **R-Squared:** 0.723 
-                    - **Insights:** Predicting yield is complex due to external variables. An $R^2$ of 0.723 indicates the model explains 72% of the variance in crop tonnage.
-                    """)
-                    st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
-                
                 with st.form("stage2_form"):
                     st.subheader("📋 Additional Farm Parameters")
                     st.caption("💡 Reused from Stage 1: N={}, P={}, K={}, pH={}, Temp={}°C, Humidity={}%, Rainfall={}mm".format(
