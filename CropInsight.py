@@ -848,15 +848,29 @@ def show_prediction():
     if stage2_model is None:
         st.warning("⚠️ Stage 2 model not loaded. You can still get crop recommendation.")
     
-    m1, m2 = st.columns(2)
-    with m1:
-        st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
-    with m2:
-        st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
-   
-    with st.form("prediction_form"):
-        st.subheader("📝 Farm Environment Profile")
-        col1, col2 = st.columns(2)
+    # m1, m2 = st.columns(2)
+    # with m1:
+    #     st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
+    # with m2:
+    #     st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
+
+    st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
+
+    with st.expander("❓ Inside the Intelligent Prediction Engine"):
+        st.write("""
+        **Intelligent Prediction** means the system has learned the 'Biological Fingerprint' of 22 different crops. 
+        
+        Instead of simple rules, it uses an **Ensemble Learning** approach:
+        1. **Data Correlation:** It analyzes the synergy between N, P, K, and pH.
+        2. **Probability Mapping:** It runs your data through 100+ 'Decision Trees' simultaneously.
+        3. **Consensus:** The final recommendation is the crop that the majority of these 'Trees' agree is the perfect fit for your specific environment.
+        """)
+        st.info("🎯 **Result:** A recommendation that maximizes your success rate by minimizing the risk of nutrient-environment mismatch.")
+
+        
+        with st.form("prediction_form"):
+            st.subheader("📝 Farm Environment Profile")
+            col1, col2 = st.columns(2)
         
         with col1:
             st.markdown("##### **Soil Chemical Properties**")
