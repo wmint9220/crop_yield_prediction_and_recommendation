@@ -993,6 +993,7 @@ def show_trend():
         
         st.plotly_chart(fig, use_container_width=True)
 
+    
     with tab2:
         st.markdown(f"### Compare **{selected_crop.upper()}** {emoji} with Other Crops")
         st.info("Select up to 3 crops to compare their optimal growing conditions side-by-side.")
@@ -1005,14 +1006,17 @@ def show_trend():
         )
         
         if compare_crops:
-            # Build comparison data
+            # Build comparison data (using calculated_values from tab1)
             comparison_data = {"Crop": [selected_crop] + compare_crops}
             
             for feature in features_row1 + features_row2:
-                comparison_data[feature_names[feature]] = [mean_values[feature]]
+                comparison_data[feature_names[feature]] = [calculated_values[feature]]
                 for crop in compare_crops:
-                    crop_mean = df[df["label"] == crop][feature].mean()
-                    comparison_data[feature_names[feature]].append(round(crop_mean, 1))
+                    if central_tendency == "Mean":
+                        crop_value = df[df["label"] == crop][feature].mean()
+                    else:  # Median
+                        crop_value = df[df["label"] == crop][feature].median()
+                    comparison_data[feature_names[feature]].append(round(crop_value, 1))
             
             comp_df = pd.DataFrame(comparison_data)
             
@@ -1108,7 +1112,7 @@ def show_trend():
                     title="Normalized Multi-Parameter Comparison",
                     height=500
                 )
-                with st.expander("📊 **Understanding the Rader Chart**"):
+                with st.expander("📊 **Understanding the Radar Chart**"):
                     st.markdown("""
                             * This chart **normalizes** all values (0% to 100%) so you can compare temperature, pH, and nutrients on the same scale.
                             * **What to look for:** If the shapes of two crops overlap significantly, they share a similar "biological fingerprint" and likely grow well in the same regions.
@@ -1139,12 +1143,15 @@ def show_trend():
                     crop_emoji = crop_emojis.get(crop.lower(), "🌱")
                     st.markdown(f"**{crop_emoji} {crop.upper()} vs {selected_crop.upper()}**")
                     
-                    crop_data = df[df["label"] == crop][features_row1 + features_row2].mean()
+                    if central_tendency == "Mean":
+                        crop_data = df[df["label"] == crop][features_row1 + features_row2].mean()
+                    else:  # Median
+                        crop_data = df[df["label"] == crop][features_row1 + features_row2].median()
                     
                     differences = []
                     for feature in features_row1 + features_row2:
-                        diff = crop_data[feature] - mean_values[feature]
-                        pct_diff = (diff / mean_values[feature] * 100) if mean_values[feature] != 0 else 0
+                        diff = crop_data[feature] - calculated_values[feature]
+                        pct_diff = (diff / calculated_values[feature] * 100) if calculated_values[feature] != 0 else 0
                         
                         if abs(pct_diff) > 20:  # Only show significant differences
                             if diff > 0:
@@ -1157,28 +1164,221 @@ def show_trend():
                             st.caption(diff)
                     else:
                         st.caption("Similar conditions")
+            
+            # Similarity Analysis
+            st.markdown("---")
+            st.markdown("#### 🎯 Similarity Analysis")
+           
+            for crop in compare_crops:
+               # Calculate similarity score
+               if central_tendency == "Mean":
+                   crop_data = df[df["label"] == crop][features_row1 + features_row2].mean()
+               else:  # Median
+                   crop_data = df[df["label"] == crop][features_row1 + features_row2].median()
+                   
+               differences = []
+               for feature in features_row1 + features_row2:
+                   diff = abs(crop_data[feature] - calculated_values[feature])
+                   max_val = feature_max[feature]
+                   norm_diff = (diff / max_val)
+                   differences.append(norm_diff)
+               
+               similarity = (1 - sum(differences) / len(differences)) * 100
+               
+               crop_emoji = crop_emojis.get(crop.lower(), "🌱")
+               st.progress(similarity / 100)
+               st.caption(f"{crop_emoji} **{crop}** is {similarity:.1f}% similar to **{selected_crop}**")
         
         else:
             st.warning("👆 Select at least one crop to start comparing!")
+
+
+    # with tab2:
+    #     st.markdown(f"### Compare **{selected_crop.upper()}** {emoji} with Other Crops")
+    #     st.info("Select up to 3 crops to compare their optimal growing conditions side-by-side.")
+        
+    #     compare_crops = st.multiselect(
+    #         "🌾 Select crops to compare with " + selected_crop,
+    #         [c for c in sorted(df["label"].unique()) if c != selected_crop],
+    #         max_selections=3,
+    #         help="Choose crops you want to compare"
+    #     )
+        
+    #     if compare_crops:
+    #         # Build comparison data
+    #         comparison_data = {"Crop": [selected_crop] + compare_crops}
             
-        if compare_crops:
-            st.markdown("#### 🎯 Similarity Analysis")
+    #         for feature in features_row1 + features_row2:
+    #             comparison_data[feature_names[feature]] = [mean_values[feature]]
+    #             for crop in compare_crops:
+    #                 crop_mean = df[df["label"] == crop][feature].mean()
+    #                 comparison_data[feature_names[feature]].append(round(crop_mean, 1))
+            
+    #         comp_df = pd.DataFrame(comparison_data)
+            
+    #         # Display comparison table
+    #         st.markdown("#### 📋 Comparison Table in Farm Environment Profile")
+    #         st.dataframe(
+    #             comp_df, 
+    #             use_container_width=True, 
+    #             hide_index=True,
+    #             column_config={
+    #                 "Crop": st.column_config.TextColumn("🌱 Crop", width="medium"),
+    #             }
+    #         )
+            
+    #         # Visualization section
+    #         st.markdown("---")
+    #         st.markdown("#### 🌡️ Farm Environment Visual Comparison")
+            
+    #         col_viz1, col_viz2 = st.columns([1, 2])
+            
+    #         with col_viz1:
+    #             selected_feature = st.selectbox(
+    #                 "Select parameter to visualize",
+    #                 [feature_names[f] for f in features_row1 + features_row2],
+    #                 help="Choose which parameter to compare visually"
+    #             )
+            
+    #         with col_viz2:
+    #             chart_type = st.radio(
+    #                 "Chart Type",
+    #                 ["Bar Chart", "Radar Chart"],
+    #                 horizontal=True
+    #             )
+            
+    #         if chart_type == "Bar Chart":
+    #             fig = px.bar(
+    #                 comp_df, 
+    #                 x="Crop", 
+    #                 y=selected_feature,
+    #                 title=f"{selected_feature} Comparison Across Crops",
+    #                 color="Crop",
+    #                 text=selected_feature,
+    #                 color_discrete_sequence=px.colors.qualitative.Set2
+    #             )
+    #             fig.update_traces(texttemplate='%{text}', textposition='outside')
+    #             fig.update_layout(
+    #                 showlegend=False, 
+    #                 height=450,
+    #                 xaxis_title="Crop",
+    #                 yaxis_title=selected_feature
+    #             )
+    #             with st.expander("📊 **Understanding the Bar Chart**"):
+    #                 st.markdown("""
+    #                     * This chart compares **Single Parameter Focus** requirements across the selected crops.
+    #                     * Use this to see exact numerical differences for a specific metric. 
+    #                     * It is the best way to determine which crop is the "most" or "least" demanding for a single nutrient.
+    #                 """)
+    #             st.plotly_chart(fig, use_container_width=True)
+            
+    #         else:  # Radar Chart
+    #             # Normalize values for radar chart
+    #             categories = [feature_names[f] for f in features_row1 + features_row2]
+                
+    #             fig = go.Figure()
+                
+    #             # Add trace for each crop
+    #             for idx, crop in enumerate([selected_crop] + compare_crops):
+    #                 crop_data = comp_df[comp_df["Crop"] == crop]
+    #                 values = []
+    #                 for feature in features_row1 + features_row2:
+    #                     val = crop_data[feature_names[feature]].values[0]
+    #                     max_val = feature_max[feature]
+    #                     normalized = (val / max_val)
+    #                     values.append(normalized)
+                    
+    #                 fig.add_trace(go.Scatterpolar(
+    #                     r=values,
+    #                     theta=categories,
+    #                     fill='toself',
+    #                     name=crop,
+    #                     line=dict(width=2)
+    #                 ))
+                
+    #             fig.update_layout(
+    #                 polar=dict(
+    #                     radialaxis=dict(
+    #                         visible=True,
+    #                         range=[0, 1],
+    #                         tickformat='.0%'
+    #                     )
+    #                 ),
+    #                 showlegend=True,
+    #                 title="Normalized Multi-Parameter Comparison",
+    #                 height=500
+    #             )
+    #             with st.expander("📊 **Understanding the Rader Chart**"):
+    #                 st.markdown("""
+    #                         * This chart **normalizes** all values (0% to 100%) so you can compare temperature, pH, and nutrients on the same scale.
+    #                         * **What to look for:** If the shapes of two crops overlap significantly, they share a similar "biological fingerprint" and likely grow well in the same regions.
+    #                 """)
+                
+    #             st.plotly_chart(fig, use_container_width=True)
+            
+    #         # Key differences section
+    #         st.markdown("---")
+    #         st.markdown("#### 🔍 Key Differences")
+    #         with st.expander("ℹ️ **How to interpret these differences**"):
+    #             st.markdown(f"""
+    #             This section highlights where the comparison crops **deviate significantly** from your primary choice, **{selected_crop.upper()}**.
+                
+    #             * **The 20% Rule:** We only display a difference if it is greater than **20%**. This filters out minor variations and focuses on the factors that truly change how you manage the field.
+    #             * **🔺 (Red Up):** Indicates the comparison crop requires **significantly more** of this resource. You may need higher fertilizer input or more frequent irrigation.
+    #             * **🔻 (Red Down):** Indicates the comparison crop requires **significantly less**. This could represent a more cost-effective or "hardy" alternative for your specific soil.
+                
+    #             **Why this matters:** If you see a **+80% Nitrogen** difference, switching to that crop would require a complete overhaul of your fertilization schedule.
+    #             """)
+                
+    #             # Optional: Display the formula for technical clarity
+    #             st.latex(r"Percentage\ Change = \frac{Comparison\ Mean - Selected\ Mean}{Selected\ Mean} \times 100")
+                
+    #         diff_cols = st.columns(len(compare_crops))
+    #         for idx, crop in enumerate(compare_crops):
+    #             with diff_cols[idx]:
+    #                 crop_emoji = crop_emojis.get(crop.lower(), "🌱")
+    #                 st.markdown(f"**{crop_emoji} {crop.upper()} vs {selected_crop.upper()}**")
+                    
+    #                 crop_data = df[df["label"] == crop][features_row1 + features_row2].mean()
+                    
+    #                 differences = []
+    #                 for feature in features_row1 + features_row2:
+    #                     diff = crop_data[feature] - mean_values[feature]
+    #                     pct_diff = (diff / mean_values[feature] * 100) if mean_values[feature] != 0 else 0
+                        
+    #                     if abs(pct_diff) > 20:  # Only show significant differences
+    #                         if diff > 0:
+    #                             differences.append(f"🔺 {feature_names[feature]}: +{pct_diff:.0f}%")
+    #                         else:
+    #                             differences.append(f"🔻 {feature_names[feature]}: {pct_diff:.0f}%")
+                    
+    #                 if differences:
+    #                     for diff in differences[:3]:  # Show top 3 differences
+    #                         st.caption(diff)
+    #                 else:
+    #                     st.caption("Similar conditions")
+        
+    #     else:
+    #         st.warning("👆 Select at least one crop to start comparing!")
+            
+    #     if compare_crops:
+    #         st.markdown("#### 🎯 Similarity Analysis")
        
-        for crop in compare_crops:
-           # Calculate similarity score
-           crop_data = df[df["label"] == crop][features_row1 + features_row2].mean()
-           differences = []
-           for feature in features_row1 + features_row2:
-               diff = abs(crop_data[feature] - mean_values[feature])
-               max_val = feature_max[feature]
-               norm_diff = (diff / max_val)
-               differences.append(norm_diff)
+    #     for crop in compare_crops:
+    #        # Calculate similarity score
+    #        crop_data = df[df["label"] == crop][features_row1 + features_row2].mean()
+    #        differences = []
+    #        for feature in features_row1 + features_row2:
+    #            diff = abs(crop_data[feature] - mean_values[feature])
+    #            max_val = feature_max[feature]
+    #            norm_diff = (diff / max_val)
+    #            differences.append(norm_diff)
            
-           similarity = (1 - sum(differences) / len(differences)) * 100
+    #        similarity = (1 - sum(differences) / len(differences)) * 100
            
-           crop_emoji = crop_emojis.get(crop.lower(), "🌱")
-           st.progress(similarity / 100)
-           st.caption(f"{crop_emoji} **{crop}** is {similarity:.1f}% similar to **{selected_crop}**")
+    #        crop_emoji = crop_emojis.get(crop.lower(), "🌱")
+    #        st.progress(similarity / 100)
+    #        st.caption(f"{crop_emoji} **{crop}** is {similarity:.1f}% similar to **{selected_crop}**")
                            
 
 
