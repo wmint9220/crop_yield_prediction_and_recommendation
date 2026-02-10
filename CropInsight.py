@@ -824,15 +824,13 @@ def show_trend():
             with st.expander("ℹ️ **What's the difference?**"):
                 st.markdown("""
                 **Mean (Average)** 📊
-                - **What it is:** Sum of all values divided by the count
+                - It shows the average requirement across all samples
                 - **Best for:** Data without extreme outliers
-                - **Example:** If values are [10, 12, 11, 13, 10] → Mean = 11.2
                 
                 **Median (Middle Value)** 📍
-                - **What it is:** The middle value when data is sorted
+                - It shows the typical middle-ground requirement, less affected by unusual farming conditions or measurement errors
                 - **Best for:** Data with outliers or skewed distributions
-                - **Example:** If values are [10, 12, 11, 13, 100] → Median = 12
-                
+            
                 ---
                 
                 **🎯 When to use each:**
@@ -844,14 +842,8 @@ def show_trend():
                 | Extreme values present | **Median** |
                 | Symmetric data | **Mean** |
                 
-                **💡 Agricultural Context:**
-                - **Mean** shows the average requirement across all samples
-                - **Median** shows the typical middle-ground requirement, less affected by unusual farming conditions or measurement errors
-                
-                **Example:** If 99 farms use 50mm rainfall but 1 farm recorded 300mm (possibly an error), the **median** would be 50mm while the **mean** would be skewed higher.
                 """)
         
-        st.markdown("---")
         
         # Calculate values based on selection
         if central_tendency == "Mean":
@@ -861,29 +853,6 @@ def show_trend():
             calculated_values = crop_df[features_row1 + features_row2].median().round(1)
             metric_label = "Median"
         
-        with st.expander("📅 **Growing Insights**", expanded=False):
-            # This text stays inside the expander but above the columns
-            st.markdown(f"""
-                These ranges show the **minimum and maximum** values observed in the dataset for **{selected_crop}**. 
-                They represent the tolerance limits of this crop.
-            """)
-            
-            # Create the two columns inside the expander
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.markdown(f"""
-                    **🌡️ Temperature Range:** {crop_df['temperature'].min():.1f}°C - {crop_df['temperature'].max():.1f}°C
-                    
-                    **💧 Humidity Range:** {crop_df['humidity'].min():.1f}% - {crop_df['humidity'].max():.1f}%
-                """)
-                
-            with col2:
-                st.markdown(f"""
-                    **🌧️ Rainfall Range:** {crop_df['rainfall'].min():.1f}mm - {crop_df['rainfall'].max():.1f}mm
-                    
-                    **⚗️ pH Range:** {crop_df['ph'].min():.1f} - {crop_df['ph'].max():.1f}
-                """)
         
         # ----------------------------
         # Row 1: N, P, K
