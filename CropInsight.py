@@ -980,16 +980,6 @@ def show_prediction():
         submit = st.form_submit_button("✨ Analyze & Recommend")
 
     if submit:
-        # Show Stage 1 Model Performance
-        with st.expander("🧠 **Stage 1 Model Performance** "):
-            st.markdown("**Stage 1: Classification**")
-            st.markdown("""
-            - **Model:** Random Forest Classifier
-            - **Accuracy:** 0.995 
-            - **Insights:** This model excels at identifying the biological 'sweet spot' for 22 different crop varieties based on soil and climate input.
-            """)
-            st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
-        
         # Stage 1: Crop Recommendation
         input_stage1 = np.array([[N, P, K, temp, hum, ph, rain]])
         crop_encoded = stage1_model.predict(input_stage1)[0]
