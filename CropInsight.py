@@ -784,7 +784,7 @@ def show_trend():
         # CENTRAL TENDENCY SELECTION
         # ----------------------------
      
-        st.markdown(f"### 📅 Growing Insights for **{selected_crop.title()}**")
+        st.markdown(f"### 📅 Growing Insights")
         with st.container():
             st.markdown(f"""
                 *These ranges show the **minimum and maximum** values observed in the dataset for **{selected_crop}**. 
@@ -794,18 +794,17 @@ def show_trend():
             
             with col1:
                 st.markdown(f"""
-                    <div style="background-color: #f0f2f6; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
-                        <strong>🌡️ Temperature Range:</strong> {crop_df['temperature'].min():.1f}°C - {crop_df['temperature'].max():.1f}°C<br><br>
-                        <strong>💧 Humidity Range:</strong> {crop_df['humidity'].min():.1f}% - {crop_df['humidity'].max():.1f}%
-                    </div>
-                """, unsafe_allow_html=True)
+                    **🌡️ Temperature Range:** {crop_df['temperature'].min():.1f}°C - {crop_df['temperature'].max():.1f}°C
+                    
+                    **💧 Humidity Range:** {crop_df['humidity'].min():.1f}% - {crop_df['humidity'].max():.1f}%
+                """)
+                
             with col2:
                 st.markdown(f"""
-                    <div style="background-color: #f0f2f6; padding: 15px; border-radius: 10px; margin-bottom: 10px;">
-                        <strong>🌧️ Rainfall Range:</strong> {crop_df['rainfall'].min():.1f}mm - {crop_df['rainfall'].max():.1f}mm<br><br>
-                        <strong>⚗️ pH Range:</strong> {crop_df['ph'].min():.1f} - {crop_df['ph'].max():.1f}
-                    </div>
-                """, unsafe_allow_html=True)
+                    **🌧️ Rainfall Range:** {crop_df['rainfall'].min():.1f}mm - {crop_df['rainfall'].max():.1f}mm
+    
+                    **⚗️ pH Range:** {crop_df['ph'].min():.1f} - {crop_df['ph'].max():.1f}
+                """)
 
         st.markdown("---")
 
