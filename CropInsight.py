@@ -868,9 +868,9 @@ def show_prediction():
         st.info("🎯 **Result:** A recommendation that maximizes your success rate by minimizing the risk of nutrient-environment mismatch.")
 
         
-        with st.form("prediction_form"):
-            st.subheader("📝 Farm Environment Profile")
-            col1, col2 = st.columns(2)
+    with st.form("prediction_form"):
+        st.subheader("📝 Farm Environment Profile")
+        col1, col2 = st.columns(2)
         
         with col1:
             st.markdown("##### **Soil Chemical Properties**")
