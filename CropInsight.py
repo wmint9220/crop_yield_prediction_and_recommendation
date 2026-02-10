@@ -253,7 +253,7 @@ def create_crop_prediction_pdf(
     
     # Parameter Match Analysis
     story.append(Paragraph("🎯 Parameter Match Analysis", subsection_header))
-    match_data = [['Parameter', 'Your Value', 'Frequently Used Value', 'Match %']]
+    match_data = [['Parameter', 'Your Value', 'Frequently Used', 'Match %']]
     
     for param_name, (user_val, opt_val, match_pct) in parameter_matches.items():
         match_data.append([param_name, f'{user_val:.1f}', f'{opt_val:.1f}', f'{match_pct:.1f}%'])
