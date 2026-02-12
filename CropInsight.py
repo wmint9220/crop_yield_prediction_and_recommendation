@@ -928,7 +928,7 @@ def show_prediction():
         with m1:
             st.metric(label="Stage 1: Crop Recommendation", value="99.5%", delta="Accuracy")
         with m2:
-            st.metric(label="Stage 2: Yield Prediction", value="0.723", delta="R² Score")
+            st.metric(label="Stage 2: Yield Prediction", value="72.3%", delta="Accuracy")
             
         st.markdown("### 🧬 Stage 1: Crop Recommendation (Classification)")
         st.write("""
@@ -945,7 +945,7 @@ def show_prediction():
         st.write("""
             If the AI recommends **Rice, Maize, or Cotton**, you can unlock **Stage 2**. 
             - **Model:** XGBoost Regressor
-            - **R-Squared:** 0.723 
+            - **R² Score:** 0.723 
             - **Insights:** Predicting yield is complex due to external variables. An $R^2$ of 0.723 indicates the model explains 72% of the variance in crop tonnage.
         """)
         st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
