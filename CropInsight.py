@@ -1124,7 +1124,6 @@ def show_trend():
         # ----------------------------
         st.subheader(f"🌱 Soil Nutrients (NPK) - {metric_label} Values")
 
-        # ── NEW: Soil Nutrient explanation expander ──────────────────────────
         with st.expander("📖 **What do the Soil Nutrient (NPK) levels mean?**"):
             st.markdown("""
             Nitrogen (N), Phosphorus (P), and Potassium (K) are the three primary macronutrients that determine soil fertility.
@@ -1166,7 +1165,6 @@ def show_trend():
             ---
             💡 **Pro-Tip:** NPK levels work together. A crop high in all three requires intensive, well-balanced fertilization. A crop low in all three is suitable for low-input or organic farming systems.
             """)
-        # ── END NEW expander ─────────────────────────────────────────────────
 
         cols1 = st.columns(len(features_row1), gap="medium")
         for i, f in enumerate(features_row1):
@@ -1202,7 +1200,6 @@ def show_trend():
         # ----------------------------
         st.subheader(f"🌤️ Climate & Soil Conditions - {metric_label} Values")
 
-        # ── NEW: Climate & Soil Conditions explanation expander ──────────────
         with st.expander("📖 **What do the Climate & Soil Condition levels mean?**"):
             st.markdown("""
             These four parameters describe the physical environment the crop grows in.
@@ -1215,9 +1212,9 @@ def show_trend():
 
             | Status | Value Range | What it means for your field |
             |--------|-------------|------------------------------|
-            | 🔴 Acidic | pH < 6.0 | Soil is acidic. Aluminum and Manganese may reach toxic levels. Nutrients like Phosphorus become unavailable. **Action:** Apply agricultural lime (calcium carbonate) to raise pH. |
-            | 🟢 Neutral | pH 6.0 – 7.5 | The "sweet spot" for most crops. Nutrient availability is at its peak and microbial activity is healthy. **Action:** Maintain current soil management practices. |
-            | 🔵 Alkaline | pH > 7.5 | Soil is alkaline. Iron, Zinc, and Manganese become less available, causing deficiency symptoms. **Action:** Apply sulfur or acidifying fertilizers (ammonium sulfate) to lower pH. |
+            | 🔴 Acidic | < 6.0 | Soil is acidic. Aluminum and Manganese may reach toxic levels. Nutrients like Phosphorus become unavailable. **Action:** Apply agricultural lime (calcium carbonate) to raise pH. |
+            | 🟢 Neutral | 6.0 – 7.5 | The "sweet spot" for most crops. Nutrient availability is at its peak and microbial activity is healthy. **Action:** Maintain current soil management practices. |
+            | 🔵 Alkaline | > 7.5 | Soil is alkaline. Iron, Zinc, and Manganese become less available, causing deficiency symptoms. **Action:** Apply sulfur or acidifying fertilizers (ammonium sulfate) to lower pH. |
 
             ---
 
