@@ -358,7 +358,7 @@ def show_login():
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
     if st.button("Login"):
-        if username == "admin" and password == "admin123":
+        if username == "user" and password == "user123":
             st.session_state.logged_in = True
             st.session_state.page = "trend"
             st.rerun()
@@ -1407,7 +1407,7 @@ def show_prediction():
 # =============================
 if st.session_state.logged_in:
     st.sidebar.title("🧭 Navigation")
-    st.sidebar.write(f"Logged in as: **Admin**")
+    st.sidebar.write(f"Logged in as: **User**")
     
     choice = st.sidebar.radio("Go to:", ["📊 Trend Visualization", "🌱 Crop Prediction"])
     
