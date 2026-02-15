@@ -566,7 +566,7 @@ def show_trend():
         # Calculate values based on selection
         if central_tendency == "Mean":
             calculated_values = crop_df[features_row1 + features_row2].mean().round(1)
-            metric_label = "Average"
+            metric_label = "Mean"
         else:  # Median
             calculated_values = crop_df[features_row1 + features_row2].median().round(1)
             metric_label = "Median"
