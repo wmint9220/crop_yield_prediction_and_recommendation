@@ -1131,7 +1131,7 @@ def show_trend():
 
             ---
 
-            #### 🟦 Nitrogen (N) — *The Growth Driver*
+            #### 🧪 Nitrogen (N) — *The Growth Driver*
             Nitrogen is responsible for leafy, green, vegetative growth.
 
             | Status | Value Range | What it means for your field |
@@ -1142,7 +1142,7 @@ def show_trend():
 
             ---
 
-            #### 🟦 Phosphorus (P) — *The Root & Flower Builder*
+            #### 🧫 Phosphorus (P) — *The Root & Flower Builder*
             Phosphorus promotes root development, flowering, and seed formation.
 
             | Status | Value Range | What it means for your field |
@@ -1153,14 +1153,14 @@ def show_trend():
 
             ---
 
-            #### 🟦 Potassium (K) — *The Quality & Stress Shield*
+            #### 💊 Potassium (K) — *The Quality & Stress Shield*
             Potassium improves fruit quality, disease resistance, and drought tolerance.
 
             | Status | Value Range | What it means for your field |
             |--------|-------------|------------------------------|
             | 🔵 Low | < 60 | Low K demand. The crop manages well with background soil potassium levels. |
             | 🟢 Moderate | 60 – 120 | Moderate need. A single basal application of MOP or SOP at planting is typically sufficient. |
-            | 🟠 High | > 120 | High demand, especially in fruit crops (banana, mango). Regular K top-dressing improves yield and fruit sweetness. |
+            | 🟠 High | > 120 | High demand, especially in fruit crops. Regular K top-dressing improves yield and fruit sweetness. |
 
             ---
             💡 **Pro-Tip:** NPK levels work together. A crop high in all three requires intensive, well-balanced fertilization. A crop low in all three is suitable for low-input or organic farming systems.
@@ -1204,9 +1204,7 @@ def show_trend():
             st.markdown("""
             These four parameters describe the physical environment the crop grows in.
             Together, they define the **microclimate and soil chemistry** your field must provide.
-
             ---
-
             #### ⚗️ pH Level — *Soil Acidity / Alkalinity*
             pH controls nutrient availability in the soil. Most nutrients are only accessible to plants within a specific pH window.
 
