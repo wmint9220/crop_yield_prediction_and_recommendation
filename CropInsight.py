@@ -671,7 +671,7 @@ def show_trend():
         # ----------------------------
         # Row 1: N, P, K — Gauges + Cards
         # ----------------------------
-        st.subheader(f"🌱 Soil Nutrients (NPK) — {metric_label} Values for {selected_crop.title()}")
+        st.subheader(f"🌱 Soil Nutrients (NPK) — {metric_label} Values")
 
         cols1 = st.columns(len(features_row1), gap="medium")
         for i, f in enumerate(features_row1):
@@ -751,7 +751,7 @@ def show_trend():
         # ----------------------------
         # Row 2: pH, Temperature, Humidity, Rainfall — Gauges + Cards
         # ----------------------------
-        st.subheader(f"🌤️ Climate & Soil Conditions — {metric_label} Values for {selected_crop.title()}")
+        st.subheader(f"🌤️ Climate & Soil Conditions — {metric_label} Values")
 
         cols2 = st.columns(len(features_row2), gap="medium")
         for i, f in enumerate(features_row2):
