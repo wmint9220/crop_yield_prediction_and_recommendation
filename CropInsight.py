@@ -1204,7 +1204,9 @@ def show_trend():
             st.markdown("""
             These four parameters describe the physical environment the crop grows in.
             Together, they define the **microclimate and soil chemistry** your field must provide.
+            
             ---
+            
             #### ⚗️ pH Level — *Soil Acidity / Alkalinity*
             pH controls nutrient availability in the soil. Most nutrients are only accessible to plants within a specific pH window.
 
