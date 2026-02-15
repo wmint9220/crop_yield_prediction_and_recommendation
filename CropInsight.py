@@ -1112,8 +1112,6 @@ def show_trend():
                 > 💡 **Tip:** Changing this selector only affects the Crop Comparison tab. The Crop Overview tab has its own independent selector.
                 """)
 
-        st.markdown("---")
-
         if central_tendency_tab2 == "Mean":
             calculated_values_tab2 = crop_df[features_row1 + features_row2].mean().round(1)
             metric_label_tab2 = "Mean"
@@ -1558,7 +1556,6 @@ def show_prediction():
         """, unsafe_allow_html=True)
 
         # ── PDF DOWNLOAD — STAGE 1 ────────────────────────────────────────────
-        st.markdown("---")
         try:
             pdf_filename = f"crop_report_{crop_name.lower()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
             pdf_buffer = create_crop_prediction_pdf(
@@ -1586,8 +1583,6 @@ def show_prediction():
         allowed_crops = ["rice", "maize", "cotton"]
         
         if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
-            st.markdown("---")
-
             if 'stage2_choice' not in st.session_state:
                 st.session_state.stage2_choice = "No"
 
@@ -1732,7 +1727,7 @@ def show_prediction():
                             </div>
                         """, unsafe_allow_html=True)
 
-                        # ── NEW: Yield breakdown explanation card ─────────────
+                        # ── Yield breakdown explanation card ─────────────
                         st.markdown(f"""
                             <div style='
                                 background-color:#f3f8ff;
@@ -1791,12 +1786,10 @@ def show_prediction():
                                 </div>
                             </div>
                         """, unsafe_allow_html=True)
-                        # ── END yield breakdown card ──────────────────────────
-
+                
                         st.balloons()
                         
                         # ── PDF DOWNLOAD — STAGE 2 ────────────────────────────
-                        st.markdown("---")
                         try:
                             pdf_filename_full = f"crop_report_full_{crop_name.lower()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
                             pdf_buffer_full = create_crop_prediction_pdf(
