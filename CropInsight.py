@@ -1556,6 +1556,7 @@ def show_prediction():
         """, unsafe_allow_html=True)
 
         # ── PDF DOWNLOAD — STAGE 1 ────────────────────────────────────────────
+        st.markdown("---")
         try:
             pdf_filename = f"crop_report_{crop_name.lower()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
             pdf_buffer = create_crop_prediction_pdf(
@@ -1790,6 +1791,7 @@ def show_prediction():
                         st.balloons()
                         
                         # ── PDF DOWNLOAD — STAGE 2 ────────────────────────────
+                        st.markdown("---")
                         try:
                             pdf_filename_full = f"crop_report_full_{crop_name.lower()}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pdf"
                             pdf_buffer_full = create_crop_prediction_pdf(
