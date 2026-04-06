@@ -26,19 +26,6 @@ You can access the deployed system using the link below:
 https://cropyieldpredictionandrecommendation-fyp.streamlit.app/
 
 
-## 📂 Project Structure
-
-```id="dfmxw6"
-CropInsight/
-│
-├── app.py
-├── models/
-├── data/
-├── requirements.txt
-└── README.md
-```
-
-
 ## How to Run the System (Local)
 
 ### Step 1: Clone Repository
