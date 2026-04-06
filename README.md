@@ -15,16 +15,6 @@ Crop Insight is a machine learning–based web application that recommends suita
 
 ---
 
-## 🧠 Technologies Used
-
-* Python
-* Streamlit
-* Scikit-learn
-* XGBoost
-* Pandas, NumPy, Matplotlib
-
----
-
 ## 📂 Project Structure
 
 ```
@@ -72,10 +62,8 @@ http://localhost:8501
 
 ## 🔐 Login Credentials
 
-(If applicable)
-
-* Username: admin
-* Password: admin123
+* Username: user
+* Password: user123
 
 ---
 
@@ -90,9 +78,3 @@ http://localhost:8501
 
 This system is developed for academic purposes. Predictions are based on historical data and should be used as decision support only.
 
----
-
-## 👨‍💻 Author
-
-* Your Name
-* Final Year Project
