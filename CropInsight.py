@@ -1286,14 +1286,26 @@ def show_prediction():
         with m2:
             st.metric(label="Stage 2: Yield Prediction", value="72.3%", delta="Accuracy")
             
+        st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")   
+        
         st.markdown("### 🧬 Stage 1: Crop Recommendation (Classification)")
+        st.markdown("### 🌱 Step 1: Enter Input Data")
         st.write("""
+            - Fill in the required soil and environmental parameters  
+            - Example: Nitrogen (N), Phosphorus (P), Potassium (K), temperature, humidity, pH, and rainfall  
+        """)
+    
+        st.markdown("### 🌾 Step 2: Get Crop Recommendation")
+        st.write("""
+            - Click the prediction button  
+            - The system will recommend the most suitable crop based on your input  
+        """)
+        st.caption("""
             - **Model:** Random Forest Classifier
             - **Accuracy:** 0.995 
             - **Insights:** This model excels at identifying the biological 'sweet spot' for 22 different crop varieties based on soil and climate input.
         """)
-        st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
-      
+        
         st.divider()
         
         st.markdown("### 📈 Stage 2: Yield Prediction (Regression)")
