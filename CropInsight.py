@@ -1287,8 +1287,15 @@ def show_prediction():
             st.metric(label="Stage 2: Yield Prediction", value="72.3%", delta="Accuracy")
             
         st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")   
+
+        st.divider()
         
         st.markdown("### 🧬 Stage 1: Crop Recommendation (Classification)")
+        st.caption("""
+            - **Model:** Random Forest Classifier
+            - **Accuracy:** 0.995 
+            - **Insights:** This model excels at identifying the biological 'sweet spot' for 22 different crop varieties based on soil and climate input.
+        """)
         st.markdown("### 🌱 Step 1: Enter Input Data")
         st.write("""
             - Fill in the required soil and environmental parameters  
@@ -1300,22 +1307,22 @@ def show_prediction():
             - Click the prediction button  
             - The system will recommend the most suitable crop based on your input  
         """)
-        st.caption("""
-            - **Model:** Random Forest Classifier
-            - **Accuracy:** 0.995 
-            - **Insights:** This model excels at identifying the biological 'sweet spot' for 22 different crop varieties based on soil and climate input.
-        """)
         
         st.divider()
         
         st.markdown("### 📈 Stage 2: Yield Prediction (Regression)")
-        st.write("""
+        st.caption("""
             If the AI recommends **Rice, Maize, or Cotton**, you can unlock **Stage 2**. 
             - **Model:** XGBoost Regressor
             - **R² Score:** 0.723 
             - **Insights:** Predicting yield is complex due to external variables. An $R^2$ of 0.723 indicates the model explains 72% of the variance in crop tonnage.
         """)
-        st.caption("⚠️ Note: Predictions are based on historical data patterns and should be used as a decision-support tool, not a guarantee of harvest.")
+            st.markdown("### 📊 Step 3: View Yield Prediction")
+            st.write("""
+                - Click **"Yes"** to proceed yield prediction
+                - Enter additional farming-related information if required  
+                - The system will estimate the expected crop yield  
+            """)
 
     with st.form("prediction_form"):
         st.subheader("📝 Farm Environment Profile")
