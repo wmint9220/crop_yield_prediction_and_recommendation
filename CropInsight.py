@@ -1286,12 +1286,12 @@ def show_prediction():
         with m2:
             st.metric(label="Stage 2: Yield Prediction", value="72.3%", delta="R² Score")
         st.caption("⚠️ Predictions are based on historical data and should be used as decision support, not a guarantee of results.")
-    
+
         st.markdown("---")
         st.markdown("### 🌱 Stage 1: Crop Recommendation")
-        st.caption("""
-        - Uses Random Forest model  
-        - Recommends the most suitable crop based on soil and environmental conditions  
+        st.markdown("""
+            - Uses Random Forest model  
+            - Recommends the most suitable crop based on soil and environmental conditions  
         """)
     
         st.markdown("**Step 1: Enter Input Data**")
@@ -1307,7 +1307,7 @@ def show_prediction():
         
         st.markdown("---")
         st.markdown("### 📊 Stage 2: Yield Prediction")
-        st.caption("""
+        st.markdown("""
         - Available for selected crops (Rice, Maize, Cotton)  
         - Uses XGBoost model to estimate crop yield  
         """)
