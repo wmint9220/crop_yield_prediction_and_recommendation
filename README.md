@@ -26,34 +26,6 @@ You can access the deployed system using the link below:
 https://cropyieldpredictionandrecommendation-fyp.streamlit.app/
 
 
-## How to Run the System (Local)
-
-### Step 1: Clone Repository
-
-```id="wq9bpx"
-git clone <your-github-link>
-cd CropInsight
-```
-
-### Step 2: Install Dependencies
-
-```id="oas5gh"
-pip install -r requirements.txt
-```
-
-### Step 3: Run Application
-
-```id="h6qxsg"
-streamlit run app.py
-```
-
-### Step 4: Open in Browser
-
-```id="f81xea"
-http://localhost:8501
-```
-
-
 ## Dataset
 
 * Public agricultural datasets from Kaggle
