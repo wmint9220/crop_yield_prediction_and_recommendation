@@ -1317,12 +1317,12 @@ def show_prediction():
             - **R² Score:** 0.723 
             - **Insights:** Predicting yield is complex due to external variables. An $R^2$ of 0.723 indicates the model explains 72% of the variance in crop tonnage.
         """)
-            st.markdown("### 📊 Step 3: View Yield Prediction")
-            st.write("""
-                - Click **"Yes"** to proceed yield prediction
-                - Enter additional farming-related information if required  
-                - The system will estimate the expected crop yield  
-            """)
+        st.markdown("### 📊 Step 3: View Yield Prediction")
+        st.write("""
+            - Click **"Yes"** to proceed yield prediction
+            - Enter additional farming-related information if required  
+            - The system will estimate the expected crop yield  
+        """)
 
     with st.form("prediction_form"):
         st.subheader("📝 Farm Environment Profile")
