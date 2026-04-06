@@ -265,7 +265,7 @@ def create_crop_prediction_pdf(
 
     story = []
     styles = getSampleStyleSheet()
-
+    
     # ------------------------------------------------------------------
     # Custom styles
     # ------------------------------------------------------------------
@@ -662,7 +662,6 @@ def create_crop_prediction_pdf(
                        textColor=HexColor('#666666'), alignment=TA_CENTER)
     ))
 
-    # Build PDF
     doc.build(story)
     buffer.seek(0)
     return buffer
@@ -1288,6 +1287,7 @@ def show_prediction():
         st.caption("⚠️ Predictions are based on historical data and should be used as decision support, not a guarantee of results.")
 
         st.markdown("---")
+        
         st.markdown("### 🌱 Stage 1: Crop Recommendation")
         st.markdown("""
             - Uses Random Forest model  
@@ -1296,32 +1296,33 @@ def show_prediction():
     
         st.markdown("**Step 1: Enter Input Data**")
         st.write("""
-        - Fill in soil and environmental details (N, P, K, temperature, humidity, pH, rainfall)  
+            - Fill in soil and environmental details (N, P, K, temperature, humidity, pH, rainfall)  
         """)
     
         st.markdown("**Step 2: Generate Recommendation**")
         st.write("""
-        - Click the prediction button  
-        - The system will suggest the most suitable crop  
+            - Click the prediction button  
+            - The system will suggest the most suitable crop  
         """)
         
         st.markdown("---")
+        
         st.markdown("### 📊 Stage 2: Yield Prediction")
         st.markdown("""
-        - Available for selected crops (Rice, Maize, Cotton)  
-        - Uses XGBoost model to estimate crop yield  
+            - Available for selected crops (Rice, Maize, Cotton)  
+            - Uses XGBoost model to estimate crop yield  
         """)
     
         st.markdown("**Step 3: Confirm & Proceed**")
         st.write("""
-        - Review the recommended crop  
-        - Click **\"Yes\"** to proceed  
+            - Review the recommended crop  
+            - Click **\"Yes\"** to proceed  
         """)
     
         st.markdown("**Step 4: View Yield Result**")
         st.write("""
-        - Enter additional farming details if required  
-        - The system will display the predicted crop yield  
+            - Enter additional farming details if required  
+            - The system will display the predicted crop yield  
         """)
 
     with st.form("prediction_form"):
@@ -1447,17 +1448,6 @@ def show_prediction():
         # ── MATCH SCORE SECTION ───────────────────────────────────────────────
         st.markdown("##### 🎯 Frequently Used Parameter Match Score")
 
-        # ── FIX: How the match % is calculated ───────────────────────────────
-        # Old method divided the difference by freq_val (the mode), which blows
-        # up when freq_val is small (e.g. mode=5, user=50 → 900% diff → 0%).
-        # New method divides by the parameter's full scale range instead, so
-        # the score always reflects how close the user value is on that scale.
-        #
-        #   match % = (1 - |user - mode| / scale_range) × 100
-        #
-        # Example: N range = 150, user=80, mode=60  →  |80-60|/150 = 13% off
-        #          → match = 87%   (sensible, not broken)
-        # ─────────────────────────────────────────────────────────────────────
         PARAM_RANGES = {
             "Nitrogen (N)":   150,
             "Phosphorus (P)": 150,
