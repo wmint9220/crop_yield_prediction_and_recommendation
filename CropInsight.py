@@ -1588,11 +1588,17 @@ def show_prediction():
             st.error(f"Error generating PDF: {str(e)}")
 
     # ── STAGE 2: YIELD PREDICTION ─────────────────────────────────────────────
-    if st.session_state.get('submitted', False):
-        crop_name = st.session_state.stage1_crop
-        allowed_crops = ["rice", "maize", "cotton"]
+    # if st.session_state.get('submitted', False):
+    #     crop_name = st.session_state.stage1_crop
+    #     allowed_crops = ["rice", "maize", "cotton"]
         
-        if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
+    #     if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
+    
+    if st.session_state.get('submitted', False):
+    crop_name = st.session_state.get("stage1_crop", "")
+    allowed_crops = ["rice", "maize", "cotton"]
+    
+        if isinstance(crop_name, str) and crop_name.strip().lower() in allowed_crops and stage2_model is not None:
             st.markdown("---")
 
             if 'stage2_choice' not in st.session_state:
@@ -1844,7 +1850,9 @@ def show_prediction():
                             st.write("Input data:")
                             st.json(stage2_input)
         
-        elif crop_name.strip().lower() not in allowed_crops:
+        # elif crop_name.strip().lower() not in allowed_crops:
+        #     pass
+        elif isinstance(crop_name, str) and crop_name.strip().lower() not in allowed_crops:
             pass
                           
 # =============================
