@@ -1595,8 +1595,8 @@ def show_prediction():
     #     if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
     
     if st.session_state.get('submitted', False):
-    crop_name = st.session_state.get("stage1_crop", "")
-    allowed_crops = ["rice", "maize", "cotton"]
+        crop_name = st.session_state.get("stage1_crop", "")
+        allowed_crops = ["rice", "maize", "cotton"]
     
         if isinstance(crop_name, str) and crop_name.strip().lower() in allowed_crops and stage2_model is not None:
             st.markdown("---")
