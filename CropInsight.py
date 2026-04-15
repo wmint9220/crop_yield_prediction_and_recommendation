@@ -1593,6 +1593,8 @@ def show_prediction():
         allowed_crops = ["rice", "maize", "cotton"]
         
         if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
+            st.markdown("---")
+
             if 'stage2_choice' not in st.session_state:
                 st.session_state.stage2_choice = "No"
 
@@ -1737,7 +1739,7 @@ def show_prediction():
                             </div>
                         """, unsafe_allow_html=True)
 
-                        # ── Yield breakdown explanation card ─────────────
+                        # ── NEW: Yield breakdown explanation card ─────────────
                         st.markdown(f"""
                             <div style='
                                 background-color:#f3f8ff;
@@ -1796,7 +1798,8 @@ def show_prediction():
                                 </div>
                             </div>
                         """, unsafe_allow_html=True)
-                
+                        # ── END yield breakdown card ──────────────────────────
+
                         st.balloons()
                         
                         # ── PDF DOWNLOAD — STAGE 2 ────────────────────────────
