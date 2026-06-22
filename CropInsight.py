@@ -1587,12 +1587,7 @@ def show_prediction():
         except Exception as e:
             st.error(f"Error generating PDF: {str(e)}")
 
-    # ── STAGE 2: YIELD PREDICTION ─────────────────────────────────────────────
-    # if st.session_state.get('submitted', False):
-    #     crop_name = st.session_state.stage1_crop
-    #     allowed_crops = ["rice", "maize", "cotton"]
-        
-    #     if crop_name.strip().lower() in allowed_crops and stage2_model is not None:
+    # ── STAGE 2: YIELD PREDICTION ───────────────────────────────
     
     if st.session_state.get('submitted', False):
         crop_name = st.session_state.get("stage1_crop", "")
